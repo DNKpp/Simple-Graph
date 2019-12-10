@@ -8,7 +8,7 @@
 #include <iterator>
 #include <optional>
 #include <type_traits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -300,7 +300,7 @@ namespace detail
 	};
 
 	template <class TPathFinder>
-	using DefaultNodeMap = NodeMap<std::unordered_map<typename TPathFinder::VertexType, typename TPathFinder::NodeDataType>>;
+	using DefaultNodeMap = NodeMap<std::map<typename TPathFinder::VertexType, typename TPathFinder::NodeDataType>>;
 
 	template <class TVertexType, class TNodeCompare = std::less<>>
 	auto make_breadth_first_searcher(TNodeCompare _nodeComp = TNodeCompare())
@@ -335,8 +335,7 @@ namespace detail
 			_func(_node);
 			return false;
 		};
-		detail::_conditional_visit(_from, condFunc, std::forward<TNeighbourSearcher>(_neighbourSearcher), std::forward<TPathFinder>(_pathFinder),
-			std::forward<TOpenList>(_openList), std::forward<TClosedList>(_closedList));
+		detail::_conditional_visit(_from, condFunc, _neighbourSearcher, _pathFinder, _openList, _closedList);
 	}
 
 	template <class TVertexType, class TDestination, class TNeighbourSearcher, class TPathFinder, class TOpenList = DefaultNodeMap<TPathFinder>, class TClosedList = DefaultNodeMap<TPathFinder>>
@@ -345,8 +344,7 @@ namespace detail
 	{
 		if (auto lastNode = detail::_conditional_visit(_from,
 			[&_destination](const auto& _node) { return detail::_reached_destination(_node.vertex, _destination); },
-			std::forward<TNeighbourSearcher>(_neighbourSearcher), std::forward<TPathFinder>(_pathFinder),
-			std::forward<TOpenList>(_openList), std::forward<TClosedList>(_closedList)))
+			_neighbourSearcher, _pathFinder, _openList, _closedList))
 		{
 			return detail::_extract_path(*lastNode, _closedList);
 		}
