@@ -51,5 +51,35 @@ namespace sl::graph
 	    }
 	    assert(depth == -1);
 	}
+
+	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class TCallback = EmptyCallback>
+	void traverse_bfs(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
+	    TCallback _callback = TCallback{})
+	{
+	    struct Node
+	    {
+	        int depth;
+	        TVertex vertex;
+	    };
+	    
+	    std::deque<Node> openList{ { 0, _begin } };
+	    _visitationTracker[_begin] = true;
+	    while (!std::empty(openList))
+	    {
+	        auto node = openList.back();
+	        openList.pop_back();
+	        _callback(node.vertex, node.depth);
+	        _neighbourSearcher(node.vertex,
+	            [&_visitationTracker, &openList, depth = node.depth + 1](const TVertex& _vertex)
+	            {
+	                if (!_visitationTracker[_vertex])
+	                {
+	                    openList.emplace_front(Node{ depth, _vertex });
+	                    _visitationTracker[_vertex] = true;
+	                }
+	            }
+	        );
+	    }
+	}
 }
 #endif 
