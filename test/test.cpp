@@ -1,0 +1,101 @@
+#define CATCH_CONFIG_MAIN 
+#include "catch.hpp"
+
+#include "../include/Simple-Graph/algorithm.hpp"
+
+#include <array>
+#include <bitset>
+#include <optional>
+
+struct Vector
+{
+    int x = 0;
+    int y = 0;
+};
+
+template <int WIDTH, int HEIGHT>
+auto make_table_graph()
+{
+    std::array<std::array<int, WIDTH>, HEIGHT> table;
+    int value = 0;
+    for (auto& row : table)
+        std::generate(std::begin(row), std::end(row), [&value]() { return value++; });
+    return table;
+}
+
+template <int WIDTH, int HEIGHT>
+class TableVisitationTracker
+{
+public:
+    decltype(auto) operator [](const Vector& _at) const
+    {
+        return m_Check[_at.y * WIDTH + _at.x];
+    }
+    
+    decltype(auto) operator [](const Vector& _at)
+    {
+        return m_Check[_at.y * WIDTH + _at.x];
+    }
+    
+private:
+    std::bitset<WIDTH * WIDTH> m_Check;
+};
+
+TEST_CASE("traverse table depth-first-search", "[dfs]")
+{
+    constexpr Vector size{ 10, 10 };
+	
+	auto table = make_table_graph<size.x, size.y>();
+
+	auto dfsNeighbourSearcher = [&table](const Vector& _index, auto _callback) -> std::optional<Vector>
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            auto cur = _index;
+            switch (i)
+            {
+            case 0: ++cur.x; break;
+            case 1: --cur.x; break;
+            case 2: ++cur.y; break;
+            case 3: --cur.y; break;
+            }
+            
+            if (0 <= cur.y && cur.y < std::size(table) &&
+                0 <= cur.x && cur.x < std::size(table[cur.y]))
+            {
+                if (_callback(cur))
+                    return cur;
+            }
+        }
+        return std::nullopt;
+    };
+
+    constexpr std::array<int, size.x * size.y> check
+    {
+         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    	19,18,17,16,15,14,13,12,11,10,
+    	20,21,22,23,24,25,26,27,28,29,
+    	39,38,37,36,35,34,33,32,31,30,
+    	40,41,42,43,44,45,46,47,48,49,
+    	59,58,57,56,55,54,53,52,51,50,
+    	60,61,62,63,64,65,66,67,68,69,
+    	79,78,77,76,75,74,73,72,71,70,
+    	80,81,82,83,84,85,86,87,88,89,
+    	99,98,97,96,95,94,93,92,91,90
+    };
+	
+	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
+        [&table, itr = std::begin(check)](const Vector& _at, int _depth) mutable
+		{
+			REQUIRE(*(itr++) == table[_at.y][_at.x]);
+		},
+        [&table, itr = std::rbegin(check)](const Vector& _at, int _depth) mutable
+		{
+			REQUIRE(*(itr++) == table[_at.y][_at.x]);
+			//std::cout << table[_at.y][_at.x] << ",";
+		}
+    );
+
+	//std::cin.get();
+}
+
