@@ -1,5 +1,5 @@
-#ifndef SL_ALGORITHM_HPP
-#define SL_ALGORITHM_HPP
+#ifndef SL_GRAPH_ALGORITHM_HPP
+#define SL_GRAPH_ALGORITHM_HPP
 
 #pragma once
 
