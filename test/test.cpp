@@ -99,3 +99,54 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 	//std::cin.get();
 }
 
+TEST_CASE("traverse table breadth-first-search", "[bfs]")
+{
+    constexpr Vector size{ 10, 10 };
+	
+	auto table = make_table_graph<size.x, size.y>();
+
+    auto bfsNeighbourSearcher = [&table](const Vector& _index, auto _callback)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            auto cur = _index;
+            switch (i)
+            {
+            case 0: ++cur.x; break;
+            case 1: --cur.x; break;
+            case 2: ++cur.y; break;
+            case 3: --cur.y; break;
+            }
+            
+            if (0 <= cur.y && cur.y < std::size(table) &&
+                0 <= cur.x && cur.x < std::size(table[cur.y]))
+            {
+                _callback(cur);
+            }
+        }
+    };
+
+    constexpr std::array<int, size.x * size.y> check
+    {
+         0, 1,10, 2,11,20, 3,12,21,30,
+    	 4,13,22,31,40, 5,14,23,32,41,
+    	50, 6,15,24,33,42,51,60, 7,16,
+    	25,34,43,52,61,70, 8,17,26,35,
+    	44,53,62,71,80, 9,18,27,36,45,
+    	54,63,72,81,90,19,28,37,46,55,
+    	64,73,82,91,29,38,47,56,65,74,
+    	83,92,39,48,57,66,75,84,93,49,
+    	58,67,76,85,94,59,68,77,86,95,
+    	69,78,87,96,79,88,97,89,98,99
+    };
+	
+	sl::graph::traverse_bfs(Vector{ 0, 0 }, bfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
+        [&table, itr = std::begin(check)](const Vector& _at, int _depth) mutable
+		{
+			REQUIRE(*(itr++) == table[_at.y][_at.x]);
+		}
+    );
+
+	//std::cin.get();
+}
+
