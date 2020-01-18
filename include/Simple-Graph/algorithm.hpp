@@ -18,6 +18,23 @@ namespace sl::graph
 	    constexpr void operator ()(const TVertex&, int) const {}  
 	};
 
+namespace _detail
+{
+	template <class TFunction, class... TParams>
+	bool shall_return(TFunction& _func, TParams... _params)
+	{
+		if constexpr (std::is_same_v<bool, std::invoke_result_t<decltype(_func), TParams...>>)
+		{
+			return _func(std::forward<TParams>(_params)...);
+		}
+		else
+		{
+			_func(std::forward<TParams>(_params)...);
+			return false;
+		}
+	}
+}
+
 	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class TPreOrderCallback = EmptyCallback, class TPostOrderCallback = EmptyCallback>
 	void traverse_dfs(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
 	    TPreOrderCallback _preCB = TPreOrderCallback{}, TPostOrderCallback _postCB = TPostOrderCallback{})
@@ -26,7 +43,8 @@ namespace sl::graph
 	    _visitationTracker[_begin] = true;
 	    stack.push(_begin);
 	    int depth = 0;
-		_preCB(_begin, depth);
+		if (_detail::shall_return(_preCB, _begin, depth))
+			return;
 	    while (!std::empty(stack))
 	    {
 	        auto v = stack.top();
@@ -37,14 +55,16 @@ namespace sl::graph
 	            }
 	        ))
 	        {
+	        	++depth;
+	        	if (_detail::shall_return(_preCB, *child, depth))
+					return;
 	            _visitationTracker[*child] = true;
 	            stack.push(*child);
-	            ++depth;
-	        	_preCB(stack.top(), depth);
 	        }
 	        else
 	        {
-	            _postCB(v, depth);
+	            if (_detail::shall_return(_postCB, v, depth))
+					return;
 	            --depth;
 	            stack.pop();
 	        }

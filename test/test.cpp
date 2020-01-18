@@ -83,11 +83,31 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
     	80,81,82,83,84,85,86,87,88,89,
     	99,98,97,96,95,94,93,92,91,90
     };
+
+	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
+        [count = 0](const Vector& _at, int _depth) mutable
+		{
+			REQUIRE(count == 0);
+			++count;
+			return true;
+		}
+    );
+
+	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
+		sl::graph::EmptyCallback{},
+        [count = 0](const Vector& _at, int _depth) mutable
+		{
+			REQUIRE(count == 0);
+			++count;
+			return true;
+		}
+    );
 	
 	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
         [&table, itr = std::begin(check)](const Vector& _at, int _depth) mutable
 		{
 			REQUIRE(*(itr++) == table[_at.y][_at.x]);
+			return false;
 		},
         [&table, itr = std::rbegin(check)](const Vector& _at, int _depth) mutable
 		{
