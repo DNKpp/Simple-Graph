@@ -84,6 +84,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
     	99,98,97,96,95,94,93,92,91,90
     };
 
+	// check early returns
 	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
         [count = 0](const Vector& _at, int _depth) mutable
 		{
@@ -107,16 +108,12 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
         [&table, itr = std::begin(check)](const Vector& _at, int _depth) mutable
 		{
 			REQUIRE(*(itr++) == table[_at.y][_at.x]);
-			return false;
 		},
         [&table, itr = std::rbegin(check)](const Vector& _at, int _depth) mutable
 		{
 			REQUIRE(*(itr++) == table[_at.y][_at.x]);
-			//std::cout << table[_at.y][_at.x] << ",";
 		}
     );
-
-	//std::cin.get();
 }
 
 TEST_CASE("traverse table breadth-first-search", "[bfs]")
