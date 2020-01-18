@@ -159,6 +159,16 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
     	58,67,76,85,94,59,68,77,86,95,
     	69,78,87,96,79,88,97,89,98,99
     };
+
+	// check early return
+	sl::graph::traverse_bfs(Vector{ 0, 0 }, bfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
+        [count = 0](const Vector& _at, int _depth) mutable
+		{
+			REQUIRE(count == 0);
+			++count;
+			return true;
+		}
+    );
 	
 	sl::graph::traverse_bfs(Vector{ 0, 0 }, bfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
         [&table, itr = std::begin(check)](const Vector& _at, int _depth) mutable

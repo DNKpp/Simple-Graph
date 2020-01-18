@@ -88,7 +88,8 @@ namespace _detail
 	    {
 	        auto node = openList.back();
 	        openList.pop_back();
-	        _callback(node.vertex, node.depth);
+	        if (_detail::shall_return(_callback, node.vertex, node.depth))
+				return;
 	        _neighbourSearcher(node.vertex,
 	            [&_visitationTracker, &openList, depth = node.depth + 1](const TVertex& _vertex)
 	            {
