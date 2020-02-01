@@ -12,6 +12,16 @@
 
 namespace sl::graph
 {
+	template <class TVertex>
+	struct DFSNode
+	{
+		int depth;
+		TVertex vertex;
+	};
+
+	template <class TVertex>
+	using BFSNode = DFSNode<TVertex>;
+	
 	struct EmptyCallback
 	{
 	    template <class... Args>
@@ -39,11 +49,7 @@ namespace _detail
 	void traverse_dfs(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
 	    TPreOrderCallback _preCB = TPreOrderCallback{}, TPostOrderCallback _postCB = TPostOrderCallback{})
 	{
-		struct Node
-		{
-			int depth;
-			TVertex vertex;
-		};
+		using Node = DFSNode<TVertex>;
 	
 	    std::stack<TVertex> stack;
 	    _visitationTracker[_begin] = true;
@@ -82,11 +88,7 @@ namespace _detail
 	void traverse_bfs(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
 	    TCallback _callback = TCallback{})
 	{
-	    struct Node
-	    {
-	        int depth;
-	        TVertex vertex;
-	    };
+	    using Node = BFSNode<TVertex>;
 	    
 	    std::deque<Node> openList{ { 0, _begin } };
 	    _visitationTracker[_begin] = true;
