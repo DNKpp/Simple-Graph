@@ -101,10 +101,11 @@ namespace _detail
 	        _neighbourSearcher(node,
 	            [&_visitationTracker, &openList, depth = node.depth + 1](const TVertex& _vertex)
 	            {
-	                if (!_visitationTracker[_vertex])
+	        		auto&& check = _visitationTracker[_vertex];
+	                if (!check)
 	                {
 	                    openList.emplace_front(Node{ depth, _vertex });
-	                    _visitationTracker[_vertex] = true;
+	                    check = true;
 	                }
 	            }
 	        );
