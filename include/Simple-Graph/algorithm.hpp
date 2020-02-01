@@ -14,8 +14,8 @@ namespace sl::graph
 {
 	struct EmptyCallback
 	{
-	    template <class TVertex>
-	    constexpr void operator ()(const TVertex&, int) const {}  
+	    template <class... Args>
+	    constexpr void operator ()(Args&&...) const noexcept {}  
 	};
 
 namespace _detail
@@ -39,16 +39,22 @@ namespace _detail
 	void traverse_dfs(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
 	    TPreOrderCallback _preCB = TPreOrderCallback{}, TPostOrderCallback _postCB = TPostOrderCallback{})
 	{
+		struct Node
+		{
+			int depth;
+			TVertex vertex;
+		};
+	
 	    std::stack<TVertex> stack;
 	    _visitationTracker[_begin] = true;
 	    stack.push(_begin);
 	    int depth = 0;
-		if (_detail::shall_return(_preCB, _begin, depth))
+		if (_detail::shall_return(_preCB, Node{ depth, _begin }))
 			return;
 	    while (!std::empty(stack))
 	    {
 	        auto v = stack.top();
-	        if (auto child = _neighbourSearcher(v,
+	        if (auto child = _neighbourSearcher(Node{ depth, v },
 	            [&_visitationTracker](const TVertex& _vertex)
 	            {
 	                return !_visitationTracker[_vertex];
@@ -56,14 +62,14 @@ namespace _detail
 	        ))
 	        {
 	        	++depth;
-	        	if (_detail::shall_return(_preCB, *child, depth))
+	        	if (_detail::shall_return(_preCB, Node{ depth, *child }))
 					return;
 	            _visitationTracker[*child] = true;
 	            stack.push(*child);
 	        }
 	        else
 	        {
-	            if (_detail::shall_return(_postCB, v, depth))
+	            if (_detail::shall_return(_postCB, Node{ depth, v }))
 					return;
 	            --depth;
 	            stack.pop();

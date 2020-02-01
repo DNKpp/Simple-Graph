@@ -47,11 +47,11 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 	
 	auto table = make_table_graph<size.x, size.y>();
 
-	auto dfsNeighbourSearcher = [&table](const Vector& _index, auto _callback) -> std::optional<Vector>
+	auto dfsNeighbourSearcher = [&table](const auto& _node, auto _callback) -> std::optional<Vector>
     {
         for (int i = 0; i < 4; ++i)
         {
-            auto cur = _index;
+            auto cur = _node.vertex;
             switch (i)
             {
             case 0: ++cur.x; break;
@@ -86,7 +86,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 
 	// check early returns
 	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
-        [count = 0](const Vector& _at, int _depth) mutable
+        [count = 0](const auto& _node) mutable
 		{
 			REQUIRE(count == 0);
 			++count;
@@ -96,7 +96,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 
 	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
 		sl::graph::EmptyCallback{},
-        [count = 0](const Vector& _at, int _depth) mutable
+        [count = 0](const auto& _node) mutable
 		{
 			REQUIRE(count == 0);
 			++count;
@@ -105,13 +105,13 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
     );
 	
 	sl::graph::traverse_dfs(Vector{ 0, 0 }, dfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
-        [&table, itr = std::begin(check)](const Vector& _at, int _depth) mutable
+        [&table, itr = std::begin(check)](const auto& _node) mutable
 		{
-			REQUIRE(*(itr++) == table[_at.y][_at.x]);
+			REQUIRE(*(itr++) == table[_node.vertex.y][_node.vertex.x]);
 		},
-        [&table, itr = std::rbegin(check)](const Vector& _at, int _depth) mutable
+        [&table, itr = std::rbegin(check)](const auto& _node) mutable
 		{
-			REQUIRE(*(itr++) == table[_at.y][_at.x]);
+			REQUIRE(*(itr++) == table[_node.vertex.y][_node.vertex.x]);
 		}
     );
 }
