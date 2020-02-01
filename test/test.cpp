@@ -122,11 +122,11 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
 	
 	auto table = make_table_graph<size.x, size.y>();
 
-    auto bfsNeighbourSearcher = [&table](const Vector& _index, auto _callback)
+    auto bfsNeighbourSearcher = [&table](const auto& _node, auto _callback)
     {
         for (int i = 0; i < 4; ++i)
         {
-            auto cur = _index;
+            auto cur = _node.vertex;
             switch (i)
             {
             case 0: ++cur.x; break;
@@ -159,7 +159,7 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
 
 	// check early return
 	sl::graph::traverse_bfs(Vector{ 0, 0 }, bfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
-        [count = 0](const Vector& _at, int _depth) mutable
+        [count = 0](const auto& _node) mutable
 		{
 			REQUIRE(count == 0);
 			++count;
@@ -168,9 +168,9 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
     );
 	
 	sl::graph::traverse_bfs(Vector{ 0, 0 }, bfsNeighbourSearcher, TableVisitationTracker<size.x, size.y>{},
-        [&table, itr = std::begin(check)](const Vector& _at, int _depth) mutable
+        [&table, itr = std::begin(check)](const auto& _node) mutable
 		{
-			REQUIRE(*(itr++) == table[_at.y][_at.x]);
+			REQUIRE(*(itr++) == table[_node.vertex.y][_node.vertex.x]);
 		}
     );
 
