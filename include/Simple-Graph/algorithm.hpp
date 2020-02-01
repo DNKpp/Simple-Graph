@@ -9,6 +9,7 @@
 #include <cassert>
 #include <deque>
 #include <queue>
+#include <optional>
 
 namespace sl::graph
 {
@@ -21,6 +22,23 @@ namespace sl::graph
 
 	template <class TVertex>
 	using BFSNode = DFSNode<TVertex>;
+
+	template <class TVertex, class TWeight>
+	struct DijkstraNode
+	{
+	    using Vertex_t = TVertex;
+	    using Weight_t = TWeight;
+	    
+	    Vertex_t vertex;
+	    std::optional<Vertex_t> parent;
+	    
+	    Weight_t weight_sum;
+	    
+	    bool operator >(const DijkstraNode& _other) const
+	    {
+	        return weight_sum > _other.weight_sum;
+	    }
+	};
 	
 	struct EmptyCallback
 	{
@@ -110,6 +128,59 @@ namespace _detail
 	            }
 	        );
 	    }
+	}
+
+namespace _detail
+{
+	template <class TNode, class TNeighbourSearcher, class TVisitationTracker, class TNodeWeight, class TEdgeWeight, class TCallback>
+	void traverse_generic(TNode _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
+		TNodeWeight _nodeWeight, TEdgeWeight _edgeWeight, TCallback _callback)
+	{
+	    using Vertex_t = typename TNode::Vertex_t;
+	    
+	    std::priority_queue<TNode, std::vector<TNode>, std::greater<>> openList;
+	    openList.emplace(_begin);
+	    while (!std::empty(openList))
+	    {
+	        auto node = openList.top();
+	        openList.pop();
+	        if (auto&& track = _visitationTracker[node.vertex]; !track)
+	        {
+	            track = true;
+	            if (_detail::shall_return(_callback, node))
+					return;
+	            _neighbourSearcher(node,
+	                [&openList, &node, &_nodeWeight, &_edgeWeight](const Vertex_t& _vertex)
+	                {
+	                    auto nodeWeight = _nodeWeight(_vertex);
+	                    auto edgeWeight = _edgeWeight(node.vertex, _vertex);
+	                    openList.emplace(TNode{ _vertex, node.vertex, node.weight_sum + nodeWeight + edgeWeight });
+	                }
+	            );
+	        }
+	    }
+	}
+}
+
+	template <auto WEIGHT>
+	struct ConstWeight
+	{
+	    template <class... TParams>
+	    constexpr decltype(WEIGHT) operator()(TParams&&...) const noexcept
+	    {
+	        return WEIGHT;
+	    }
+	};
+	
+	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker,
+		class TNodeWeight = ConstWeight<1>, class TEdgeWeight = ConstWeight<0>, class TCallback = EmptyCallback>
+	void traverse_dijkstra(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker, 
+		TNodeWeight _nodeWeight = TEdgeWeight{}, TEdgeWeight _edgeWeight = TEdgeWeight{}, TCallback _callback = TCallback{})
+	{
+		using Weight_t = std::common_type_t<std::invoke_result_t<TNodeWeight>, std::invoke_result_t<TEdgeWeight>>;
+		static_assert(!std::is_same_v<void, Weight_t>);
+		using Node_t = DijkstraNode<TVertex, Weight_t>;
+	    _detail::traverse_generic(Node_t{ _begin, std::nullopt, {} }, _neighbourSearcher, _visitationTracker, _nodeWeight, _edgeWeight, _callback);
 	}
 }
 #endif 
