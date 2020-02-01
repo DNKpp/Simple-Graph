@@ -206,22 +206,31 @@ namespace _detail
 		);
 	}
 
-/*	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class THeuristic,
+	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class THeuristic,
 		class TNodeWeight = ConstWeight<1>, class TEdgeWeight = ConstWeight<0>, class TCallback = EmptyCallback>
 	void traverse_astar(const TVertex& _begin, const TVertex& _dest, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
 		THeuristic _heuristic, TNodeWeight _nodeWeight = TEdgeWeight{}, TEdgeWeight _edgeWeight = TEdgeWeight{}, TCallback _callback = TCallback{})
 	{
-		using Weight_t = std::common_type_t<std::invoke_result_t<THeuristic>, std::invoke_result_t<TNodeWeight>, std::invoke_result_t<TEdgeWeight>>;
+		using Weight_t = std::common_type_t<std::invoke_result_t<THeuristic, const TVertex&, const TVertex&>,
+			std::invoke_result_t<TNodeWeight>,
+			std::invoke_result_t<TEdgeWeight>
+		>;
 		static_assert(!std::is_same_v<void, Weight_t>);
-		using Node_t = AStarNode<TVertex, Weight_t>;
-	    _detail::traverse_generic(Node_t{ _begin, std::nullopt, {}, _heuristic(_begin, _dest) }, _neighbourSearcher, _visitationTracker, _nodeWeight, _edgeWeight,
+		using Node_t = AStarNode<TVertex, int>;
+	    _detail::traverse_generic(Node_t{ _begin, std::nullopt, {}, _heuristic(_begin, _dest) }, _neighbourSearcher, _visitationTracker,
+			[&_nodeWeight, &_edgeWeight, &_heuristic, &_dest](const Node_t& _parent, const TVertex& _child) -> Node_t
+		    {
+				auto weight = _nodeWeight(_child) + _edgeWeight(_parent.vertex, _child);
+	    		auto heuristic = _heuristic(_dest, _child);
+			    return { _child, _parent.vertex,  weight, heuristic };
+		    },
 			[&_callback, &_dest](const Node_t& _node)
 		    {
 			    return _detail::shall_return(_callback, _node) || (_dest == _node.vertex);
 		    }
 		);
 	}
-*/
+
 
 //namespace _detail
 //{
