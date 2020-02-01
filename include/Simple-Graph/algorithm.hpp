@@ -201,7 +201,7 @@ namespace _detail
 	    _detail::traverse_generic(Node_t{ _begin, std::nullopt, {} }, _neighbourSearcher, _visitationTracker,
 			[&_nodeWeight, &_edgeWeight](const Node_t& _parent, const TVertex& _child) -> Node_t
 		    {
-				auto weight = _nodeWeight(_child) + _edgeWeight(_parent.vertex, _child);
+				auto weight = _nodeWeight(_child) + _edgeWeight(_parent.vertex, _child) + _parent.weight_sum;
 			    return { _child, _parent.vertex,  weight };
 		    },
 			_callback
@@ -222,7 +222,7 @@ namespace _detail
 	    _detail::traverse_generic(Node_t{ _begin, std::nullopt, {}, _heuristic(_begin, _dest) }, _neighbourSearcher, _visitationTracker,
 			[&_nodeWeight, &_edgeWeight, &_heuristic, &_dest](const Node_t& _parent, const TVertex& _child) -> Node_t
 		    {
-				auto weight = _nodeWeight(_child) + _edgeWeight(_parent.vertex, _child);
+				auto weight = _nodeWeight(_child) + _edgeWeight(_parent.vertex, _child) + _parent.weight_sum;
 	    		auto heuristic = _heuristic(_dest, _child);
 			    return { _child, _parent.vertex,  weight, heuristic };
 		    },
