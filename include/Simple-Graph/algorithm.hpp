@@ -193,7 +193,9 @@ namespace _detail
 	void traverse_dijkstra(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker, 
 		TNodeWeight _nodeWeight = TEdgeWeight{}, TEdgeWeight _edgeWeight = TEdgeWeight{}, TCallback _callback = TCallback{})
 	{
-		using Weight_t = std::common_type_t<std::invoke_result_t<TNodeWeight>, std::invoke_result_t<TEdgeWeight>>;
+		using Weight_t = std::common_type_t<std::invoke_result_t<TNodeWeight, const TVertex&>,
+			std::invoke_result_t<TEdgeWeight, const TVertex&, const TVertex&>
+		>;
 		static_assert(!std::is_same_v<void, Weight_t>);
 		using Node_t = DijkstraNode<TVertex, Weight_t>;
 	    _detail::traverse_generic(Node_t{ _begin, std::nullopt, {} }, _neighbourSearcher, _visitationTracker,
@@ -212,8 +214,8 @@ namespace _detail
 		THeuristic _heuristic, TNodeWeight _nodeWeight = TEdgeWeight{}, TEdgeWeight _edgeWeight = TEdgeWeight{}, TCallback _callback = TCallback{})
 	{
 		using Weight_t = std::common_type_t<std::invoke_result_t<THeuristic, const TVertex&, const TVertex&>,
-			std::invoke_result_t<TNodeWeight>,
-			std::invoke_result_t<TEdgeWeight>
+			std::invoke_result_t<TNodeWeight, const TVertex&>,
+			std::invoke_result_t<TEdgeWeight, const TVertex&, const TVertex&>
 		>;
 		static_assert(!std::is_same_v<void, Weight_t>);
 		using Node_t = AStarNode<TVertex, int>;
