@@ -211,7 +211,7 @@ namespace _detail
 	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class THeuristic,
 		class TNodeWeight = ConstWeight<1>, class TEdgeWeight = ConstWeight<0>, class TCallback = EmptyCallback>
 	void traverse_astar(const TVertex& _begin, const TVertex& _dest, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
-		THeuristic _heuristic, TNodeWeight _nodeWeight = TEdgeWeight{}, TEdgeWeight _edgeWeight = TEdgeWeight{}, TCallback _callback = TCallback{})
+		THeuristic _heuristic, TNodeWeight _nodeWeight = TNodeWeight{}, TEdgeWeight _edgeWeight = TEdgeWeight{}, TCallback _callback = TCallback{})
 	{
 		using Weight_t = std::common_type_t<std::invoke_result_t<THeuristic, const TVertex&, const TVertex&>,
 			std::invoke_result_t<TNodeWeight, const TVertex&>,
