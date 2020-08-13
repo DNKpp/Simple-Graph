@@ -18,6 +18,8 @@ namespace sl::graph
 	{
 		int depth;
 		TVertex vertex;
+
+		[[nodiscard]] bool operator ==(const DFSNode&) const = default;
 	};
 
 	template <class TVertex>
@@ -33,6 +35,8 @@ namespace sl::graph
 	    std::optional<Vertex_t> parent;
 	    
 	    Weight_t weight_sum;
+
+		[[nodiscard]] bool operator ==(const DijkstraNode&) const = default;
 	    
 	    bool operator >(const DijkstraNode& _other) const
 	    {
@@ -51,6 +55,8 @@ namespace sl::graph
 	    
 	    Weight_t weight_sum;
 		Weight_t heuristic;
+
+		[[nodiscard]] bool operator ==(const AStarNode&) const = default;
 	    
 	    bool operator >(const AStarNode& _other) const
 	    {
