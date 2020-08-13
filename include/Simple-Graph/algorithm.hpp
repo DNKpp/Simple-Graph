@@ -54,7 +54,9 @@ namespace sl::graph
 	    
 	    bool operator >(const AStarNode& _other) const
 	    {
-	        return weight_sum + heuristic > _other.weight_sum + _other.heuristic;
+	    	auto lhsSum = weight_sum + heuristic;
+	    	auto rhsSum = _other.weight_sum + _other.heuristic;
+	        return lhsSum > rhsSum || (lhsSum == rhsSum && heuristic > _other.heuristic);
 	    }
 	};
 	
