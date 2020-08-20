@@ -11,7 +11,6 @@
 #include "Simple-Graph/Dijkstra.hpp"
 #include "Simple-Graph/Utility.hpp"
 
-#include <cassert>
 #include <map>
 #include <optional>
 #include <queue>
@@ -30,13 +29,14 @@ namespace sl::graph::detail::astar
 		Weight_t heuristic{};
 		NodeState state = NodeState::none;
 
-		[[nodiscard]] auto operator <=>(const NodeInfo&) const noexcept = default;
-
-		[[nodiscard]] bool operator <(const NodeInfo& other) const noexcept
+		[[nodiscard]] constexpr bool operator ==(const NodeInfo&) const noexcept = default;
+		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
 		{
 			auto lhsSum = weightSum + heuristic;
 			auto rhsSum = other.weightSum + other.heuristic;
-			return lhsSum < rhsSum || lhsSum == rhsSum && heuristic < other.heuristic;
+			if (lhsSum == rhsSum)
+				return heuristic <=> other.heuristic;
+			return lhsSum <=> rhsSum;
 		}
 	};
 
@@ -61,13 +61,14 @@ namespace sl::graph::detail::astar
 		{
 		}
 
-		[[nodiscard]] auto operator <=>(const OpenNode&) const noexcept = default;
-
-		[[nodiscard]] bool operator <(const OpenNode& other) const noexcept
+		[[nodiscard]] constexpr bool operator ==(const OpenNode&) const noexcept(noexcept(std::declval<TVertex>() == std::declval<TVertex>())) = default;
+		[[nodiscard]] constexpr std::strong_ordering operator <=>(const OpenNode& other) const noexcept
 		{
-			const auto lhsSum = weightSum + heuristic;
-			const auto rhsSum = other.weightSum + other.heuristic;
-			return lhsSum < rhsSum || lhsSum == rhsSum && heuristic < other.heuristic;
+			auto lhsSum = weightSum + heuristic;
+			auto rhsSum = other.weightSum + other.heuristic;
+			if (lhsSum == rhsSum)
+				return heuristic <=> other.heuristic;
+			return lhsSum <=> rhsSum;
 		}
 	};
 
