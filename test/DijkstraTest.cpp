@@ -13,24 +13,24 @@ TEST_CASE("traverse table dijkstra", "[Dijkstra]")
 	constexpr Vector size{ 10, 10 };
 	std::array<std::array<int, 10>, 10> table{};
 	table.fill({ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 });
-	
+
 	using DfsNodeInfo_t = sl::graph::DijkstraNodeInfo_t<Vector, int>;
 	sl::graph::DefaultDijkstraStateMap_t<Vector, int> stateMap;
 	SECTION("check early return through callback")
 	{
 		int count = 0;
 		sl::graph::traverseDijkstra(
-								Vector{ 0, 0 },
-								Vector{ 9, 9 },
-								PropertyMap{ table },
-								NeighbourSearcher{ table, false },
-								stateMap,
-								[&count](const auto& vertex, const auto& nodeInfo)
-								{
-									++count;
-									return true;
-								}
-							);
+									Vector{ 0, 0 },
+									Vector{ 9, 9 },
+									PropertyMap{ table },
+									NeighbourSearcher{ table, false },
+									stateMap,
+									[&count](const auto& vertex, const auto& nodeInfo)
+									{
+										++count;
+										return true;
+									}
+									);
 		REQUIRE(count == 1);
 		REQUIRE(std::size(stateMap) == 1);
 		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == 1);
@@ -40,16 +40,16 @@ TEST_CASE("traverse table dijkstra", "[Dijkstra]")
 	SECTION("check node visitation count via callback")
 	{
 		sl::graph::traverseDijkstra(
-								Vector{ 0, 0 },
-								Vector{ 9, 9 },
-								PropertyMap{ table },
-								NeighbourSearcher{ table, false },
-								stateMap,
-								[&table](const auto& vertex, const auto& nodeInfo)
-								{
-									++table[vertex.y][vertex.x];
-								}
-							);
+									Vector{ 0, 0 },
+									Vector{ 9, 9 },
+									PropertyMap{ table },
+									NeighbourSearcher{ table, false },
+									stateMap,
+									[&table](const auto& vertex, const auto& nodeInfo)
+									{
+										++table[vertex.y][vertex.x];
+									}
+									);
 		REQUIRE(
 				std::all_of(
 					begin(table),
