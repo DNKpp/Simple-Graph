@@ -30,47 +30,6 @@ namespace sl::graph
 
 	template <class TVertex>
 	using BFSNode = DFSNode<TVertex>;
-
-	template <class TVertex, class TWeight>
-	struct DijkstraNode
-	{
-	    using Vertex_t = TVertex;
-	    using Weight_t = TWeight;
-	    
-	    Vertex_t vertex;
-	    std::optional<Vertex_t> parent;
-	    
-	    Weight_t weight_sum;
-
-		[[nodiscard]] bool operator ==(const DijkstraNode&) const = default;
-	    
-	    bool operator >(const DijkstraNode& _other) const
-	    {
-	        return weight_sum > _other.weight_sum;
-	    }
-	};
-
-	template <class TVertex, class TWeight>
-	struct AStarNode
-	{
-	    using Vertex_t = TVertex;
-	    using Weight_t = TWeight;
-	    
-	    Vertex_t vertex;
-	    std::optional<Vertex_t> parent;
-	    
-	    Weight_t weight_sum;
-		Weight_t heuristic;
-
-		[[nodiscard]] bool operator ==(const AStarNode&) const = default;
-	    
-	    bool operator >(const AStarNode& _other) const
-	    {
-	    	auto lhsSum = weight_sum + heuristic;
-	    	auto rhsSum = _other.weight_sum + _other.heuristic;
-	        return lhsSum > rhsSum || (lhsSum == rhsSum && heuristic > _other.heuristic);
-	    }
-	};
 	
 	struct EmptyCallback
 	{
@@ -94,45 +53,6 @@ namespace _detail
 		}
 	}
 }
-
-	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class TPreOrderCallback = EmptyCallback, class TPostOrderCallback = EmptyCallback>
-	void traverse_dfs(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
-	    TPreOrderCallback _preCB = TPreOrderCallback{}, TPostOrderCallback _postCB = TPostOrderCallback{})
-	{
-		using Node = DFSNode<TVertex>;
-	
-	    std::stack<TVertex> stack;
-	    _visitationTracker[_begin] = true;
-	    stack.push(_begin);
-	    int depth = 0;
-		if (_detail::shall_return(_preCB, Node{ depth, _begin }))
-			return;
-	    while (!std::empty(stack))
-	    {
-	        auto v = stack.top();
-	        if (auto child = _neighbourSearcher(Node{ depth, v },
-	            [&_visitationTracker](const TVertex& _vertex)
-	            {
-	                return !_visitationTracker[_vertex];
-	            }
-	        ))
-	        {
-	        	++depth;
-	        	if (_detail::shall_return(_preCB, Node{ depth, *child }))
-					return;
-	            _visitationTracker[*child] = true;
-	            stack.push(*child);
-	        }
-	        else
-	        {
-	            if (_detail::shall_return(_postCB, Node{ depth, v }))
-					return;
-	            --depth;
-	            stack.pop();
-	        }
-	    }
-	    assert(depth == -1);
-	}
 
 	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class TCallback = EmptyCallback>
 	void traverse_bfs(const TVertex& _begin, TNeighbourSearcher _neighbourSearcher, TVisitationTracker _visitationTracker,
