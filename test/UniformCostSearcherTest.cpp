@@ -3,23 +3,23 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
 
-#include "Simple-Graph/Dijkstra.hpp"
+#include "Simple-Graph/UniformCostSearcher.hpp"
 
 #include "catch.hpp"
 #include "TestUtility.hpp"
 
-TEST_CASE("traverse table dijkstra", "[Dijkstra]")
+TEST_CASE("traverse table uniform-cost-searcher", "[UCS]")
 {
 	constexpr Vector size{ 10, 10 };
 	std::array<std::array<int, 10>, 10> table{};
 	table.fill({ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 });
 
-	using DfsNodeInfo_t = sl::graph::DijkstraNodeInfo_t<Vector, int>;
-	sl::graph::DefaultDijkstraStateMap_t<Vector, int> stateMap;
+	using UcsNodeInfo_t = sl::graph::UcsNodeInfo_t<Vector, int>;
+	sl::graph::DefaultUcsStateMap_t<Vector, int> stateMap;
 	SECTION("check early return through callback")
 	{
 		int count = 0;
-		sl::graph::traverseDijkstra(
+		sl::graph::traverseUniformCostSearcher(
 									Vector{ 0, 0 },
 									Vector{ 9, 9 },
 									PropertyMap{ table },
@@ -39,7 +39,7 @@ TEST_CASE("traverse table dijkstra", "[Dijkstra]")
 
 	SECTION("check node visitation count via callback")
 	{
-		sl::graph::traverseDijkstra(
+		sl::graph::traverseUniformCostSearcher(
 									Vector{ 0, 0 },
 									Vector{ 9, 9 },
 									PropertyMap{ table },

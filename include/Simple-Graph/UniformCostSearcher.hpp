@@ -3,8 +3,8 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef SL_GRAPH_DIJKSTRA_HPP
-#define SL_GRAPH_DIJKSTRA_HPP
+#ifndef SL_GRAPH_UNIFORM_COST_SEARCHER_HPP
+#define SL_GRAPH_UNIFORM_COST_SEARCHER_HPP
 
 #pragma once
 
@@ -17,7 +17,7 @@
 #include <queue>
 #include <vector>
 
-namespace sl::graph::detail::dijkstra
+namespace sl::graph::detail::ucs
 {
 	template <class TVertex, class TWeight>
 	struct NodeInfo
@@ -157,16 +157,16 @@ namespace sl::graph::detail
 namespace sl::graph
 {
 	template <detail::Vertex TVertex, std::regular TWeight>
-	using DijkstraNodeInfo_t = detail::dijkstra::NodeInfo<TVertex, TWeight>;
+	using UcsNodeInfo_t = detail::ucs::NodeInfo<TVertex, TWeight>;
 	template <detail::Vertex TVertex, std::regular TWeight>
-	using DefaultDijkstraStateMap_t = std::map<TVertex, DijkstraNodeInfo_t<TVertex, TWeight>>;
+	using DefaultUcsStateMap_t = std::map<TVertex, UcsNodeInfo_t<TVertex, TWeight>>;
 
 	template <detail::Vertex TVertex,
-		detail::dijkstra::PropertyMapWith<TVertex> TPropertyMap,
-		detail::dijkstra::NeighbourSearcherFor<TPropertyMap> TNeighbourSearcher,
-		detail::dijkstra::StateMapFor<TPropertyMap> TStateMap = DefaultDijkstraStateMap_t<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::WeightType>,
-		detail::dijkstra::CallbackFor<TPropertyMap> TCallback = EmptyCallback>
-	void traverseDijkstra(
+		detail::ucs::PropertyMapWith<TVertex> TPropertyMap,
+		detail::ucs::NeighbourSearcherFor<TPropertyMap> TNeighbourSearcher,
+		detail::ucs::StateMapFor<TPropertyMap> TStateMap = DefaultUcsStateMap_t<TVertex, typename detail::ucs::PropertyMapTraits<TPropertyMap>::WeightType>,
+		detail::ucs::CallbackFor<TPropertyMap> TCallback = EmptyCallback>
+	void traverseUniformCostSearcher(
 		const TVertex& start,
 		const TVertex& destination,
 		const TPropertyMap& propertyMap,
@@ -175,9 +175,9 @@ namespace sl::graph
 		TCallback callback = TCallback{}
 	)
 	{
-		using Weight_t = typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::WeightType;
-		using NodeInfo_t = typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType;
-		using OpenNode_t = detail::dijkstra::OpenNode<TVertex, Weight_t>;
+		using Weight_t = typename detail::ucs::PropertyMapTraits<TPropertyMap>::WeightType;
+		using NodeInfo_t = typename detail::ucs::PropertyMapTraits<TPropertyMap>::NodeInfoType;
+		using OpenNode_t = detail::ucs::OpenNode<TVertex, Weight_t>;
 
 		std::priority_queue<OpenNode_t, std::vector<OpenNode_t>, std::greater<>> openList;
 		openList.emplace(start, stateMap[start] = { std::nullopt, 0, NodeState::open });
