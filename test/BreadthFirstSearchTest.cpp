@@ -3,7 +3,7 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
 
-#include "Simple-Graph/BFS.hpp"
+#include "Simple-Graph/BreadthFirstSearch.hpp"
 
 #include "catch.hpp"
 #include "TestUtility.hpp"
@@ -18,16 +18,16 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
 	SECTION("check early return through callback")
 	{
 		int count = 0;
-		sl::graph::traverseBfs(
-								Vector{ 0, 0 },
-								NeighbourSearcher{ table, false },
-								stateMap,
-								[&count](const auto& vertex, const auto& nodeInfo)
-								{
-									++count;
-									return true;
-								}
-							);
+		sl::graph::traverseBreadthFirstSearch(
+											Vector{ 0, 0 },
+											NeighbourSearcher{ table, false },
+											stateMap,
+											[&count](const auto& vertex, const auto& nodeInfo)
+											{
+												++count;
+												return true;
+											}
+											);
 		REQUIRE(count == 1);
 		REQUIRE(std::size(stateMap) == 1);
 		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == 1);
@@ -36,15 +36,15 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
 
 	SECTION("check node visitation count via callback")
 	{
-		sl::graph::traverseBfs(
-								Vector{ 0, 0 },
-								NeighbourSearcher{ table, false },
-								stateMap,
-								[&table](const auto& vertex, const auto& nodeInfo)
-								{
-									++table[vertex.y][vertex.x];
-								}
-							);
+		sl::graph::traverseBreadthFirstSearch(
+											Vector{ 0, 0 },
+											NeighbourSearcher{ table, false },
+											stateMap,
+											[&table](const auto& vertex, const auto& nodeInfo)
+											{
+												++table[vertex.y][vertex.x];
+											}
+											);
 		REQUIRE(
 				std::all_of(
 					begin(table),

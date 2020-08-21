@@ -55,7 +55,7 @@ namespace sl::graph
 		detail::bfs::NeighbourSearcherFor<BfsNodeInfo_t<TVertex>> TNeighbourSearcher,
 		detail::bfs::StateMapFor<BfsNodeInfo_t<TVertex>> TStateMap = DefaultBfsStateMap_t<TVertex>,
 		detail::bfs::CallbackFor<BfsNodeInfo_t<TVertex>> TCallback = EmptyCallback>
-	void traverseBfs(
+	void traverseBreadthFirstSearch(
 		const TVertex& start,
 		TNeighbourSearcher neighbourSearcher,
 		TStateMap&& stateMap,
