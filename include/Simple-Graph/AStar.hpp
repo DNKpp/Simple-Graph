@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Simple-Graph/UniformCostSearcher.hpp"
+#include "Simple-Graph/UniformCostSearch.hpp"
 #include "Simple-Graph/Utility.hpp"
 
 #include <compare>

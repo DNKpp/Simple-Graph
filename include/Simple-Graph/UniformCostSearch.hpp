@@ -3,8 +3,8 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef SL_GRAPH_UNIFORM_COST_SEARCHER_HPP
-#define SL_GRAPH_UNIFORM_COST_SEARCHER_HPP
+#ifndef SL_GRAPH_UNIFORM_COST_SEARCH_HPP
+#define SL_GRAPH_UNIFORM_COST_SEARCH_HPP
 
 #pragma once
 
@@ -30,7 +30,7 @@ namespace sl::graph::detail::ucs
 		NodeState state = NodeState::none;
 
 		[[nodiscard]] constexpr bool operator ==(
-			const NodeInfo&
+			const NodeInfo& other
 		) const noexcept(detail::IsNothrowComparable_v<TVertex> && detail::IsNothrowComparable_v<TWeight>) = default;
 
 		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
@@ -66,10 +66,10 @@ namespace sl::graph::detail::ucs
 		~OpenNode() noexcept = default;
 
 		[[nodiscard]] OpenNode(
-			const OpenNode&
+			const OpenNode& other
 		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) = default;
 		[[nodiscard]] OpenNode& operator =(
-			const OpenNode&
+			const OpenNode& other
 		) noexcept(std::is_nothrow_copy_assignable_v<TVertex> && std::is_nothrow_copy_assignable_v<TWeight>) = default;
 		[[nodiscard]] OpenNode(OpenNode&&) noexcept(std::is_nothrow_move_constructible_v<TVertex> && std::is_nothrow_move_constructible_v<TWeight>) = default;
 		[[nodiscard]] OpenNode& operator =(OpenNode&&) noexcept(std::is_nothrow_move_assignable_v<TVertex> && std::is_nothrow_move_assignable_v<TWeight>)
@@ -166,7 +166,7 @@ namespace sl::graph
 		detail::ucs::NeighbourSearcherFor<TPropertyMap> TNeighbourSearcher,
 		detail::ucs::StateMapFor<TPropertyMap> TStateMap = DefaultUcsStateMap_t<TVertex, typename detail::ucs::PropertyMapTraits<TPropertyMap>::WeightType>,
 		detail::ucs::CallbackFor<TPropertyMap> TCallback = EmptyCallback>
-	void traverseUniformCostSearcher(
+	void traverseUniformCostSearch(
 		const TVertex& start,
 		const TVertex& destination,
 		const TPropertyMap& propertyMap,
