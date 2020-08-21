@@ -105,24 +105,28 @@ namespace sl::graph::detail::astar
 		} -> std::same_as<typename PropertyMapTraits<T>::WeightType>;
 	};
 
-	template <class T, class TVertex, class TNodeState>
-	concept NeighbourSearcherWith = dijkstra::NeighbourSearcherWith<T, TVertex, TNodeState>;
+	template <class T, class TPropertyMap>
+	concept NeighbourSearcherFor = NeighbourSearcherWith<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
 
-	template <class T, class TVertex, class TNodeState>
-	concept StateMapWith = dijkstra::StateMapWith<T, TVertex, TNodeState>;
+	template <class T, class TPropertyMap>
+	concept StateMapFor = StateMapWith<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
+
+	template <class T, class TPropertyMap>
+	concept CallbackFor = std::invocable<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
 }
 
 namespace sl::graph
 {
 	template <detail::Vertex TVertex, std::regular TWeight>
 	using AStarNodeInfo_t = detail::astar::NodeInfo<TVertex, TWeight>;
+	template <detail::Vertex TVertex, std::regular TWeight>
+	using DefaultDijkstraStateMap_t = std::map<TVertex, DijkstraNodeInfo_t<TVertex, TWeight>>;
 
 	template <detail::Vertex TVertex,
 		detail::astar::PropertyMapWith<TVertex> TPropertyMap,
-		detail::astar::NeighbourSearcherWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
-		detail::astar::StateMapWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =
-		std::map<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType>,
-		std::invocable<TVertex, TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TCallback = detail::EmptyCallback>
+		detail::astar::NeighbourSearcherFor<TPropertyMap> TNeighbourSearcher,
+		detail::astar::StateMapFor<TPropertyMap> TStateMap = DefaultDijkstraStateMap_t<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::WeightType>,
+		detail::astar::CallbackFor<TPropertyMap> TCallback = EmptyCallback>
 	void traverseAStar(
 		const TVertex& start,
 		const TVertex& destination,

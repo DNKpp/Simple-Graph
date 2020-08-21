@@ -78,6 +78,17 @@ namespace sl::graph::detail
 
 	template <class T>
 	concept Vertex = std::copyable<T>;
+
+	template <class T, class TVertex, class TNodeState>
+	concept NeighbourSearcherWith = std::invocable<T, const TVertex&, const TNodeState&, DummyCallable<TVertex>>;
+
+	template <class T, class TVertex, class TNodeState>
+	concept StateMapWith = requires(std::remove_cvref_t<T>& stateMap)
+	{
+		{
+			stateMap[std::declval<TVertex>()]
+		} -> std::same_as<std::add_lvalue_reference_t<TNodeState>>;
+	};
 }
 
 #endif

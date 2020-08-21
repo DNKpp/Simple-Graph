@@ -96,16 +96,14 @@ namespace sl::graph::detail::dijkstra
 		} -> std::same_as<typename PropertyMapTraits<T>::WeightType>;
 	};
 
-	template <class T, class TVertex, class TNodeState>
-	concept NeighbourSearcherWith = std::invocable<T, const TVertex&, const TNodeState&, DummyCallable<TVertex>>;
+	template <class T, class TPropertyMap>
+	concept NeighbourSearcherFor = NeighbourSearcherWith<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
 
-	template <class T, class TVertex, class TNodeState>
-	concept StateMapWith = requires(std::remove_cvref_t<T>& stateMap)
-	{
-		{
-			stateMap[std::declval<TVertex>()]
-		} -> std::same_as<std::add_lvalue_reference_t<TNodeState>>;
-	};
+	template <class T, class TPropertyMap>
+	concept StateMapFor = StateMapWith<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
+
+	template <class T, class TPropertyMap>
+	concept CallbackFor = std::invocable<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
 }
 
 namespace sl::graph::detail
@@ -151,19 +149,20 @@ namespace sl::graph
 {
 	template <detail::Vertex TVertex, std::regular TWeight>
 	using DijkstraNodeInfo_t = detail::dijkstra::NodeInfo<TVertex, TWeight>;
+	template <detail::Vertex TVertex, std::regular TWeight>
+	using DefaultDijkstraStateMap_t = std::map<TVertex, DijkstraNodeInfo_t<TVertex, TWeight>>;
 
 	template <detail::Vertex TVertex,
 		detail::dijkstra::PropertyMapWith<TVertex> TPropertyMap,
-		detail::dijkstra::NeighbourSearcherWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
-		detail::dijkstra::StateMapWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =
-		std::map<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType>,
-		class TCallback = detail::EmptyCallback>
+		detail::dijkstra::NeighbourSearcherFor<TPropertyMap> TNeighbourSearcher,
+		detail::dijkstra::StateMapFor<TPropertyMap> TStateMap = DefaultDijkstraStateMap_t<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::WeightType>,
+		detail::dijkstra::CallbackFor<TPropertyMap> TCallback = EmptyCallback>
 	void traverseDijkstra(
 		const TVertex& start,
 		const TVertex& destination,
 		const TPropertyMap& propertyMap,
 		const TNeighbourSearcher& neighbourSearcher,
-		TStateMap stateMap = TStateMap{},
+		TStateMap&& stateMap = TStateMap{},
 		TCallback callback = TCallback{}
 	)
 	{
