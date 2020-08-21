@@ -9,6 +9,31 @@
 
 #include "TestUtility.hpp"
 
+#include <vector>
+
+class VisitationTracker
+{
+public:
+	VisitationTracker(const Vector& size) :
+		m_Size{ size },
+		m_Data(size.x * size.y, false)
+	{
+	}
+	
+	decltype(auto) operator [](const Vector& at) const noexcept
+	{
+		return m_Data[at.y * m_Size.x + at.x];
+	}
+
+	decltype(auto) operator [](const Vector& at) noexcept
+	{
+		return m_Data[at.y * m_Size.x + at.x];
+	}
+
+	Vector m_Size;
+	std::vector<bool> m_Data;
+};
+
 TEST_CASE("traverse table depth-first-search", "[dfs]")
 {
 	constexpr Vector size{ 10, 10 };
@@ -120,5 +145,27 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 				);
 		REQUIRE(std::size(booleanStateMap) == size.x * size.y);
 		REQUIRE(std::all_of(begin(booleanStateMap), end(booleanStateMap), [](const auto& pair) { return pair.second; }));
+	}
+
+	SECTION("check node visitation with boolean count via preCallback and custom st::vector<bool> visitation tracker")
+	{
+		VisitationTracker visitationTracker{ size };
+		sl::graph::traverseDepthFirstSearchIterative(
+													Vector{ 0, 0 },
+													IterativeNeighbourSearcher{ table },
+													visitationTracker,
+													[&table](const auto& vertex, const auto& nodeInfo)
+													{
+														++table[vertex.y][vertex.x];
+													}
+													);
+		REQUIRE(
+				std::all_of(
+					begin(table),
+					end(table),
+					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
+				);
+		REQUIRE(std::size(visitationTracker.m_Data) == size.x * size.y);
+		REQUIRE(std::all_of(begin(visitationTracker.m_Data), end(visitationTracker.m_Data), [](const auto& val) { return val; }));
 	}
 }

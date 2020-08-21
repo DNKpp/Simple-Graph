@@ -40,7 +40,7 @@ namespace sl::graph::detail::dfs
 		std::optional<typename TNodeInfo::Vertex_t>, T, const typename TNodeInfo::Vertex_t&, const TNodeInfo&, DummyCallable<typename TNodeInfo::Vertex_t>>;
 
 	template <class T>
-	concept BooleanReference = std::is_convertible_v<T, bool> && std::assignable_from<T, bool>;
+	concept BooleanReference = std::is_convertible_v<T, bool> && std::equality_comparable_with<T, bool>;
 	template <class T, class TVertex>
 	concept StateMapFor = detail::StateMapWith<T, TVertex, NodeInfo<TVertex>> ||
 	requires(std::remove_cvref_t<T>& stateMap)
@@ -128,7 +128,7 @@ namespace sl::graph
 		while (!std::empty(stack))
 		{
 			auto currentVertex = stack.top();
-			auto& nodeState = stateMap[currentVertex];
+			auto&& nodeState = stateMap[currentVertex];
 			if (auto child = neighbourSearcher(
 												currentVertex,
 												nodeState,
@@ -139,7 +139,7 @@ namespace sl::graph
 											))
 			{
 				++depth;
-				auto& childState{ detail::dfs::setState(stateMap, *child, NodeInfo{ std::nullopt, depth, NodeState::open }) };
+				auto&& childState{ detail::dfs::setState(stateMap, *child, NodeInfo{ std::nullopt, depth, NodeState::open }) };
 				if (detail::shallReturn(preCallback, *child, childState))
 					return;
 				stack.push(*child);
