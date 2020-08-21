@@ -39,11 +39,61 @@ namespace sl::graph::detail::dfs
 	concept NeighbourSearcherFor = requires { typename TNodeInfo::Vertex_t; } && std::is_invocable_r_v<
 		std::optional<typename TNodeInfo::Vertex_t>, T, const typename TNodeInfo::Vertex_t&, const TNodeInfo&, DummyCallable<typename TNodeInfo::Vertex_t>>;
 
-	template <class T, class TNodeInfo>
-	concept StateMapFor = detail::StateMapWith<T, typename TNodeInfo::Vertex_t, TNodeInfo>;
+	template <class T>
+	concept BooleanReference = std::is_convertible_v<T, bool> && std::assignable_from<T, bool>;
+	template <class T, class TVertex>
+	concept StateMapFor = detail::StateMapWith<T, TVertex, NodeInfo<TVertex>> ||
+	requires(std::remove_cvref_t<T>& stateMap)
+	{
+		{
+			stateMap[std::declval<TVertex>()]
+		} -> BooleanReference;
+	};
 
 	template <class T, class TNodeInfo>
 	concept CallbackFor = requires { typename TNodeInfo::Vertex_t; } && std::invocable<T, typename TNodeInfo::Vertex_t, TNodeInfo>;
+
+	template <class TStateMap, class TVertex, class TState>
+	decltype(auto) setState(TStateMap& stateMap, const TVertex& vertex, const TState& state) noexcept
+	{
+		auto&& element = stateMap[vertex];
+		if constexpr (std::is_assignable_v<decltype(element), bool>)
+		{
+			element = true;
+		}
+		else
+		{
+			return element = state;
+		}
+		return std::forward<decltype(element)>(element);
+	}
+
+	template <class TState>
+	TState& setClosed(TState& state) noexcept
+	{
+		if constexpr (std::is_convertible_v<TState, bool>)
+		{
+			state = true;
+		}
+		else
+		{
+			state.state = NodeState::closed;
+		}
+		return state;
+	}
+
+	template <class TState>
+	bool isUnVisited(const TState& state) noexcept
+	{
+		if constexpr (std::is_convertible_v<TState, bool>)
+		{
+			return !state;
+		}
+		else
+		{
+			return state.state == NodeState::none;
+		}
+	}
 }
 
 namespace sl::graph
@@ -51,11 +101,13 @@ namespace sl::graph
 	template <detail::Vertex TVertex>
 	using DfsNodeInfo_t = detail::dfs::NodeInfo<TVertex>;
 	template <detail::Vertex TVertex>
-	using DefaultDfsStateMap_t = std::map<TVertex, DfsNodeInfo_t<TVertex>>;
+	using DefaultDfsStateMap_t = std::map<TVertex, bool>;
+	template <detail::Vertex TVertex>
+	using DfsNodeInfoStateMap_t = std::map<TVertex, DfsNodeInfo_t<TVertex>>;
 
 	template <detail::Vertex TVertex,
 		detail::dfs::NeighbourSearcherFor<DfsNodeInfo_t<TVertex>> TNeighbourSearcher,
-		detail::dfs::StateMapFor<DfsNodeInfo_t<TVertex>> TStateMap = DefaultDfsStateMap_t<TVertex>,
+		detail::dfs::StateMapFor<TVertex> TStateMap = DefaultDfsStateMap_t<TVertex>,
 		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPreOrderCallback = EmptyCallback,
 		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPostOrderCallback = EmptyCallback>
 	void traverseDepthFirstSearchIterative(
@@ -71,7 +123,7 @@ namespace sl::graph
 		std::stack<TVertex> stack;
 		stack.push(start);
 		int depth = 0;
-		if (detail::shallReturn(preCallback, start, stateMap[start] = NodeInfo{ std::nullopt, depth, NodeState::open }))
+		if (detail::shallReturn(preCallback, start, detail::dfs::setState(stateMap, start, NodeInfo{ std::nullopt, depth, NodeState::open })))
 			return;
 		while (!std::empty(stack))
 		{
@@ -82,19 +134,19 @@ namespace sl::graph
 												nodeState,
 												[&stateMap](const TVertex& vertex)
 												{
-													return stateMap[vertex].state == NodeState::none;
+													return detail::dfs::isUnVisited(stateMap[vertex]);
 												}
 											))
 			{
 				++depth;
-				auto& childState{ stateMap[*child] = NodeInfo{ std::nullopt, depth, NodeState::open } };
+				auto& childState{ detail::dfs::setState(stateMap, *child, NodeInfo{ std::nullopt, depth, NodeState::open }) };
 				if (detail::shallReturn(preCallback, *child, childState))
 					return;
 				stack.push(*child);
 			}
 			else
 			{
-				nodeState.state = NodeState::closed;
+				detail::dfs::setClosed(nodeState);
 				if (detail::shallReturn(postCallback, currentVertex, nodeState))
 					return;
 				--depth;

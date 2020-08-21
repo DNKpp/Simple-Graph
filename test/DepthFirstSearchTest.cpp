@@ -15,7 +15,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 	std::array<std::array<int, 10>, 10> table{};
 
 	using DfsNodeInfo_t = sl::graph::DfsNodeInfo_t<Vector>;
-	sl::graph::DefaultDfsStateMap_t<Vector> stateMap;
+	sl::graph::DfsNodeInfoStateMap_t<Vector> stateMap;
 	SECTION("check early return through preCallback")
 	{
 		int count = 0;
@@ -31,8 +31,8 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 													);
 		REQUIRE(count == 1);
 		REQUIRE(std::size(stateMap) == 1);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == 0);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == 1);
+		REQUIRE(std::none_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }));
+		REQUIRE(std::all_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }));
 	}
 
 	SECTION("check early return through postCallback")
@@ -73,8 +73,8 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
 				);
 		REQUIRE(std::size(stateMap) == size.x * size.y);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == size.x * size.y);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == 0);
+		REQUIRE(std::all_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }));
+		REQUIRE(std::none_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }));
 	}
 
 	SECTION("check node visitation count via postCallback")
@@ -96,7 +96,29 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
 				);
 		REQUIRE(std::size(stateMap) == size.x * size.y);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == size.x * size.y);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == 0);
+		REQUIRE(std::all_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }));
+		REQUIRE(std::none_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }));
+	}
+
+	SECTION("check node visitation with boolean count via preCallback")
+	{
+		sl::graph::DefaultDfsStateMap_t<Vector> booleanStateMap;
+		sl::graph::traverseDepthFirstSearchIterative(
+													Vector{ 0, 0 },
+													IterativeNeighbourSearcher{ table },
+													booleanStateMap,
+													[&table](const auto& vertex, const auto& nodeInfo)
+													{
+														++table[vertex.y][vertex.x];
+													}
+													);
+		REQUIRE(
+				std::all_of(
+					begin(table),
+					end(table),
+					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
+				);
+		REQUIRE(std::size(booleanStateMap) == size.x * size.y);
+		REQUIRE(std::all_of(begin(booleanStateMap), end(booleanStateMap), [](const auto& pair) { return pair.second; }));
 	}
 }
