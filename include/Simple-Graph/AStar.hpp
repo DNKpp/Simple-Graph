@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Simple-Graph/Dijkstra.hpp"
+#include "Simple-Graph/UniformCostSearcher.hpp"
 #include "Simple-Graph/Utility.hpp"
 
 #include <compare>
@@ -72,7 +72,6 @@ namespace sl::graph::detail::astar
 
 		[[nodiscard]] OpenNode(
 			const OpenNode&
-		
 		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) = default;
 		[[nodiscard]] OpenNode& operator =(
 			const OpenNode&
@@ -98,7 +97,7 @@ namespace sl::graph::detail::astar
 	};
 
 	template <class T, class TVertex>
-	concept PropertyMapWith = dijkstra::PropertyMapWith<T, TVertex> &&
+	concept PropertyMapWith = ucs::PropertyMapWith<T, TVertex> &&
 	requires(const std::remove_cvref_t<T>& propertyMap)
 	{
 		std::same_as<TVertex, typename PropertyMapTraits<T>::VertexType>;
@@ -123,12 +122,12 @@ namespace sl::graph
 	template <detail::Vertex TVertex, std::regular TWeight>
 	using AStarNodeInfo_t = detail::astar::NodeInfo<TVertex, TWeight>;
 	template <detail::Vertex TVertex, std::regular TWeight>
-	using DefaultDijkstraStateMap_t = std::map<TVertex, DijkstraNodeInfo_t<TVertex, TWeight>>;
+	using DefaultAStarStateMap_t = std::map<TVertex, AStarNodeInfo_t<TVertex, TWeight>>;
 
 	template <detail::Vertex TVertex,
 		detail::astar::PropertyMapWith<TVertex> TPropertyMap,
 		detail::astar::NeighbourSearcherFor<TPropertyMap> TNeighbourSearcher,
-		detail::astar::StateMapFor<TPropertyMap> TStateMap = DefaultDijkstraStateMap_t<
+		detail::astar::StateMapFor<TPropertyMap> TStateMap = DefaultAStarStateMap_t<
 			TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::WeightType>,
 		detail::astar::CallbackFor<TPropertyMap> TCallback = EmptyCallback>
 	void traverseAStar(
