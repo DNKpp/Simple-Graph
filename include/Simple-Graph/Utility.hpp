@@ -10,6 +10,7 @@
 
 #include <type_traits>
 #include <utility>
+#include <concepts>
 
 namespace sl::graph
 {
@@ -74,6 +75,9 @@ namespace sl::graph::detail
 
 	template <class T1, class T2 = T1>
 	inline constexpr bool IsNothrowComparable_v = IsNothrowComparable<T1, T2>::value;
+
+	template <class T>
+	concept Vertex = std::copyable<T>;
 }
 
 #endif

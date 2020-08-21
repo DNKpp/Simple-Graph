@@ -95,9 +95,6 @@ namespace sl::graph::detail::astar
 		using NodeInfoType = NodeInfo<VertexType, WeightType>;
 	};
 
-	template <class T>
-	concept Vertex = dijkstra::Vertex<T>;
-
 	template <class T, class TVertex>
 	concept PropertyMapWith = dijkstra::PropertyMapWith<T, TVertex> &&
 	requires(const std::remove_cvref_t<T>& propertyMap)
@@ -117,10 +114,10 @@ namespace sl::graph::detail::astar
 
 namespace sl::graph
 {
-	template <detail::astar::Vertex TVertex, std::regular TWeight>
+	template <detail::Vertex TVertex, std::regular TWeight>
 	using AStarNodeInfo_t = detail::astar::NodeInfo<TVertex, TWeight>;
 
-	template <detail::astar::Vertex TVertex,
+	template <detail::Vertex TVertex,
 		detail::astar::PropertyMapWith<TVertex> TPropertyMap,
 		detail::astar::NeighbourSearcherWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
 		detail::astar::StateMapWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =

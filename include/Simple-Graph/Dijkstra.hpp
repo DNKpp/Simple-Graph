@@ -83,9 +83,6 @@ namespace sl::graph::detail::dijkstra
 		using NodeInfoType = NodeInfo<VertexType, WeightType>;
 	};
 
-	template <class T>
-	concept Vertex = std::copyable<T>;
-
 	template <class T, class TVertex>
 	concept PropertyMapWith = requires(const std::remove_cvref_t<T>& propertyMap)
 	{
@@ -152,7 +149,7 @@ namespace sl::graph::detail
 
 namespace sl::graph
 {
-	template <detail::dijkstra::Vertex TVertex,
+	template <detail::Vertex TVertex,
 		detail::dijkstra::PropertyMapWith<TVertex> TPropertyMap,
 		detail::dijkstra::NeighbourSearcherWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
 		detail::dijkstra::StateMapWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =
