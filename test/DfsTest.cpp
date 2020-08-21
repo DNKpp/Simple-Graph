@@ -8,9 +8,6 @@
 #include "catch.hpp"
 
 #include <array>
-#include <compare>
-#include <map>
-#include <optional>
 
 struct Vector
 {
@@ -87,6 +84,9 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 										}
 										);
 		REQUIRE(count == 1);
+		REQUIRE(std::size(stateMap) == 1);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == 0);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == 1);
 	}
 
 	SECTION("check early return through postCallback")
@@ -104,6 +104,9 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 							}
 							);
 		REQUIRE(count == 1);
+		REQUIRE(std::size(stateMap) == size.x * size.y);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == 1);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == size.x * size.y - 1);
 	}
 
 	SECTION("check node visitation count via preCallback")
@@ -123,6 +126,9 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 					end(table),
 					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
 				);
+		REQUIRE(std::size(stateMap) == size.x * size.y);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == size.x * size.y);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == 0);
 	}
 
 	SECTION("check node visitation count via postCallback")
@@ -143,5 +149,8 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 					end(table),
 					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
 				);
+		REQUIRE(std::size(stateMap) == size.x * size.y);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == size.x * size.y);
+		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == 0);
 	}
 }
