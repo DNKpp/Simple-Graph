@@ -11,6 +11,7 @@
 #include "Simple-Graph/Dijkstra.hpp"
 #include "Simple-Graph/Utility.hpp"
 
+#include <compare>
 #include <map>
 #include <optional>
 #include <queue>
@@ -71,6 +72,7 @@ namespace sl::graph::detail::astar
 
 		[[nodiscard]] OpenNode(
 			const OpenNode&
+		
 		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) = default;
 		[[nodiscard]] OpenNode& operator =(
 			const OpenNode&
@@ -106,7 +108,8 @@ namespace sl::graph::detail::astar
 	};
 
 	template <class T, class TPropertyMap>
-	concept NeighbourSearcherFor = NeighbourSearcherWith<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
+	concept NeighbourSearcherFor = NeighbourSearcherWith<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap
+														>::NodeInfoType>;
 
 	template <class T, class TPropertyMap>
 	concept StateMapFor = StateMapWith<T, typename PropertyMapTraits<TPropertyMap>::VertexType, typename PropertyMapTraits<TPropertyMap>::NodeInfoType>;
@@ -125,7 +128,8 @@ namespace sl::graph
 	template <detail::Vertex TVertex,
 		detail::astar::PropertyMapWith<TVertex> TPropertyMap,
 		detail::astar::NeighbourSearcherFor<TPropertyMap> TNeighbourSearcher,
-		detail::astar::StateMapFor<TPropertyMap> TStateMap = DefaultDijkstraStateMap_t<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::WeightType>,
+		detail::astar::StateMapFor<TPropertyMap> TStateMap = DefaultDijkstraStateMap_t<
+			TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::WeightType>,
 		detail::astar::CallbackFor<TPropertyMap> TCallback = EmptyCallback>
 	void traverseAStar(
 		const TVertex& start,

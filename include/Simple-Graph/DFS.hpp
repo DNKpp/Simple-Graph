@@ -11,6 +11,7 @@
 #include "Simple-Graph/Utility.hpp"
 
 #include <cassert>
+#include <compare>
 #include <map>
 #include <optional>
 #include <stack>
