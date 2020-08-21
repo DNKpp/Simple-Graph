@@ -87,7 +87,7 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
 		REQUIRE(std::none_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }));
 	}
 
-	SECTION("check node visitation count via preCallback")
+	SECTION("check node visitation count via callback")
 	{
 		sl::graph::traverseBfs(
 								Vector{ 0, 0 },
