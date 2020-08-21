@@ -21,6 +21,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 		test_simple_graph
 		${CMAKE_CURRENT_SOURCE_DIR}/test/AStarTest.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/test/DijkstraTest.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/test/BfsTest.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/test/DfsTest.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp
 	)
