@@ -7,61 +7,7 @@
 
 #include "catch.hpp"
 
-#include <array>
-
-struct Vector
-{
-	int x = 0;
-	int y = 0;
-
-	[[nodiscard]] constexpr auto operator <=>(const Vector& other) const noexcept = default;
-};
-
-template <class TTable>
-class NeighbourSearcher
-{
-public:
-	NeighbourSearcher(const TTable& table) :
-		m_Table{ &table }
-	{
-	}
-
-	template <class TNode, class TCallback>
-	std::optional<Vector> operator ()(const Vector& vertex, const TNode& node, TCallback callback) const
-	{
-		assert(m_Table);
-
-		for (int i = 0; i < 4; ++i)
-		{
-			auto cur = vertex;
-			switch (i)
-			{
-			case 0: ++cur.x;
-				break;
-			case 1: --cur.x;
-				break;
-			case 2: ++cur.y;
-				break;
-			case 3: --cur.y;
-				break;
-			}
-
-			if (0 <= cur.y && cur.y < std::size(*m_Table) &&
-				0 <= cur.x && cur.x < std::size((*m_Table)[cur.y]))
-			{
-				if (callback(cur))
-					return cur;
-			}
-		}
-		return std::nullopt;
-	}
-
-private:
-	const TTable* m_Table = nullptr;
-};
-
-template <class TTable>
-NeighbourSearcher(const TTable&) -> NeighbourSearcher<TTable>;
+#include "TestUtility.hpp"
 
 TEST_CASE("traverse table depth-first-search", "[dfs]")
 {
@@ -75,7 +21,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 		int count = 0;
 		sl::graph::traverseDfsIterative(
 										Vector{ 0, 0 },
-										NeighbourSearcher{ table },
+										IterativeNeighbourSearcher{ table },
 										stateMap,
 										[&count](const auto& vertex, const auto& nodeInfo)
 										{
@@ -94,7 +40,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 		int count = 0;
 		traverseDfsIterative(
 							Vector{ 0, 0 },
-							NeighbourSearcher{ table },
+							IterativeNeighbourSearcher{ table },
 							stateMap,
 							sl::graph::EmptyCallback{},
 							[&count](const auto& vertex, const auto& nodeInfo)
@@ -113,7 +59,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 	{
 		sl::graph::traverseDfsIterative(
 										Vector{ 0, 0 },
-										NeighbourSearcher{ table },
+										IterativeNeighbourSearcher{ table },
 										stateMap,
 										[&table](const auto& vertex, const auto& nodeInfo)
 										{
@@ -135,7 +81,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 	{
 		sl::graph::traverseDfsIterative(
 										Vector{ 0, 0 },
-										NeighbourSearcher{ table },
+										IterativeNeighbourSearcher{ table },
 										stateMap,
 										sl::graph::EmptyCallback{},
 										[&table](const auto& vertex, const auto& nodeInfo)

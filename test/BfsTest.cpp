@@ -6,60 +6,7 @@
 #include "Simple-Graph/BFS.hpp"
 
 #include "catch.hpp"
-
-#include <array>
-
-struct Vector
-{
-	int x = 0;
-	int y = 0;
-
-	[[nodiscard]] constexpr auto operator <=>(const Vector& other) const noexcept = default;
-};
-
-template <class TTable>
-class NeighbourSearcher
-{
-public:
-	NeighbourSearcher(const TTable& table) :
-		m_Table{ &table }
-	{
-	}
-
-	template <class TNode, class TCallback>
-	void operator ()(const Vector& vertex, const TNode& node, TCallback callback) const
-	{
-		assert(m_Table);
-
-		for (int i = 0; i < 4; ++i)
-		{
-			auto cur = vertex;
-			switch (i)
-			{
-			case 0: ++cur.x;
-				break;
-			case 1: --cur.x;
-				break;
-			case 2: ++cur.y;
-				break;
-			case 3: --cur.y;
-				break;
-			}
-
-			if (0 <= cur.y && cur.y < std::size(*m_Table) &&
-				0 <= cur.x && cur.x < std::size((*m_Table)[cur.y]))
-			{
-				callback(cur);
-			}
-		}
-	}
-
-private:
-	const TTable* m_Table = nullptr;
-};
-
-template <class TTable>
-NeighbourSearcher(const TTable&) -> NeighbourSearcher<TTable>;
+#include "TestUtility.hpp"
 
 TEST_CASE("traverse table breadth-first-search", "[bfs]")
 {
@@ -73,7 +20,7 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
 		int count = 0;
 		sl::graph::traverseBfs(
 								Vector{ 0, 0 },
-								NeighbourSearcher{ table },
+								NeighbourSearcher{ table, false },
 								stateMap,
 								[&count](const auto& vertex, const auto& nodeInfo)
 								{
@@ -91,7 +38,7 @@ TEST_CASE("traverse table breadth-first-search", "[bfs]")
 	{
 		sl::graph::traverseBfs(
 								Vector{ 0, 0 },
-								NeighbourSearcher{ table },
+								NeighbourSearcher{ table, false },
 								stateMap,
 								[&table](const auto& vertex, const auto& nodeInfo)
 								{
