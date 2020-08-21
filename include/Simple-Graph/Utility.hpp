@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <cassert>
 #include <type_traits>
 #include <utility>
 
@@ -53,5 +52,28 @@ namespace sl::graph::detail
 			return false;
 		}
 	}
+
+	template <class T1, class T2>
+	struct _IsNothrowComparableImpl :
+		std::false_type
+	{
+	};
+
+	template <class T1, class T2>
+	requires std::equality_comparable_with<T1, T2>
+	struct _IsNothrowComparableImpl<T1, T2> :
+		std::bool_constant<noexcept(std::declval<T1>() == std::declval<T2>())>
+	{
+	};
+
+	template <class T1, class T2 = T1>
+	struct IsNothrowComparable :
+		_IsNothrowComparableImpl<std::remove_cvref_t<T1>, std::remove_cvref_t<T2>>
+	{
+	};
+
+	template <class T1, class T2 = T1>
+	inline constexpr bool IsNothrowComparable_v = IsNothrowComparable<T1, T2>::value;
 }
+
 #endif
