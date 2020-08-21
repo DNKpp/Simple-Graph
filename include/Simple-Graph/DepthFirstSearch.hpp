@@ -58,7 +58,7 @@ namespace sl::graph
 		detail::dfs::StateMapFor<DfsNodeInfo_t<TVertex>> TStateMap = DefaultDfsStateMap_t<TVertex>,
 		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPreOrderCallback = EmptyCallback,
 		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPostOrderCallback = EmptyCallback>
-	void traverseDfsIterative(
+	void traverseDepthFirstSearchIterative(
 		const TVertex& start,
 		TNeighbourSearcher neighbourSearcher,
 		TStateMap&& stateMap,
