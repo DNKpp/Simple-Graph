@@ -29,14 +29,13 @@ namespace sl::graph::detail::astar
 		Weight_t heuristic{};
 		NodeState state = NodeState::none;
 
-		[[nodiscard]] constexpr bool operator ==(const NodeInfo&) const noexcept = default;
+		[[nodiscard]] constexpr bool operator ==(
+			const NodeInfo&
+		) const noexcept(detail::IsNothrowComparable_v<TVertex> && detail::IsNothrowComparable_v<TWeight>) = default;
+
 		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
 		{
-			auto lhsSum = weightSum + heuristic;
-			auto rhsSum = other.weightSum + other.heuristic;
-			if (lhsSum == rhsSum)
-				return heuristic <=> other.heuristic;
-			return lhsSum <=> rhsSum;
+			return weightSum + heuristic <=> other.weightSum + other.heuristic;
 		}
 	};
 
@@ -47,28 +46,44 @@ namespace sl::graph::detail::astar
 		TWeight weightSum;
 		TWeight heuristic;
 
-		OpenNode(const TVertex& vertex_, const NodeInfo<TVertex, TWeight>& info) :
+		OpenNode(
+			const TVertex& vertex_,
+			const NodeInfo<TVertex, TWeight>& info
+		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) :
 			vertex{ vertex_ },
 			weightSum{ info.weightSum },
 			heuristic{ info.heuristic }
 		{
 		}
 
-		OpenNode(const TVertex& vertex_, TWeight weightSum_, TWeight heuristic_) :
+		OpenNode(
+			const TVertex& vertex_,
+			TWeight weightSum_,
+			TWeight heuristic_
+		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) :
 			vertex{ vertex_ },
 			weightSum{ weightSum_ },
 			heuristic{ heuristic_ }
 		{
 		}
 
-		[[nodiscard]] constexpr bool operator ==(const OpenNode&) const noexcept(noexcept(std::declval<TVertex>() == std::declval<TVertex>())) = default;
-		[[nodiscard]] constexpr std::strong_ordering operator <=>(const OpenNode& other) const noexcept
+		~OpenNode() noexcept = default;
+
+		[[nodiscard]] OpenNode(
+			const OpenNode&
+		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) = default;
+		[[nodiscard]] OpenNode& operator =(
+			const OpenNode&
+		) noexcept(std::is_nothrow_copy_assignable_v<TVertex> && std::is_nothrow_copy_assignable_v<TWeight>) = default;
+		[[nodiscard]] OpenNode(OpenNode&&) noexcept(std::is_nothrow_move_constructible_v<TVertex> && std::is_nothrow_move_constructible_v<TWeight>) = default;
+		[[nodiscard]] OpenNode& operator =(OpenNode&&) noexcept(std::is_nothrow_move_assignable_v<TVertex> && std::is_nothrow_move_assignable_v<TWeight>)
+		= default;
+
+		[[nodiscard]] bool operator ==(const OpenNode&) const noexcept(IsNothrowComparable_v<TVertex> && IsNothrowComparable_v<TWeight>) = default;
+
+		[[nodiscard]] std::strong_ordering operator <=>(const OpenNode& other) const noexcept
 		{
-			auto lhsSum = weightSum + heuristic;
-			auto rhsSum = other.weightSum + other.heuristic;
-			if (lhsSum == rhsSum)
-				return heuristic <=> other.heuristic;
-			return lhsSum <=> rhsSum;
+			return weightSum + heuristic <=> other.weightSum + other.heuristic;
 		}
 	};
 
@@ -79,6 +94,9 @@ namespace sl::graph::detail::astar
 		using WeightType = typename TPropertyMap::WeightType;
 		using NodeInfoType = NodeInfo<VertexType, WeightType>;
 	};
+
+	template <class T>
+	concept Vertex = dijkstra::Vertex<T>;
 
 	template <class T, class TVertex>
 	concept PropertyMapWith = dijkstra::PropertyMapWith<T, TVertex> &&
@@ -99,21 +117,22 @@ namespace sl::graph::detail::astar
 
 namespace sl::graph
 {
-	template <class TVertex, class TWeight>
+	template <detail::astar::Vertex TVertex, std::regular TWeight>
 	using AStarNodeInfo_t = detail::astar::NodeInfo<TVertex, TWeight>;
 
-	template <class TVertex,
-			detail::astar::PropertyMapWith<TVertex> TPropertyMap,
-			detail::astar::NeighbourSearcherWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
-			detail::astar::StateMapWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =
-			std::map<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType>,
-			class TCallback = detail::EmptyCallback>
-	void traverseAStar(const TVertex& start,
-						const TVertex& destination,
-						const TPropertyMap& propertyMap,
-						const TNeighbourSearcher& neighbourSearcher,
-						TStateMap&& stateMap = TStateMap{},
-						TCallback callback = TCallback{}
+	template <detail::astar::Vertex TVertex,
+		detail::astar::PropertyMapWith<TVertex> TPropertyMap,
+		detail::astar::NeighbourSearcherWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
+		detail::astar::StateMapWith<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =
+		std::map<TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType>,
+		std::invocable<TVertex, TVertex, typename detail::astar::PropertyMapTraits<TPropertyMap>::NodeInfoType> TCallback = detail::EmptyCallback>
+	void traverseAStar(
+		const TVertex& start,
+		const TVertex& destination,
+		const TPropertyMap& propertyMap,
+		const TNeighbourSearcher& neighbourSearcher,
+		TStateMap&& stateMap = TStateMap{},
+		TCallback callback = TCallback{}
 	)
 	{
 		using Weight_t = typename detail::astar::PropertyMapTraits<TPropertyMap>::WeightType;
@@ -122,7 +141,8 @@ namespace sl::graph
 
 		std::priority_queue<OpenNode_t, std::vector<OpenNode_t>, std::greater<>> openList;
 		openList.emplace(start, stateMap[start] = { std::nullopt, 0, propertyMap.heuristic(start, destination), NodeState::open });
-		detail::traverse([&destination, &propertyMap](const TVertex& vertex, const OpenNode_t& parent) -> NodeInfo_t
+		detail::traverse(
+						[&destination, &propertyMap](const TVertex& vertex, const OpenNode_t& parent) -> NodeInfo_t
 						{
 							auto weightSum = parent.weightSum + propertyMap.edgeWeight(parent.vertex, vertex) + propertyMap.nodeWeight(vertex);
 							return { parent.vertex, weightSum, propertyMap.heuristic(vertex, destination), NodeState::open };

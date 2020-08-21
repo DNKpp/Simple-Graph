@@ -29,13 +29,13 @@ namespace sl::graph::detail::dijkstra
 		Weight_t weightSum{};
 		NodeState state = NodeState::none;
 
-		[[nodiscard]] constexpr bool operator ==(const NodeInfo&) const noexcept = default;
+		[[nodiscard]] constexpr bool operator ==(
+			const NodeInfo&
+		) const noexcept(detail::IsNothrowComparable_v<TVertex> && detail::IsNothrowComparable_v<TWeight>) = default;
 
-		[[nodiscard]] auto operator <=>(const NodeInfo&) const noexcept = default;
-
-		[[nodiscard]] bool operator <(const NodeInfo& other) const noexcept
+		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
 		{
-			return weightSum < other.weightSum;
+			return weightSum <=> other.weightSum;
 		}
 	};
 
@@ -45,18 +45,33 @@ namespace sl::graph::detail::dijkstra
 		TVertex vertex;
 		TWeight weightSum;
 
-		OpenNode(const TVertex& vertex_, TWeight weightSum_) :
+		OpenNode(
+			const TVertex& vertex_,
+			TWeight weightSum_
+		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) :
 			vertex{ vertex_ },
 			weightSum{ weightSum_ }
 		{
 		}
 
-		[[nodiscard]] bool operator ==(const OpenNode&) const noexcept = default;
-		[[nodiscard]] auto operator <=>(const OpenNode&) const noexcept = default;
+		~OpenNode() noexcept = default;
 
-		[[nodiscard]] bool operator <(const OpenNode& other) const noexcept
+		[[nodiscard]] OpenNode(
+			const OpenNode&
+		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) = default;
+		[[nodiscard]] OpenNode& operator =(
+			const OpenNode&
+		) noexcept(std::is_nothrow_copy_assignable_v<TVertex> && std::is_nothrow_copy_assignable_v<TWeight>) = default;
+		[[nodiscard]] OpenNode(OpenNode&&) noexcept(std::is_nothrow_move_constructible_v<TVertex> && std::is_nothrow_move_constructible_v<TWeight>) = default;
+		[[nodiscard]] OpenNode& operator =(OpenNode&&) noexcept(std::is_nothrow_move_assignable_v<TVertex> && std::is_nothrow_move_assignable_v<TWeight>)
+		= default;
+
+		[[nodiscard]] bool operator ==(const OpenNode&) const noexcept(IsNothrowComparable_v<TVertex> && IsNothrowComparable_v<TWeight>)
+		= default;
+
+		[[nodiscard]] auto operator <=>(const OpenNode& other) const noexcept
 		{
-			return weightSum < other.weightSum;
+			return weightSum <=> other.weightSum;
 		}
 	};
 
@@ -67,6 +82,9 @@ namespace sl::graph::detail::dijkstra
 		using WeightType = typename TPropertyMap::WeightType;
 		using NodeInfoType = NodeInfo<VertexType, WeightType>;
 	};
+
+	template <class T>
+	concept Vertex = std::copyable<T>;
 
 	template <class T, class TVertex>
 	concept PropertyMapWith = requires(const std::remove_cvref_t<T>& propertyMap)
@@ -134,18 +152,19 @@ namespace sl::graph::detail
 
 namespace sl::graph
 {
-	template <class TVertex,
-			detail::dijkstra::PropertyMapWith<TVertex> TPropertyMap,
-			detail::dijkstra::NeighbourSearcherWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
-			detail::dijkstra::StateMapWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =
-			std::map<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType>,
-			class TCallback = detail::EmptyCallback>
-	void traverseDijkstra(const TVertex& start,
-						const TVertex& destination,
-						const TPropertyMap& propertyMap,
-						const TNeighbourSearcher& neighbourSearcher,
-						TStateMap stateMap = TStateMap{},
-						TCallback callback = TCallback{}
+	template <detail::dijkstra::Vertex TVertex,
+		detail::dijkstra::PropertyMapWith<TVertex> TPropertyMap,
+		detail::dijkstra::NeighbourSearcherWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
+		detail::dijkstra::StateMapWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TStateMap =
+		std::map<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType>,
+		class TCallback = detail::EmptyCallback>
+	void traverseDijkstra(
+		const TVertex& start,
+		const TVertex& destination,
+		const TPropertyMap& propertyMap,
+		const TNeighbourSearcher& neighbourSearcher,
+		TStateMap stateMap = TStateMap{},
+		TCallback callback = TCallback{}
 	)
 	{
 		using Weight_t = typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::WeightType;
@@ -154,7 +173,8 @@ namespace sl::graph
 
 		std::priority_queue<OpenNode_t, std::vector<OpenNode_t>, std::greater<>> openList;
 		openList.emplace(start, stateMap[start] = { std::nullopt, 0, NodeState::open });
-		detail::traverse([&propertyMap](const TVertex& vertex, const OpenNode_t& parent) -> NodeInfo_t
+		detail::traverse(
+						[&propertyMap](const TVertex& vertex, const OpenNode_t& parent) -> NodeInfo_t
 						{
 							auto weightSum = parent.weightSum + propertyMap.edgeWeight(parent.vertex, vertex) + propertyMap.nodeWeight(vertex);
 							return { parent.vertex, weightSum, NodeState::open };
