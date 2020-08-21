@@ -47,6 +47,15 @@ namespace sl::graph::detail::dijkstra
 
 		OpenNode(
 			const TVertex& vertex_,
+			const NodeInfo<TVertex, TWeight>& info
+		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) :
+			vertex{ vertex_ },
+			weightSum{ info.weightSum }
+		{
+		}
+
+		OpenNode(
+			const TVertex& vertex_,
 			TWeight weightSum_
 		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) :
 			vertex{ vertex_ },
