@@ -86,7 +86,7 @@ namespace sl::graph
 											))
 			{
 				++depth;
-				auto& childState = stateMap[*child] = NodeInfo{ std::nullopt, depth, NodeState::open };
+				auto& childState{ stateMap[*child] = NodeInfo{ std::nullopt, depth, NodeState::open } };
 				if (detail::shallReturn(preCallback, *child, childState))
 					return;
 				stack.push(*child);
