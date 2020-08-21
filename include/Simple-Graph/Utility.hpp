@@ -14,6 +14,14 @@
 
 namespace sl::graph
 {
+	struct EmptyCallback
+	{
+		template <class... TArgs>
+		constexpr void operator ()(TArgs&&...) const noexcept
+		{
+		}
+	};
+	
 	enum class NodeState
 	{
 		none,
@@ -24,14 +32,6 @@ namespace sl::graph
 
 namespace sl::graph::detail
 {
-	struct EmptyCallback
-	{
-		template <class... TArgs>
-		constexpr void operator ()(TArgs&&...) const noexcept
-		{
-		}
-	};
-
 	template <class TVertex>
 	struct DummyCallable
 	{
