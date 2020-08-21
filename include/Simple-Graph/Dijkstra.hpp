@@ -149,6 +149,9 @@ namespace sl::graph::detail
 
 namespace sl::graph
 {
+	template <detail::Vertex TVertex, std::regular TWeight>
+	using DijkstraNodeInfo_t = detail::dijkstra::NodeInfo<TVertex, TWeight>;
+
 	template <detail::Vertex TVertex,
 		detail::dijkstra::PropertyMapWith<TVertex> TPropertyMap,
 		detail::dijkstra::NeighbourSearcherWith<TVertex, typename detail::dijkstra::PropertyMapTraits<TPropertyMap>::NodeInfoType> TNeighbourSearcher,
