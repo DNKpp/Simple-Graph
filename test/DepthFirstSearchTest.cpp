@@ -19,7 +19,7 @@ public:
 		m_Data(size.x * size.y, false)
 	{
 	}
-	
+
 	decltype(auto) operator [](const Vector& at) const noexcept
 	{
 		return m_Data[at.y * m_Size.x + at.x];
@@ -34,20 +34,20 @@ public:
 	std::vector<bool> m_Data;
 };
 
-TEST_CASE("traverse table depth-first-search", "[dfs]")
+TEST_CASE("traverse table depth-first-search iterative", "[dfs]")
 {
 	constexpr Vector size{ 10, 10 };
 	std::array<std::array<int, 10>, 10> table{};
 
 	using DfsNodeInfo_t = sl::graph::DfsNodeInfo_t<Vector>;
-	sl::graph::DfsNodeInfoStateMap_t<Vector> stateMap;
+	sl::graph::DefaultDfsVisitationTracker_t<Vector> defaultVisitationTracker;
 	SECTION("check early return through preCallback")
 	{
 		int count = 0;
 		sl::graph::traverseDepthFirstSearchIterative(
 													Vector{ 0, 0 },
 													IterativeNeighbourSearcher{ table },
-													stateMap,
+													defaultVisitationTracker,
 													[&count](const auto& vertex, const auto& nodeInfo)
 													{
 														++count;
@@ -55,9 +55,8 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 													}
 													);
 		REQUIRE(count == 1);
-		REQUIRE(std::size(stateMap) == 1);
-		REQUIRE(std::none_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }));
-		REQUIRE(std::all_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }));
+		REQUIRE(std::size(defaultVisitationTracker) == 1);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
 	}
 
 	SECTION("check early return through postCallback")
@@ -66,7 +65,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 		traverseDepthFirstSearchIterative(
 										Vector{ 0, 0 },
 										IterativeNeighbourSearcher{ table },
-										stateMap,
+										defaultVisitationTracker,
 										sl::graph::EmptyCallback{},
 										[&count](const auto& vertex, const auto& nodeInfo)
 										{
@@ -75,9 +74,8 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 										}
 										);
 		REQUIRE(count == 1);
-		REQUIRE(std::size(stateMap) == size.x * size.y);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }) == 1);
-		REQUIRE(std::count_if(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }) == size.x * size.y - 1);
+		REQUIRE(std::size(defaultVisitationTracker) == size.x * size.y);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
 	}
 
 	SECTION("check node visitation count via preCallback")
@@ -85,7 +83,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 		sl::graph::traverseDepthFirstSearchIterative(
 													Vector{ 0, 0 },
 													IterativeNeighbourSearcher{ table },
-													stateMap,
+													defaultVisitationTracker,
 													[&table](const auto& vertex, const auto& nodeInfo)
 													{
 														++table[vertex.y][vertex.x];
@@ -97,9 +95,8 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 					end(table),
 					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
 				);
-		REQUIRE(std::size(stateMap) == size.x * size.y);
-		REQUIRE(std::all_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }));
-		REQUIRE(std::none_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }));
+		REQUIRE(std::size(defaultVisitationTracker) == size.x * size.y);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
 	}
 
 	SECTION("check node visitation count via postCallback")
@@ -107,7 +104,7 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 		traverseDepthFirstSearchIterative(
 										Vector{ 0, 0 },
 										IterativeNeighbourSearcher{ table },
-										stateMap,
+										defaultVisitationTracker,
 										sl::graph::EmptyCallback{},
 										[&table](const auto& vertex, const auto& nodeInfo)
 										{
@@ -120,31 +117,8 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 					end(table),
 					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
 				);
-		REQUIRE(std::size(stateMap) == size.x * size.y);
-		REQUIRE(std::all_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::closed; }));
-		REQUIRE(std::none_of(begin(stateMap), end(stateMap), [](const auto& pair){ return pair.second.state == sl::graph::NodeState::open; }));
-	}
-
-	SECTION("check node visitation with boolean count via preCallback")
-	{
-		sl::graph::DefaultDfsStateMap_t<Vector> booleanStateMap;
-		sl::graph::traverseDepthFirstSearchIterative(
-													Vector{ 0, 0 },
-													IterativeNeighbourSearcher{ table },
-													booleanStateMap,
-													[&table](const auto& vertex, const auto& nodeInfo)
-													{
-														++table[vertex.y][vertex.x];
-													}
-													);
-		REQUIRE(
-				std::all_of(
-					begin(table),
-					end(table),
-					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
-				);
-		REQUIRE(std::size(booleanStateMap) == size.x * size.y);
-		REQUIRE(std::all_of(begin(booleanStateMap), end(booleanStateMap), [](const auto& pair) { return pair.second; }));
+		REQUIRE(std::size(defaultVisitationTracker) == size.x * size.y);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
 	}
 
 	SECTION("check node visitation with boolean count via preCallback and custom st::vector<bool> visitation tracker")
@@ -159,6 +133,116 @@ TEST_CASE("traverse table depth-first-search", "[dfs]")
 														++table[vertex.y][vertex.x];
 													}
 													);
+		REQUIRE(
+				std::all_of(
+					begin(table),
+					end(table),
+					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
+				);
+		REQUIRE(std::size(visitationTracker.m_Data) == size.x * size.y);
+		REQUIRE(std::all_of(begin(visitationTracker.m_Data), end(visitationTracker.m_Data), [](const auto& val) { return val; }));
+	}
+}
+
+TEST_CASE("traverse table depth-first-search recursive", "[dfs]")
+{
+	constexpr Vector size{ 10, 10 };
+	std::array<std::array<int, 10>, 10> table{};
+
+	using DfsNodeInfo_t = sl::graph::DfsNodeInfo_t<Vector>;
+	sl::graph::DefaultDfsVisitationTracker_t<Vector> defaultVisitationTracker;
+	SECTION("check early return through preCallback")
+	{
+		int count = 0;
+		sl::graph::traverseDepthFirstSearch(
+											Vector{ 0, 0 },
+											NeighbourSearcher{ table, false },
+											defaultVisitationTracker,
+											[&count](const auto& vertex, const auto& nodeInfo)
+											{
+												++count;
+												return true;
+											}
+											);
+		REQUIRE(count == 1);
+		REQUIRE(std::size(defaultVisitationTracker) == 1);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
+	}
+
+	SECTION("check early return through postCallback")
+	{
+		int count = 0;
+		traverseDepthFirstSearch(
+								Vector{ 0, 0 },
+								NeighbourSearcher{ table, false },
+								defaultVisitationTracker,
+								sl::graph::EmptyCallback{},
+								[&count](const auto& vertex, const auto& nodeInfo)
+								{
+									++count;
+									return true;
+								}
+								);
+		REQUIRE(count == 1);
+		REQUIRE(std::size(defaultVisitationTracker) == size.x * size.y);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
+	}
+
+	SECTION("check node visitation count via preCallback")
+	{
+		sl::graph::traverseDepthFirstSearch(
+											Vector{ 0, 0 },
+											NeighbourSearcher{ table, false },
+											defaultVisitationTracker,
+											[&table](const auto& vertex, const auto& nodeInfo)
+											{
+												++table[vertex.y][vertex.x];
+											}
+											);
+		REQUIRE(
+				std::all_of(
+					begin(table),
+					end(table),
+					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
+				);
+		REQUIRE(std::size(defaultVisitationTracker) == size.x * size.y);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
+	}
+
+	SECTION("check node visitation count via postCallback")
+	{
+		traverseDepthFirstSearch(
+								Vector{ 0, 0 },
+								NeighbourSearcher{ table, false },
+								defaultVisitationTracker,
+								sl::graph::EmptyCallback{},
+								[&table](const auto& vertex, const auto& nodeInfo)
+								{
+									++table[vertex.y][vertex.x];
+								}
+								);
+		REQUIRE(
+				std::all_of(
+					begin(table),
+					end(table),
+					[](const auto& row) { return std::all_of(begin(row), end(row), [](const auto& val) { return val == 1; }); })
+				);
+		REQUIRE(std::size(defaultVisitationTracker) == size.x * size.y);
+		REQUIRE(std::all_of(begin(defaultVisitationTracker), end(defaultVisitationTracker), [](const auto& pair) { return pair.second; }));
+	}
+
+	SECTION("check node visitation with boolean count via preCallback and custom st::vector<bool> visitation tracker")
+	{
+		VisitationTracker visitationTracker{ size };
+		sl::graph::traverseDepthFirstSearch(
+											Vector{ 0, 0 },
+											NeighbourSearcher{ table, false },
+											visitationTracker,
+											[&table](const auto& vertex, const auto& nodeInfo)
+											{
+												++table[vertex.y][vertex.x];
+											}
+											);
 		REQUIRE(
 				std::all_of(
 					begin(table),

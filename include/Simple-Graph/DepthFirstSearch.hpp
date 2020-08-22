@@ -15,6 +15,7 @@
 #include <map>
 #include <optional>
 #include <stack>
+#include <vector>
 
 namespace sl::graph::detail::dfs
 {
@@ -25,7 +26,6 @@ namespace sl::graph::detail::dfs
 
 		std::optional<Vertex_t> parent;
 		int depth = 0;
-		NodeState state = NodeState::none;
 
 		[[nodiscard]] constexpr bool operator ==(const NodeInfo&) const noexcept(detail::IsNothrowComparable_v<TVertex>) = default;
 
@@ -36,63 +36,75 @@ namespace sl::graph::detail::dfs
 	};
 
 	template <class T, class TNodeInfo>
-	concept NeighbourSearcherFor = requires { typename TNodeInfo::Vertex_t; } && std::is_invocable_r_v<
+	concept IterativeNeighbourSearcherFor = requires { typename TNodeInfo::Vertex_t; } && std::is_invocable_r_v<
 		std::optional<typename TNodeInfo::Vertex_t>, T, const typename TNodeInfo::Vertex_t&, const TNodeInfo&, DummyCallable<typename TNodeInfo::Vertex_t>>;
 
+	template <class T, class TNodeInfo>
+	concept NeighbourSearcherFor = requires { typename TNodeInfo::Vertex_t; } && NeighbourSearcherWith<T, const typename TNodeInfo::Vertex_t&, const TNodeInfo&>;
+
 	template <class T>
-	concept BooleanReference = std::is_convertible_v<T, bool> && std::equality_comparable_with<T, bool>;
+	concept BooleanReference = std::same_as<T, std::vector<bool>::reference> ||
+	std::is_convertible_v<T, bool> && std::equality_comparable_with<T, bool> && std::is_reference_v<T>;
+
 	template <class T, class TVertex>
-	concept StateMapFor = detail::StateMapWith<T, TVertex, NodeInfo<TVertex>> ||
-	requires(std::remove_cvref_t<T>& stateMap)
+	concept VisitationTrackerFor = requires(std::remove_cvref_t<T>& tracker)
 	{
 		{
-			stateMap[std::declval<TVertex>()]
+			tracker[std::declval<TVertex>()]
 		} -> BooleanReference;
 	};
 
 	template <class T, class TNodeInfo>
 	concept CallbackFor = requires { typename TNodeInfo::Vertex_t; } && std::invocable<T, typename TNodeInfo::Vertex_t, TNodeInfo>;
 
-	template <class TStateMap, class TVertex, class TState>
-	decltype(auto) setState(TStateMap& stateMap, const TVertex& vertex, const TState& state) noexcept
+	template <class TVertex, class TNeighbourSearcher, class TVisitationTracker, class TPreOrderCallback, class TPostOrderCallback>
+	bool traverseRecursive(
+		const TVertex& current,
+		const NodeInfo<TVertex>& currentNodeInfo,
+		const TNeighbourSearcher& neighbourSearcher,
+		TVisitationTracker& visitationTracker,
+		TPreOrderCallback& preCallback,
+		TPostOrderCallback& postCallback
+	)
 	{
-		auto&& element = stateMap[vertex];
-		if constexpr (std::is_assignable_v<decltype(element), bool>)
-		{
-			element = true;
-		}
-		else
-		{
-			return element = state;
-		}
-		return std::forward<decltype(element)>(element);
-	}
+		using NodeInfo_t = NodeInfo<TVertex>;
 
-	template <class TState>
-	TState& setClosed(TState& state) noexcept
-	{
-		if constexpr (std::is_convertible_v<TState, bool>)
-		{
-			state = true;
-		}
-		else
-		{
-			state.state = NodeState::closed;
-		}
-		return state;
-	}
+		auto&& currentVisitState = visitationTracker[current];
+		if (currentVisitState)
+			return false;
 
-	template <class TState>
-	bool isUnVisited(const TState& state) noexcept
-	{
-		if constexpr (std::is_convertible_v<TState, bool>)
+		currentVisitState = true;
+		if (shallReturn(preCallback, current, currentNodeInfo))
 		{
-			return !state;
+			return true;
 		}
-		else
+
+		bool interrupt = false;
+		neighbourSearcher(
+						current,
+						currentNodeInfo,
+						[&](const TVertex& vertex)
+						{
+							if (interrupt)
+								return;
+
+							interrupt = traverseRecursive(
+														vertex,
+														{ vertex, currentNodeInfo.depth + 1 },
+														neighbourSearcher,
+														visitationTracker,
+														preCallback,
+														postCallback
+														);
+						}
+						);
+
+		if (interrupt || shallReturn(postCallback, current, currentNodeInfo))
 		{
-			return state.state == NodeState::none;
+			return true;
 		}
+
+		return false;
 	}
 }
 
@@ -101,59 +113,74 @@ namespace sl::graph
 	template <detail::Vertex TVertex>
 	using DfsNodeInfo_t = detail::dfs::NodeInfo<TVertex>;
 	template <detail::Vertex TVertex>
-	using DefaultDfsStateMap_t = std::map<TVertex, bool>;
-	template <detail::Vertex TVertex>
-	using DfsNodeInfoStateMap_t = std::map<TVertex, DfsNodeInfo_t<TVertex>>;
+	using DefaultDfsVisitationTracker_t = std::map<TVertex, bool>;
 
 	template <detail::Vertex TVertex,
 		detail::dfs::NeighbourSearcherFor<DfsNodeInfo_t<TVertex>> TNeighbourSearcher,
-		detail::dfs::StateMapFor<TVertex> TStateMap = DefaultDfsStateMap_t<TVertex>,
+		detail::dfs::VisitationTrackerFor<TVertex> TVisitationTracker = DefaultDfsVisitationTracker_t<TVertex>,
+		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPreOrderCallback = EmptyCallback,
+		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPostOrderCallback = EmptyCallback>
+	void traverseDepthFirstSearch(
+		const TVertex& start,
+		const TNeighbourSearcher& neighbourSearcher,
+		TVisitationTracker& visitationTracker = TVisitationTracker{},
+		TPreOrderCallback preCallback = TPreOrderCallback{},
+		TPostOrderCallback postCallback = TPostOrderCallback{}
+	)
+	{
+		detail::dfs::traverseRecursive(start, { std::nullopt, 0 }, neighbourSearcher, visitationTracker, preCallback, postCallback);
+	}
+
+	template <detail::Vertex TVertex,
+		detail::dfs::IterativeNeighbourSearcherFor<DfsNodeInfo_t<TVertex>> TNeighbourSearcher,
+		detail::dfs::VisitationTrackerFor<TVertex> TVisitationTracker = DefaultDfsVisitationTracker_t<TVertex>,
 		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPreOrderCallback = EmptyCallback,
 		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPostOrderCallback = EmptyCallback>
 	void traverseDepthFirstSearchIterative(
 		const TVertex& start,
 		const TNeighbourSearcher& neighbourSearcher,
-		TStateMap& stateMap = TStateMap{},
+		TVisitationTracker& visitationTracker = TVisitationTracker{},
 		TPreOrderCallback preCallback = TPreOrderCallback{},
 		TPostOrderCallback postCallback = TPostOrderCallback{}
 	)
 	{
 		using NodeInfo = detail::dfs::NodeInfo<TVertex>;
+		using StackNode = std::pair<TVertex, std::optional<TVertex>>;
 
-		std::stack<TVertex> stack;
-		stack.push(start);
-		int depth = 0;
-		if (detail::shallReturn(preCallback, start, detail::dfs::setState(stateMap, start, NodeInfo{ std::nullopt, depth, NodeState::open })))
+		visitationTracker[start] = true;
+		if (detail::shallReturn(preCallback, start, NodeInfo{ std::nullopt, 0 }))
 			return;
+		
+		std::stack<StackNode> stack;
+		stack.emplace(start, std::nullopt);
 		while (!std::empty(stack))
 		{
-			auto currentVertex = stack.top();
-			auto&& nodeState = stateMap[currentVertex];
+			auto& currentNode = stack.top();
 			if (auto child = neighbourSearcher(
-												currentVertex,
-												nodeState,
-												[&stateMap](const TVertex& vertex)
+												currentNode.first,
+												NodeInfo{ currentNode.second, static_cast<int>(std::size(stack) - 1) },
+												[&visitationTracker](const TVertex& vertex)
 												{
-													return detail::dfs::isUnVisited(stateMap[vertex]);
+													// might appear silly, but we need this kind of trick when using std::vector<bool>
+													auto&& visited = visitationTracker[vertex];
+													const bool old = visited;
+													visited = true;
+													return !old;
 												}
 											))
 			{
-				++depth;
-				auto&& childState{ detail::dfs::setState(stateMap, *child, NodeInfo{ std::nullopt, depth, NodeState::open }) };
-				if (detail::shallReturn(preCallback, *child, childState))
+				if (detail::shallReturn(preCallback, *child, NodeInfo{ currentNode.first, static_cast<int>(std::size(stack)) }))
 					return;
-				stack.push(*child);
+				stack.emplace(*child, currentNode.first);
 			}
 			else
 			{
-				detail::dfs::setClosed(nodeState);
-				if (detail::shallReturn(postCallback, currentVertex, nodeState))
+				if (detail::shallReturn(postCallback, currentNode.first, NodeInfo{ currentNode.second, static_cast<int>(std::size(stack) -1) }))
 					return;
-				--depth;
 				stack.pop();
 			}
 		}
-		assert(depth == -1);
+		assert(std::empty(stack));
 	}
 }
 
