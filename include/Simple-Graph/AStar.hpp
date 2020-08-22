@@ -135,7 +135,7 @@ namespace sl::graph
 		const TVertex& destination,
 		const TPropertyMap& propertyMap,
 		const TNeighbourSearcher& neighbourSearcher,
-		TStateMap&& stateMap = TStateMap{},
+		TStateMap& stateMap = TStateMap{},
 		TCallback callback = TCallback{}
 	)
 	{

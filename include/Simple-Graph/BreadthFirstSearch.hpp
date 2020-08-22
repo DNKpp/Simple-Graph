@@ -57,8 +57,8 @@ namespace sl::graph
 		detail::bfs::CallbackFor<BfsNodeInfo_t<TVertex>> TCallback = EmptyCallback>
 	void traverseBreadthFirstSearch(
 		const TVertex& start,
-		TNeighbourSearcher neighbourSearcher,
-		TStateMap&& stateMap,
+		const TNeighbourSearcher& neighbourSearcher,
+		TStateMap& stateMap,
 		TCallback callback = TCallback{}
 	)
 	{

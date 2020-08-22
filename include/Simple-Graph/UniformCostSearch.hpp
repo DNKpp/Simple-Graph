@@ -118,7 +118,13 @@ namespace sl::graph::detail::ucs
 namespace sl::graph::detail
 {
 	template <class TNodeCreator, class TNeighbourSearcher, class TStateMap, class TOpenList, class TCallback>
-	void traverse(TNodeCreator nodeCreator, const TNeighbourSearcher& neighbourSearcher, TStateMap&& stateMap, TOpenList openList, TCallback callback)
+	void traverse(
+		TNodeCreator& nodeCreator,
+		const TNeighbourSearcher& neighbourSearcher,
+		TStateMap& stateMap,
+		TOpenList& openList,
+		TCallback callback
+	)
 	{
 		assert(!empty(openList));
 		while (!empty(openList))
@@ -171,7 +177,7 @@ namespace sl::graph
 		const TVertex& destination,
 		const TPropertyMap& propertyMap,
 		const TNeighbourSearcher& neighbourSearcher,
-		TStateMap&& stateMap = TStateMap{},
+		TStateMap& stateMap = TStateMap{},
 		TCallback callback = TCallback{}
 	)
 	{

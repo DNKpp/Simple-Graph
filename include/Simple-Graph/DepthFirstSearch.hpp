@@ -112,8 +112,8 @@ namespace sl::graph
 		detail::dfs::CallbackFor<DfsNodeInfo_t<TVertex>> TPostOrderCallback = EmptyCallback>
 	void traverseDepthFirstSearchIterative(
 		const TVertex& start,
-		TNeighbourSearcher neighbourSearcher,
-		TStateMap&& stateMap,
+		const TNeighbourSearcher& neighbourSearcher,
+		TStateMap& stateMap = TStateMap{},
 		TPreOrderCallback preCallback = TPreOrderCallback{},
 		TPostOrderCallback postCallback = TPostOrderCallback{}
 	)
