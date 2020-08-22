@@ -119,7 +119,7 @@ namespace sl::graph::detail
 {
 	template <class TNodeCreator, class TNeighbourSearcher, class TStateMap, class TOpenList, class TCallback>
 	void traverse(
-		TNodeCreator& nodeCreator,
+		TNodeCreator nodeCreator,
 		const TNeighbourSearcher& neighbourSearcher,
 		TStateMap& stateMap,
 		TOpenList& openList,
@@ -194,7 +194,7 @@ namespace sl::graph
 							return { parent.vertex, weightSum, NodeState::open };
 						},
 						neighbourSearcher,
-						std::forward<TStateMap>(stateMap),
+						stateMap,
 						openList,
 						[&callback, &destination](const TVertex& vertex, const auto& nodeInfo)
 						{

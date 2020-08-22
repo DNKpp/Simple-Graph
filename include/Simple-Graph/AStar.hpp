@@ -31,7 +31,7 @@ namespace sl::graph::detail::astar
 		NodeState state = NodeState::none;
 
 		[[nodiscard]] constexpr bool operator ==(
-			const NodeInfo&
+			const NodeInfo& other
 		) const noexcept(detail::IsNothrowComparable_v<TVertex> && detail::IsNothrowComparable_v<TWeight>) = default;
 
 		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
@@ -71,14 +71,13 @@ namespace sl::graph::detail::astar
 		~OpenNode() noexcept = default;
 
 		[[nodiscard]] OpenNode(
-			const OpenNode&
+			const OpenNode& other
 		) noexcept(std::is_nothrow_copy_constructible_v<TVertex> && std::is_nothrow_copy_constructible_v<TWeight>) = default;
 		[[nodiscard]] OpenNode& operator =(
-			const OpenNode&
+			const OpenNode& other
 		) noexcept(std::is_nothrow_copy_assignable_v<TVertex> && std::is_nothrow_copy_assignable_v<TWeight>) = default;
 		[[nodiscard]] OpenNode(OpenNode&&) noexcept(std::is_nothrow_move_constructible_v<TVertex> && std::is_nothrow_move_constructible_v<TWeight>) = default;
-		[[nodiscard]] OpenNode& operator =(OpenNode&&) noexcept(std::is_nothrow_move_assignable_v<TVertex> && std::is_nothrow_move_assignable_v<TWeight>)
-		= default;
+		[[nodiscard]] OpenNode& operator =(OpenNode&&) noexcept(std::is_nothrow_move_assignable_v<TVertex> && std::is_nothrow_move_assignable_v<TWeight>) = default;
 
 		[[nodiscard]] bool operator ==(const OpenNode&) const noexcept(IsNothrowComparable_v<TVertex> && IsNothrowComparable_v<TWeight>) = default;
 
@@ -149,10 +148,12 @@ namespace sl::graph
 						[&destination, &propertyMap](const TVertex& vertex, const OpenNode_t& parent) -> NodeInfo_t
 						{
 							auto weightSum = parent.weightSum + propertyMap.edgeWeight(parent.vertex, vertex) + propertyMap.nodeWeight(vertex);
-							return { parent.vertex, weightSum, propertyMap.heuristic(vertex, destination), NodeState::open };
+							auto heuristic = propertyMap.heuristic(vertex, destination);
+							assert(0 <= heuristic && "The algorithm is not desined to work with negative heuristics.");
+							return { parent.vertex, weightSum, heuristic, NodeState::open };
 						},
 						neighbourSearcher,
-						std::forward<TStateMap>(stateMap),
+						stateMap,
 						openList,
 						[&callback, &destination](const TVertex& vertex, const auto& nodeInfo)
 						{
