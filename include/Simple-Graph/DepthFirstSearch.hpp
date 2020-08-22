@@ -44,7 +44,7 @@ namespace sl::graph::detail::dfs
 
 	template <class T>
 	concept BooleanReference = std::same_as<T, std::vector<bool>::reference> ||
-	std::is_convertible_v<T, bool> && std::equality_comparable_with<T, bool> && std::is_reference_v<T>;
+	(std::is_convertible_v<T, bool> && std::equality_comparable_with<T, bool> && std::is_reference_v<T>);
 
 	template <class T, class TVertex>
 	concept VisitationTrackerFor = requires(std::remove_cvref_t<T>& tracker)
