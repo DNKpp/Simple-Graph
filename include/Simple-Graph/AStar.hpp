@@ -34,7 +34,7 @@ namespace sl::graph::detail::astar
 			const NodeInfo& other
 		) const noexcept(detail::IsNothrowComparable_v<TVertex> && detail::IsNothrowComparable_v<TWeight>) = default;
 
-		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
+		[[nodiscard]] constexpr auto operator <=>(const NodeInfo& other) const noexcept
 		{
 			return weightSum + heuristic <=> other.weightSum + other.heuristic;
 		}
@@ -81,7 +81,7 @@ namespace sl::graph::detail::astar
 
 		[[nodiscard]] bool operator ==(const OpenNode&) const noexcept(IsNothrowComparable_v<TVertex> && IsNothrowComparable_v<TWeight>) = default;
 
-		[[nodiscard]] std::strong_ordering operator <=>(const OpenNode& other) const noexcept
+		[[nodiscard]] auto operator <=>(const OpenNode& other) const noexcept
 		{
 			return weightSum + heuristic <=> other.weightSum + other.heuristic;
 		}

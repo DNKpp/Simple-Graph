@@ -28,7 +28,7 @@ namespace sl::graph::detail::bfs
 
 		[[nodiscard]] constexpr bool operator ==(const NodeInfo&) const noexcept(detail::IsNothrowComparable_v<TVertex>) = default;
 
-		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
+		[[nodiscard]] constexpr auto operator <=>(const NodeInfo& other) const noexcept
 		{
 			return depth <=> other.depth;
 		}

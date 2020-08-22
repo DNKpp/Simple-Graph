@@ -33,7 +33,7 @@ namespace sl::graph::detail::ucs
 			const NodeInfo& other
 		) const noexcept(detail::IsNothrowComparable_v<TVertex> && detail::IsNothrowComparable_v<TWeight>) = default;
 
-		[[nodiscard]] constexpr std::strong_ordering operator <=>(const NodeInfo& other) const noexcept
+		[[nodiscard]] constexpr auto operator <=>(const NodeInfo& other) const noexcept
 		{
 			return weightSum <=> other.weightSum;
 		}
