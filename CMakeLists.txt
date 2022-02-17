@@ -1,11 +1,19 @@
-cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
-project(simple_graph)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+
+project(Simple-Graph
+	LANGUAGES CXX
+	VERSION 1.0.0
+)
+
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
+include("get_cpm")
 
 add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_include_directories(
 	${PROJECT_NAME}
 	INTERFACE
-	${CMAKE_CURRENT_SOURCE_DIR}/include
+	"${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
 target_compile_features(
@@ -14,27 +22,7 @@ target_compile_features(
 	cxx_std_20
 )
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-	include(CTest)
-
-	add_executable(
-		test_simple_graph
-		${CMAKE_CURRENT_SOURCE_DIR}/test/AStarTest.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/test/UniformCostSearchTest.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/test/BreadthFirstSearchTest.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/test/DepthFirstSearchTest.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp
-	)
-
-	target_link_libraries(
-		test_simple_graph
-		PRIVATE
-		simple_graph
-	)
-
-	enable_testing()
-	add_test(
-		NAME Simple-Graph_TestSuite
-		COMMAND test_simple_graph
-	)
+OPTION(${PROJECT_NAME}_BUILD_TESTS "Determines whether tests will be build or not." OFF)
+if (${PROJECT_NAME}_BUILD_TESTS)
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tests")
 endif()
