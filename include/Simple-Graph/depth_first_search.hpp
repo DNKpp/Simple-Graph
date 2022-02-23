@@ -17,7 +17,7 @@
 namespace sl::graph
 {
 	template <class T, class TContainer>
-	struct detail::take_next_t<std::stack<T, TContainer>>
+	struct detail::take_next_func_t<std::stack<T, TContainer>>
 	{
 		constexpr T operator ()(std::stack<T, TContainer>& container) const
 		{
