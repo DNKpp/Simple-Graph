@@ -50,10 +50,13 @@ namespace sl::graph
 				: std::invoke(neighborSearcher, node.vertex)
 				| std::views::filter([&](const TVertex& v) { return v != node.predecessor; })
 				| std::views::filter([&stateMap](const TVertex& v) { return !std::exchange(stateMap[v], true); })
-				| std::views::filter(nodePredicate)
 			)
 			{
-				openNodes.emplace(node.vertex, current, node.weight_sum + 1);
+				weighted_node<TVertex, int> currentNode{ node.vertex, current, node.weight_sum + 1 };
+				if (std::invoke(nodePredicate, currentNode))
+				{
+					openNodes.emplace(std::move(currentNode));
+				}
 			}
 		}
 	}
