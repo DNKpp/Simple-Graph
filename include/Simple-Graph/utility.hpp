@@ -61,7 +61,9 @@ namespace sl::graph
 
 	struct empty_invokable
 	{
-		
+		constexpr void operator ()(auto&&...) const noexcept
+		{
+		}
 	};
 }
 
