@@ -65,6 +65,14 @@ namespace sl::graph
 		{
 		}
 	};
+
+	struct true_constant
+	{
+		constexpr bool operator ()(auto&&...) const noexcept
+		{
+			return true;
+		}
+	};
 }
 
 namespace sl::graph::detail
