@@ -20,6 +20,8 @@ target_compile_features(
 	${PROJECT_NAME}
 	INTERFACE
 	cxx_std_20
+	# msvc disabled ranges for c++20; force /std:c++latest instead
+	$<$<CXX_COMPILER_ID:MSVC>:cxx_std_23>
 )
 
 OPTION(${PROJECT_NAME}_BUILD_TESTS "Determines whether tests will be build or not." OFF)
