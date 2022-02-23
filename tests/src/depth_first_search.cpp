@@ -13,6 +13,8 @@
 #include <array>
 #include <vector>
 
+using namespace sl::graph;
+
 template <class T, int VWidth, int VHeight>
 using grid2d = std::array<std::array<T, VWidth>, VHeight>;
 using vertex = sl::vec::Vector<int, 2>;
@@ -68,7 +70,7 @@ TEST_CASE("traverse_dfs should visit all vertices of a given linear graph.", "[d
 
 	std::vector<int> visitedVertices{};
 
-	sl::graph::traverse_dfs
+	traverse_dfs
 	(
 		5,
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
@@ -78,18 +80,36 @@ TEST_CASE("traverse_dfs should visit all vertices of a given linear graph.", "[d
 	REQUIRE(visitedVertices == std::vector{ 5, 6, 7, 8, 4, 3 });
 }
 
+TEST_CASE("traverse_dfs should skip vertices for which predicate returns false.", "[bfs]")
+{
+	constexpr int begin{ 3 };
+	constexpr int end{ 9 };
+
+	std::vector<int> visitedVertices{};
+
+	traverse_dfs
+	(
+		5,
+		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
+		[](const auto& node) { return node.vertex != 6; }
+	);
+
+	REQUIRE(visitedVertices == std::vector{ 5, 4, 3 });
+}
+
 TEST_CASE("traverse_dfs should visit all vertices of a given grid.", "[dfs]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
 
 	int invokeCounter = 0;
 
-	sl::graph::traverse_dfs
+	traverse_dfs
 	(
 		vertex{ 1, 1 },
 		grid_4way_neighbor_searcher{ &grid },
 		[&invokeCounter](const auto&) { ++invokeCounter; },
-		sl::graph::true_constant{},
+		true_constant{},
 		std::map<vertex, bool, vertex_less>{}
 	);
 

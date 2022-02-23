@@ -80,6 +80,24 @@ TEST_CASE("traverse_bfs should visit all vertices of a given linear graph.", "[b
 	REQUIRE(visitedVertices == std::vector{ 5, 4, 6, 3, 7, 8 });
 }
 
+TEST_CASE("traverse_bfs should skip vertices for which predicate returns false.", "[bfs]")
+{
+	constexpr int begin{ 3 };
+	constexpr int end{ 9 };
+
+	std::vector<int> visitedVertices{};
+
+	traverse_bfs
+	(
+		5,
+		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
+		[](const auto& node) { return node.vertex != 6; }
+	);
+
+	REQUIRE(visitedVertices == std::vector{ 5, 4, 3 });
+}
+
 TEST_CASE("traverse_bfs should visit all vertices of a given grid.", "[bfs]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
