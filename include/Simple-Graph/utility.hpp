@@ -15,6 +15,15 @@
 
 namespace sl::graph
 {
+	template <class>
+	struct node_traits;
+
+	template <class TNode>
+	using node_vertex_t = typename node_traits<TNode>::vertex_type;
+
+	template <class TNode>
+	using node_weight_t = typename node_traits<TNode>::weight_type;
+
 	enum class visit_state : std::uint8_t
 	{
 		none = 0,
@@ -49,6 +58,9 @@ namespace sl::graph
 	template <vertex_descriptor TVertex, weight TWeight>
 	struct weighted_node
 	{
+		using vertex_type = TVertex;
+		using weight_type = TWeight;
+
 		std::optional<TVertex> predecessor{};
 		TVertex vertex{};
 		TWeight weight_sum{};
@@ -57,6 +69,14 @@ namespace sl::graph
 		{
 			return weight_sum <=> other.weight_sum;
 		}
+	};
+
+	template <class TVertex, class TWeight>
+	struct node_traits<weighted_node<TVertex, TWeight>>
+	{
+		using node_t = weighted_node<TVertex, TWeight>;
+		using vertex_type = typename node_t::vertex_type;
+		using weight_type = typename node_t::weight_type;
 	};
 
 	struct empty_invokable

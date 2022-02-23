@@ -8,15 +8,25 @@
 
 #pragma once
 
+#include "generic_traverse.hpp"
 #include "utility.hpp"
 
 #include <map>
-
-#include <ranges>
 #include <stack>
 
 namespace sl::graph
 {
+	template <class T, class TContainer>
+	struct detail::take_next_t<std::stack<T, TContainer>>
+	{
+		constexpr T operator ()(std::stack<T, TContainer>& container) const
+		{
+			auto el{ std::move(container.top()) };
+			container.pop();
+			return el;
+		}
+	};
+
 	template <
 		vertex_descriptor TVertex,
 		std::invocable<TVertex> TNeighborSearcher,
@@ -28,37 +38,20 @@ namespace sl::graph
 	(
 		TVertex begin,
 		TNeighborSearcher neighborSearcher,
-		TPreOrderFunc preOrderFunc = {},
+		TPreOrderFunc callback = {},
 		TNodePredicate nodePredicate = {},
 		TStateMap stateMap = {}
 	)
 	{
-		std::stack<weighted_node<TVertex, int>> openNodes{};
-		openNodes.emplace(std::nullopt, std::move(begin), 0);
-
-		while (!std::empty(openNodes))
-		{
-			auto node{ std::move(openNodes.top()) };
-			openNodes.pop();
-
-			if (detail::shall_interrupt(preOrderFunc, node))
-				return;
-
-			for
-			(
-				const TVertex& current
-				: std::invoke(neighborSearcher, node.vertex)
-				| std::views::filter([&](const TVertex& v) { return v != node.predecessor; })
-				| std::views::filter([&stateMap](const TVertex& v) { return !std::exchange(stateMap[v], true); })
-			)
-			{
-				weighted_node<TVertex, int> currentNode{ node.vertex, current, node.weight_sum + 1 };
-				if (std::invoke(nodePredicate, currentNode))
-				{
-					openNodes.emplace(std::move(currentNode));
-				}
-			}
-		}
+		detail::uniform_cost_traverse<weighted_node<TVertex, int>>
+		(
+			std::move(begin),
+			std::move(neighborSearcher),
+			std::move(callback),
+			std::move(nodePredicate),
+			std::stack<weighted_node<TVertex, int>>{},
+			std::move(stateMap)
+		);
 	}
 }
 
