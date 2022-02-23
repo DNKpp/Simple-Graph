@@ -34,11 +34,11 @@ namespace sl::graph
 	)
 	{
 		std::stack<weighted_node<TVertex, int>> openNodes{};
-		openNodes.emplace(std::nullopt, begin, 0);
+		openNodes.emplace(std::nullopt, std::move(begin), 0);
 
 		while (!std::empty(openNodes))
 		{
-			auto node = openNodes.top();
+			auto node{ std::move(openNodes.top()) };
 			openNodes.pop();
 
 			if (detail::shall_interrupt(preOrderFunc, node))
