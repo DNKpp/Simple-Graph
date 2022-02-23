@@ -16,14 +16,14 @@
 namespace sl::graph::detail
 {
 	template <class>
-	struct take_next_t;
+	struct take_next_func_t;
 
 	template <class T, class TNode>
 	concept open_list_for = requires(const T& container) { std::empty(container); }
 							&& requires(T& container)
 							{
 								container.emplace(std::declval<TNode>());
-								{ take_next_t<std::remove_cvref_t<T>>{}(container) } -> std::convertible_to<TNode>;
+								{ take_next_func_t<std::remove_cvref_t<T>>{}(container) } -> std::convertible_to<TNode>;
 							};
 
 	template <
@@ -53,7 +53,7 @@ namespace sl::graph::detail
 
 		while (!std::empty(openList))
 		{
-			auto node{ take_next_t<TOpenList>{}(openList) };
+			auto node{ take_next_func_t<TOpenList>{}(openList) };
 
 			if (detail::shall_interrupt(callback, node))
 				return;
