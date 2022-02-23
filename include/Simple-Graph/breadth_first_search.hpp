@@ -3,20 +3,30 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          https://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef SIMPLE_GRAPH_DEPTH_FIRST_SEARCH_HPP
-#define SIMPLE_GRAPH_DEPTH_FIRST_SEARCH_HPP
+#ifndef SIMPLE_GRAPH_BREADTH_FIRST_SEARCH_HPP
+#define SIMPLE_GRAPH_BREADTH_FIRST_SEARCH_HPP
 
 #pragma once
 
+#include "generic_traverse.hpp"
 #include "utility.hpp"
 
 #include <map>
-
 #include <queue>
-#include <ranges>
 
 namespace sl::graph
 {
+	template <class T, class TContainer>
+	struct detail::take_next_t<std::queue<T, TContainer>>
+	{
+		constexpr T operator ()(std::queue<T, TContainer>& container) const
+		{
+			auto el{ std::move(container.front()) };
+			container.pop();
+			return el;
+		}
+	};
+
 	template <
 		vertex_descriptor TVertex,
 		std::invocable<TVertex> TNeighborSearcher,
@@ -33,32 +43,15 @@ namespace sl::graph
 		TStateMap stateMap = {}
 	)
 	{
-		std::queue<weighted_node<TVertex, int>> openNodes{};
-		openNodes.emplace(std::nullopt, std::move(begin), 0);
-
-		while (!std::empty(openNodes))
-		{
-			auto node{ std::move(openNodes.front()) };
-			openNodes.pop();
-
-			if (detail::shall_interrupt(callback, node))
-				return;
-
-			for
-			(
-				const TVertex& current
-				: std::invoke(neighborSearcher, node.vertex)
-				| std::views::filter([&](const TVertex& v) { return v != node.predecessor; })
-				| std::views::filter([&stateMap](const TVertex& v) { return !std::exchange(stateMap[v], true); })
-			)
-			{
-				weighted_node<TVertex, int> currentNode{ node.vertex, current, node.weight_sum + 1 };
-				if (std::invoke(nodePredicate, currentNode))
-				{
-					openNodes.emplace(std::move(currentNode));
-				}
-			}
-		}
+		detail::uniform_cost_traverse<weighted_node<TVertex, int>>
+		(
+			std::move(begin),
+			std::move(neighborSearcher),
+			std::move(callback),
+			std::move(nodePredicate),
+			std::queue<weighted_node<TVertex, int>>{},
+			std::move(stateMap)
+		);
 	}
 }
 
