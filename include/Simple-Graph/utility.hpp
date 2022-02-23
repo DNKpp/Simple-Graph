@@ -58,7 +58,10 @@ namespace sl::graph
 			return weight_sum <=> other.weight_sum;
 		}
 	};
+}
 
+namespace sl::graph::detail
+{
 	template <class TFunc, class... TArgs>
 	[[nodiscard]]
 	constexpr bool shall_interrupt(TFunc&& func, TArgs&&... args)
