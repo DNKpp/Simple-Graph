@@ -58,6 +58,11 @@ namespace sl::graph
 			return weight_sum <=> other.weight_sum;
 		}
 	};
+
+	struct empty_invokable
+	{
+		
+	};
 }
 
 namespace sl::graph::detail
