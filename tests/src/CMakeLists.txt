@@ -1,7 +1,6 @@
 target_sources(
 	${PROJECT_NAME}-Tests
 	PRIVATE
-	breadth_first_search.cpp
-	depth_first_search.cpp
+	uniform_cost_traverse.cpp
 	utility.cpp
 )
