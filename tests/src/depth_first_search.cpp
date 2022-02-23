@@ -89,6 +89,7 @@ TEST_CASE("traverse_dfs should visit all vertices of a given grid.", "[dfs]")
 		vertex{ 1, 1 },
 		grid_4way_neighbor_searcher{ &grid },
 		[&invokeCounter](const auto&) { ++invokeCounter; },
+		sl::graph::true_constant{},
 		std::map<vertex, bool, vertex_less>{}
 	);
 

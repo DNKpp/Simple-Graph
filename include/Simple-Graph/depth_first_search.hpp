@@ -21,9 +21,17 @@ namespace sl::graph
 		vertex_descriptor TVertex,
 		std::invocable<TVertex> TNeighborSearcher,
 		std::invocable<weighted_node<TVertex, int>> TPreOrderFunc = empty_invokable,
+		std::predicate<weighted_node<TVertex, int>> TNodePredicate = true_constant,
 		state_map_for<TVertex, bool> TStateMap = std::map<TVertex, bool>>
 		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
-	void traverse_dfs(TVertex begin, TNeighborSearcher neighborSearcher, TPreOrderFunc preOrderFunc = {}, TStateMap stateMap = {})
+	void traverse_dfs
+	(
+		TVertex begin,
+		TNeighborSearcher neighborSearcher,
+		TPreOrderFunc preOrderFunc = {},
+		TNodePredicate nodePredicate = {},
+		TStateMap stateMap = {}
+	)
 	{
 		std::stack<weighted_node<TVertex, int>> openNodes{};
 		openNodes.emplace(std::nullopt, begin, 0);
@@ -42,6 +50,7 @@ namespace sl::graph
 				: std::invoke(neighborSearcher, node.vertex)
 				| std::views::filter([&](const TVertex& v) { return v != node.predecessor; })
 				| std::views::filter([&stateMap](const TVertex& v) { return !std::exchange(stateMap[v], true); })
+				| std::views::filter(nodePredicate)
 			)
 			{
 				openNodes.emplace(node.vertex, current, node.weight_sum + 1);
