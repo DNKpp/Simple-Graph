@@ -11,6 +11,7 @@
 #include <compare>
 #include <concepts>
 #include <cstdint>
+#include <functional>
 #include <optional>
 
 namespace sl::graph
