@@ -49,8 +49,8 @@ namespace sl::graph
 			std::move(neighborSearcher),
 			std::move(callback),
 			std::move(nodePredicate),
-			std::queue<weighted_node<TVertex, int>>{},
-			std::move(stateMap)
+			std::move(stateMap),
+			std::queue<weighted_node<TVertex, int>>{}
 		);
 	}
 }
