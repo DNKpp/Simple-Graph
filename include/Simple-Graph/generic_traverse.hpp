@@ -31,8 +31,8 @@ namespace sl::graph::detail
 		std::invocable<const node_vertex_t<TNode>&> TNeighborSearcher,
 		std::invocable<const TNode&> TCallback,
 		std::predicate<const TNode&> TNodePredicate,
-		open_list_for<TNode> TOpenList,
-		state_map_for<node_vertex_t<TNode>, bool> TStateMap>
+		state_map_for<node_vertex_t<TNode>, bool> TStateMap,
+		open_list_for<TNode> TOpenList>
 		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, const node_vertex_t<TNode>&>>
 	void uniform_cost_traverse
 	(
@@ -40,8 +40,8 @@ namespace sl::graph::detail
 		TNeighborSearcher neighborSearcher,
 		TCallback callback,
 		TNodePredicate nodePredicate,
-		TOpenList openList,
-		TStateMap stateMap
+		TStateMap stateMap,
+		TOpenList openList
 	)
 	{
 		using vertex_t = node_vertex_t<TNode>;

@@ -81,8 +81,8 @@ TEST_CASE("uniform_cost_traverse should visit all vertices of a given linear gra
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
 		true_constant{},
-		std::stack<weighted_node<int, int>>{},
-		std::map<int, bool>{}
+		std::map<int, bool>{},
+		std::stack<weighted_node<int, int>>{}
 	);
 
 	REQUIRE_THAT(visitedVertices, Catch::Matchers::UnorderedEquals(std::vector{ 5, 6, 7, 8, 4, 3 }));
@@ -100,8 +100,8 @@ TEST_CASE("uniform_cost_traverse should visit all vertices of a given grid.", "[
 		grid_4way_neighbor_searcher{ &grid },
 		[&invokeCounter](const auto&) { ++invokeCounter; },
 		true_constant{},
-		std::stack<weighted_node<vertex, int>>{},
-		state_map_2d{}
+		state_map_2d{},
+		std::stack<weighted_node<vertex, int>>{}
 	);
 
 	REQUIRE(invokeCounter == 3 * 4);
@@ -120,8 +120,8 @@ TEST_CASE("uniform_cost_traverse should skip vertices for which predicate return
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
 		[](const auto& node) { return node.vertex != 7; },
-		std::stack<weighted_node<int, int>>{},
-		std::map<int, bool>{}
+		std::map<int, bool>{},
+		std::stack<weighted_node<int, int>>{}
 	);
 
 	REQUIRE_THAT(visitedVertices, Catch::Matchers::UnorderedEquals(std::vector{ 5, 6, 4, 3 }));
