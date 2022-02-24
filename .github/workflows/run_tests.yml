@@ -26,14 +26,14 @@ jobs:
             exe: g++-11
           - pkg: g++-10
             exe: g++-10
-          - pkg: clang-13
-            exe: clang++-13
-          - pkg: clang-12
-            exe: clang++-12
-          - pkg: clang-11
-            exe: clang++-11
-          - pkg: clang-10
-            exe: clang++-10
+#          - pkg: clang-13
+#            exe: clang++-13
+#          - pkg: clang-12
+#            exe: clang++-12
+#          - pkg: clang-11
+#            exe: clang++-11
+#          - pkg: clang-10
+#            exe: clang++-10
             
     steps:
     - uses: actions/checkout@v2
@@ -65,8 +65,8 @@ jobs:
             toolset_option: -T"v142"
           - toolset: v143
             toolset_option: -T"v143"
-          - toolset: clang-cl
-            toolset_option: -T"ClangCl"
+#          - toolset: clang-cl
+#            toolset_option: -T"ClangCl"
 
     steps:
     - uses: actions/checkout@v2
