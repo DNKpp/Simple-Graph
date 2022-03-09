@@ -79,7 +79,11 @@ namespace sl::graph
 		TVertex vertex{};
 		TWeight weight_sum{};
 
-		constexpr std::compare_three_way_result<TWeight> operator <=>(const weighted_node& other) const noexcept
+		[[nodiscard]]
+		constexpr bool operator ==(const weighted_node& other) const noexcept = default;
+
+		[[nodiscard]]
+		constexpr std::compare_three_way_result_t<weight_type> operator <=>(const weighted_node& other) const noexcept
 		{
 			return weight_sum <=> other.weight_sum;
 		}
