@@ -15,9 +15,6 @@
 
 namespace sl::graph::detail
 {
-	template <class>
-	struct take_next_func_t;
-
 	template <class T, class TNode>
 	concept open_list_for = requires(const T& container) { std::empty(container); }
 							&& requires(T& container)

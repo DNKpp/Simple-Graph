@@ -14,6 +14,18 @@
 #include <functional>
 #include <optional>
 
+namespace sl::graph::detail
+{
+	template <class>
+	struct take_next_func_t;
+
+	template <class TContainer>
+	constexpr decltype(auto) take_next(TContainer& container)
+	{
+		return take_next_func_t<std::remove_cvref_t<TContainer>>{}(container);
+	}
+}
+
 namespace sl::graph
 {
 	template <class>
@@ -39,10 +51,11 @@ namespace sl::graph
 
 	template <class T>
 	concept weight = std::totally_ordered<T>
-					&& requires(T t)
+					&& std::regular<T>
+					&& requires(T& w, const T& o)
 					{
-						t += t;
-						{ t + t } -> std::convertible_to<T>;
+						w += o;
+						{ o + o } -> std::convertible_to<T>;
 					};
 
 	template <class T, class TVertex, class TState>
