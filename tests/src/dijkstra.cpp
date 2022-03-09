@@ -10,9 +10,11 @@
 
 #include "helper.hpp"
 
+#include <set>
+
 using namespace sl::graph;
 
-constexpr std::array<std::array<int, 3>, 4> default_grid
+constexpr grid2d<int, 3, 4> default_grid
 {
 	{
 		{ 1, 1, 1 },
@@ -57,9 +59,43 @@ TEST_CASE("dijkstra should visit all nodes if not interrupted.", "[dijkstra]")
 	REQUIRE_THAT(visitedVertices, Catch::Matchers::UnorderedEquals(expectedVertices));
 }
 
+TEST_CASE("dijkstra should prefer cheaper routes over already known, but not yet finalized, routes.", "[dijkstra]")
+{
+	constexpr grid2d<int, 3, 4> grid
+	{
+		{
+			{ 99, 99, 99 },
+			{ 99, 1, 1 },
+			{ 99, 2, 3 },
+			{ 99, 99, 99 }
+		}
+	};
+
+	std::set<vertex, vertex_less> visitedVertices{};
+
+	dijkstra::traverse
+	(
+		vertex{ 1, 1 },
+		grid_8way_neighbor_searcher{ .grid = &grid },
+		[&](const vertex& predecessor, const vertex& current)
+		{
+			// we use this to force a better route to 2/2, thus that vertex will be at least added twice to the open list
+			if (predecessor == vertex{ 2, 1 } && current == vertex{ 2, 2 })
+				return 1;
+			return grid_weight_extractor{ .grid = &grid }(predecessor, current);
+		},
+		[&](const auto& node)
+		{
+			REQUIRE(visitedVertices.emplace(node.vertex).second);
+		},
+		true_constant{},
+		state_map{}
+	);
+}
+
 TEST_CASE("dijkstra should calculate all weights.", "[dijkstra]")
 {
-	constexpr std::array<std::array<int, 3>, 4> grid
+	constexpr grid2d<int, 3, 4> grid
 	{
 		{
 			{ 1, 2, 1 },
