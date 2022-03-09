@@ -49,10 +49,12 @@ struct grid_4way_neighbor_searcher
 
 	std::vector<vertex> operator ()(const vertex& v) const
 	{
+		constexpr auto directions = std::to_array<vertex>({ { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } });
+
 		std::vector<vertex> neighbors{};
 		std::ranges::copy
 		(
-			std::to_array<vertex>({ { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } })
+			directions
 			| std::views::transform([&](const vertex& o) { return v + o; })
 			| std::views::filter(within_grid_t{ .grid = grid }),
 			std::back_inserter(neighbors)
@@ -68,10 +70,12 @@ struct grid_8way_neighbor_searcher
 
 	std::vector<vertex> operator ()(const vertex& v) const
 	{
+		constexpr auto directions = std::to_array<vertex>({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } });
+
 		std::vector<vertex> neighbors{ grid_4way_neighbor_searcher{ .grid = grid }(v) };
 		std::ranges::copy
 		(
-			std::to_array<vertex>({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } })
+			directions
 			| std::views::transform([&](const vertex& o) { return v + o; })
 			| std::views::filter(within_grid_t{ .grid = grid }),
 			std::back_inserter(neighbors)
