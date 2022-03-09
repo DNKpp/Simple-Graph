@@ -29,21 +29,25 @@ struct sl::graph::detail::take_next_func_t<std::priority_queue<TArgs...>>
 
 namespace sl::graph::dijkstra
 {
-	template <class TWeightCalculator, class TVertex>
+	template <vertex_descriptor TVertex, weight TWeight>
+	using node_t = weighted_node<TVertex, TWeight>;
+
+	template <class TWeightCalculator, vertex_descriptor TVertex>
+		requires std::invocable<TWeightCalculator, TVertex, TVertex>
 	using weight_type_of_t = std::remove_cvref_t<std::invoke_result_t<TWeightCalculator, const TVertex&, const TVertex&>>;
 
-	template <class TWeight>
+	template <weight TWeight>
 	using state_t = std::tuple<visit_state, TWeight>;
 
-	template <class TVertex, class TWeight>
+	template <vertex_descriptor TVertex, weight TWeight>
 	using default_state_map_t = std::map<TVertex, state_t<TWeight>>;
 
 	template <
 		vertex_descriptor TVertex,
 		std::invocable<TVertex> TNeighborSearcher,
 		std::invocable<TVertex, TVertex> TWeightCalculator,
-		std::invocable<weighted_node<TVertex, weight_type_of_t<TWeightCalculator, TVertex>>> TCallback = empty_invokable,
-		std::predicate<weighted_node<TVertex, weight_type_of_t<TWeightCalculator, TVertex>>, TVertex> TVertexPredicate = true_constant,
+		std::invocable<node_t<TVertex, weight_type_of_t<TWeightCalculator, TVertex>>> TCallback = empty_invokable,
+		std::predicate<node_t<TVertex, weight_type_of_t<TWeightCalculator, TVertex>>, TVertex> TVertexPredicate = true_constant,
 		state_map_for<TVertex, state_t<weight_type_of_t<TWeightCalculator, TVertex>>> TStateMap
 		= default_state_map_t<TVertex, state_t<weight_type_of_t<TWeightCalculator, TVertex>>>>
 		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
@@ -59,7 +63,7 @@ namespace sl::graph::dijkstra
 	{
 		using vertex_t = TVertex;
 		using weight_t = weight_type_of_t<TWeightCalculator, TVertex>;
-		using node_t = weighted_node<vertex_t, weight_t>;
+		using node_t = node_t<vertex_t, weight_t>;
 		using state_t = state_t<weight_t>;
 
 		stateMap[begin] = { visit_state::discovered, weight_t{} };
