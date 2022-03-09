@@ -75,13 +75,7 @@ namespace sl::graph::dijkstra
 			if (detail::shall_interrupt(callback, predecessor))
 				return;
 
-			for
-			(
-				auto&& neighbors{ std::invoke(neighborSearcher, predecessor.vertex) };
-				const vertex_t& cur_vertex
-				: neighbors
-				| std::views::filter([&](const vertex_t& v) { return v != predecessor.predecessor; })
-			)
+			for (const vertex_t& cur_vertex : std::invoke(neighborSearcher, predecessor.vertex))
 			{
 				auto&& [cur_state, cur_weight] = stateMap[cur_vertex];
 				if (cur_state == visit_state::visited || !std::invoke(vertexPredicate, predecessor, cur_vertex))
