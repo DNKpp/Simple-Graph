@@ -60,7 +60,6 @@ namespace sl::graph::detail
 				auto&& neighbors = std::invoke(neighborSearcher, predecessor.vertex);
 				const vertex_t& current
 				: neighbors
-				| std::views::filter([&](const vertex_t& v) { return v != predecessor.predecessor; })
 				| std::views::filter([&stateMap](const vertex_t& v) { return !std::exchange(stateMap[v], true); })
 				| std::views::filter([&](const vertex_t& v) { return std::invoke(vertexPredicate, predecessor, v); })
 			)
