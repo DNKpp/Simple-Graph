@@ -106,10 +106,6 @@ namespace sl::graph::dijkstra
 						openList.emplace(std::move(current));
 					}
 					break;
-
-				default:
-					assert(false && "Should never be reached.");
-					break;
 				}
 			}
 		}
