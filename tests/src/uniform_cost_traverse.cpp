@@ -98,7 +98,7 @@ TEST_CASE("traverse_dfs should visit all vertices in a specific order.", "[trave
 
 	std::vector<std::tuple<vertex, int>> depths{};
 
-	traverse_dfs
+	dfs::traverse
 	(
 		vertex{ 0, 1 },
 		grid_4way_neighbor_searcher{ &grid },
@@ -135,7 +135,7 @@ TEST_CASE("traverse_bfs should visit all vertices in a specific order.", "[trave
 
 	std::vector<std::tuple<vertex, int>> depths{};
 
-	traverse_bfs
+	bfs::traverse
 	(
 		vertex{ 0, 1 },
 		grid_4way_neighbor_searcher{ &grid },

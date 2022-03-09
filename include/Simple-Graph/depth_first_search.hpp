@@ -14,19 +14,19 @@
 #include <map>
 #include <stack>
 
-namespace sl::graph
+template <class T, class TContainer>
+struct sl::graph::detail::take_next_func_t<std::stack<T, TContainer>>
 {
-	template <class T, class TContainer>
-	struct detail::take_next_func_t<std::stack<T, TContainer>>
+	constexpr T operator ()(std::stack<T, TContainer>& container) const
 	{
-		constexpr T operator ()(std::stack<T, TContainer>& container) const
-		{
-			auto el{ std::move(container.top()) };
-			container.pop();
-			return el;
-		}
-	};
+		auto el{ std::move(container.top()) };
+		container.pop();
+		return el;
+	}
+};
 
+namespace sl::graph::dfs
+{
 	template <
 		vertex_descriptor TVertex,
 		std::invocable<TVertex> TNeighborSearcher,
@@ -34,7 +34,7 @@ namespace sl::graph
 		std::predicate<weighted_node<TVertex, int>> TNodePredicate = true_constant,
 		state_map_for<TVertex, bool> TStateMap = std::map<TVertex, bool>>
 		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
-	void traverse_dfs
+	void traverse
 	(
 		TVertex begin,
 		TNeighborSearcher neighborSearcher,
