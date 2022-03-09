@@ -25,18 +25,18 @@ namespace sl::graph::detail
 
 	template <
 		class TNode,
-		std::invocable<const node_vertex_t<TNode>&> TNeighborSearcher,
-		std::invocable<const TNode&> TCallback,
-		std::predicate<const TNode&> TNodePredicate,
+		std::invocable<node_vertex_t<TNode>> TNeighborSearcher,
+		std::invocable<TNode> TCallback,
+		std::predicate<TNode, node_vertex_t<TNode>> TVertexPredicate,
 		state_map_for<node_vertex_t<TNode>, bool> TStateMap,
 		open_list_for<TNode> TOpenList>
-		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, const node_vertex_t<TNode>&>>
+		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, node_vertex_t<TNode>>>
 	void uniform_cost_traverse
 	(
 		node_vertex_t<TNode> begin,
 		TNeighborSearcher neighborSearcher,
 		TCallback callback,
-		TNodePredicate nodePredicate,
+		TVertexPredicate vertexPredicate,
 		TStateMap stateMap,
 		TOpenList openList
 	)
@@ -50,25 +50,22 @@ namespace sl::graph::detail
 
 		while (!std::empty(openList))
 		{
-			auto node{ take_next_func_t<TOpenList>{}(openList) };
+			TNode predecessor{ take_next_func_t<TOpenList>{}(openList) };
 
-			if (detail::shall_interrupt(callback, node))
+			if (detail::shall_interrupt(callback, predecessor))
 				return;
 
 			for
 			(
-				auto&& neighbors = std::invoke(neighborSearcher, node.vertex);
+				auto&& neighbors = std::invoke(neighborSearcher, predecessor.vertex);
 				const vertex_t& current
 				: neighbors
-				| std::views::filter([&](const vertex_t& v) { return v != node.predecessor; })
+				| std::views::filter([&](const vertex_t& v) { return v != predecessor.predecessor; })
 				| std::views::filter([&stateMap](const vertex_t& v) { return !std::exchange(stateMap[v], true); })
+				| std::views::filter([&](const vertex_t& v) { return std::invoke(vertexPredicate, predecessor, v); })
 			)
 			{
-				TNode currentNode{ node.vertex, current, node.weight_sum + 1 };
-				if (std::invoke(nodePredicate, currentNode))
-				{
-					openList.emplace(std::move(currentNode));
-				}
+				openList.emplace(predecessor.vertex, current, predecessor.weight_sum + 1);
 			}
 		}
 	}

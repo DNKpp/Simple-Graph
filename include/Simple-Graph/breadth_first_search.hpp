@@ -27,11 +27,14 @@ struct sl::graph::detail::take_next_func_t<std::queue<T, TContainer>>
 
 namespace sl::graph::bfs
 {
+	template <vertex_descriptor TVertex>
+	using node_t = weighted_node<TVertex, int>;
+
 	template <
 		vertex_descriptor TVertex,
 		std::invocable<TVertex> TNeighborSearcher,
-		std::invocable<weighted_node<TVertex, int>> TPreOrderFunc = empty_invokable,
-		std::predicate<weighted_node<TVertex, int>> TNodePredicate = true_constant,
+		std::invocable<node_t<TVertex>> TPreOrderFunc = empty_invokable,
+		std::predicate<node_t<TVertex>, TVertex> TVertexPredicate = true_constant,
 		state_map_for<TVertex, bool> TStateMap = std::map<TVertex, bool>>
 		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
 	void traverse
@@ -39,7 +42,7 @@ namespace sl::graph::bfs
 		TVertex begin,
 		TNeighborSearcher neighborSearcher,
 		TPreOrderFunc callback = {},
-		TNodePredicate nodePredicate = {},
+		TVertexPredicate vertexPredicate = {},
 		TStateMap stateMap = {}
 	)
 	{
@@ -48,7 +51,7 @@ namespace sl::graph::bfs
 			std::move(begin),
 			std::move(neighborSearcher),
 			std::move(callback),
-			std::move(nodePredicate),
+			std::move(vertexPredicate),
 			std::move(stateMap),
 			std::queue<weighted_node<TVertex, int>>{}
 		);

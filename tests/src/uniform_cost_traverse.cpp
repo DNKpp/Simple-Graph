@@ -65,7 +65,7 @@ TEST_CASE("uniform_cost_traverse should skip vertices for which predicate return
 		5,
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
-		[](const auto& node) { return node.vertex != 7; },
+		[](const auto& predecessor, const int& v) { return v != 7; },
 		std::map<int, bool>{},
 		std::stack<weighted_node<int, int>>{}
 	);
