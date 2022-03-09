@@ -50,6 +50,17 @@ struct grid_4way_neighbor_searcher
 	}
 };
 
+template <class TGrid>
+struct grid_weight_extractor
+{
+	const TGrid* grid{};
+
+	auto operator ()(const vertex&, const vertex& current) const
+	{
+		return (*grid)[current.y()][current.x()];
+	}
+};
+
 struct linear_graph_neighbor_searcher
 {
 	const int* begin{};
