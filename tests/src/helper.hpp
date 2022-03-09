@@ -11,9 +11,9 @@
 #include "Simple-Vector/Vector.hpp"
 
 #include <array>
-#include <vector>
-#include <ranges>
 #include <map>
+#include <ranges>
+#include <vector>
 
 template <class T, int VWidth, int VHeight>
 using grid2d = std::array<std::array<T, VWidth>, VHeight>;
@@ -24,6 +24,18 @@ struct vertex_less
 	constexpr bool operator ()(const vertex& lhs, const vertex& rhs) const noexcept
 	{
 		return std::ranges::lexicographical_compare(lhs, rhs);
+	}
+};
+
+template <class TGrid>
+struct within_grid_t
+{
+	const TGrid* grid{};
+
+	constexpr bool operator ()(const vertex& v) const noexcept
+	{
+		return 0 <= v.y() && v.y() < std::ssize(*grid)
+				&& 0 <= v.x() && v.x() < std::ssize((*grid)[v.y()]);
 	}
 };
 
@@ -38,14 +50,32 @@ struct grid_4way_neighbor_searcher
 	std::vector<vertex> operator ()(const vertex& v) const
 	{
 		std::vector<vertex> neighbors{};
-		if (v.x() < std::ssize((*grid)[0]) - 1)
-			neighbors.emplace_back(v + vertex{ 1, 0 });
-		if (v.y() < std::ssize(*grid) - 1)
-			neighbors.emplace_back(v + vertex{ 0, 1 });
-		if (0 < v.x())
-			neighbors.emplace_back(v - vertex{ 1, 0 });
-		if (0 < v.y())
-			neighbors.emplace_back(v - vertex{ 0, 1 });
+		std::ranges::copy
+		(
+			std::to_array<vertex>({ { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } })
+			| std::views::transform([&](const vertex& o) { return v + o; })
+			| std::views::filter(within_grid_t{ .grid = grid }),
+			std::back_inserter(neighbors)
+		);
+		return neighbors;
+	}
+};
+
+template <class TGrid>
+struct grid_8way_neighbor_searcher
+{
+	const TGrid* grid{};
+
+	std::vector<vertex> operator ()(const vertex& v) const
+	{
+		std::vector<vertex> neighbors{ grid_4way_neighbor_searcher{ .grid = grid }(v) };
+		std::ranges::copy
+		(
+			std::to_array<vertex>({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } })
+			| std::views::transform([&](const vertex& o) { return v + o; })
+			| std::views::filter(within_grid_t{ .grid = grid }),
+			std::back_inserter(neighbors)
+		);
 		return neighbors;
 	}
 };
