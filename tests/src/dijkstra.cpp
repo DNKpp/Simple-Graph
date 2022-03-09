@@ -26,6 +26,19 @@ constexpr grid2d<int, 3, 4> default_grid
 
 using state_map = std::map<vertex, dijkstra::state_t<int>, vertex_less>;
 
+TEST_CASE("Test dijkstra traverse compiling with as much default params as possible.", "[dijkstra]")
+{
+	constexpr int begin{ 3 };
+	constexpr int end{ 9 };
+
+	dijkstra::traverse<int>
+	(
+		5,
+		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		[](int predecessor, int current) { return current; }
+	);
+}
+
 TEST_CASE("dijkstra should visit all nodes if not interrupted.", "[dijkstra]")
 {
 	const std::vector<vertex> expectedVertices

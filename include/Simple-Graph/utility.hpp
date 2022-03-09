@@ -14,18 +14,6 @@
 #include <functional>
 #include <optional>
 
-namespace sl::graph::detail
-{
-	template <class>
-	struct take_next_func_t;
-
-	template <class TContainer>
-	constexpr decltype(auto) take_next(TContainer& container)
-	{
-		return take_next_func_t<std::remove_cvref_t<TContainer>>{}(container);
-	}
-}
-
 namespace sl::graph
 {
 	template <class>
@@ -127,6 +115,19 @@ namespace sl::graph::detail
 		std::invoke(std::forward<TFunc>(func), std::forward<TArgs>(args)...);
 		return false;
 	}
+
+	template <class>
+	struct take_next_func_t;
+
+	template <class TContainer>
+	constexpr decltype(auto) take_next(TContainer& container)
+	{
+		return take_next_func_t<std::remove_cvref_t<TContainer>>{}(container);
+	}
+
+	template <class TWeightCalculator, vertex_descriptor TVertex>
+		requires std::invocable<TWeightCalculator, TVertex, TVertex>
+	using weight_type_of_t = std::remove_cvref_t<std::invoke_result_t<TWeightCalculator, TVertex, TVertex>>;
 }
 
 #endif
