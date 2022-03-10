@@ -209,13 +209,23 @@ TEST_CASE("Test astar traverse compiling with as much default params as possible
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
 
-	astar::traverse
-	(
-		5,
-		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
-		[](int predecessor, int current) { return current; },
-		[](const int) { return 0; }
-	);
+	const astar::Searcher searcher
+	{
+		.begin = 5,
+		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		.weightCalculator = [](int predecessor, int current) { return current; },
+		.heuristic = [](const int) { return 0; }
+	};
+
+	traverse(searcher);
+
+	//astar::traverse
+	//(
+	//	5,
+	//	linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+	//	[](int predecessor, int current) { return current; },
+	//	[](const int) { return 0; }
+	//);
 }
 
 TEST_CASE("astar should prefer vertices with less estimated weight.", "[astar]")
@@ -225,16 +235,31 @@ TEST_CASE("astar should prefer vertices with less estimated weight.", "[astar]")
 
 	const std::set expectedVertices{ 5, 6, 7, 8 };
 
-	astar::traverse
-	(
-		5,
-		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
-		[](int predecessor, int current) { return 1; },
-		[](const int v) { return 8 - v; },
-		[&](const auto& node)
+	const astar::Searcher searcher
+	{
+		.begin = 5,
+		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		.weightCalculator = [](int predecessor, int current) { return 1; },
+		.heuristic = [](const int v) { return 8 - v; },
+		.callback = [&](const auto& node)
 		{
 			REQUIRE(expectedVertices.count(node.vertex) == 1);
 			return node.vertex == 8;
 		}
-	);
+	};
+
+	traverse(searcher);
+
+	//astar::traverse
+	//(
+	//	5,
+	//	linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+	//	[](int predecessor, int current) { return 1; },
+	//	[](const int v) { return 8 - v; },
+	//	[&](const auto& node)
+	//	{
+	//		REQUIRE(expectedVertices.count(node.vertex) == 1);
+	//		return node.vertex == 8;
+	//	}
+	//);
 }

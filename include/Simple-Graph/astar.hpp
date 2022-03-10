@@ -70,6 +70,17 @@ namespace sl::graph::detail
 			};
 		}
 	};
+
+	template <vertex_descriptor TVertex, class TWeightCalculator, class THeuristic>
+	[[nodiscard]]
+	constexpr astar_node_factory_t<TVertex, TWeightCalculator, THeuristic> make_astar_node_factory
+	(
+		TWeightCalculator&& weightCalc,
+		THeuristic&& heuristic
+	)
+	{
+		return { .weightCalculator = std::forward<TWeightCalculator>(weightCalc), .heuristic = std::forward<THeuristic>(heuristic) };
+	}
 }
 
 template <class TVertex, class TWeight>
@@ -88,6 +99,9 @@ namespace sl::graph::astar
 	template <weight TWeight>
 	using state_t = detail::dynamic_cost_state_t<TWeight>;
 
+	template <class TNode>
+	using default_open_list_t = std::priority_queue<TNode, std::vector<TNode>, std::greater<>>;
+
 	template <
 		vertex_descriptor TVertex,
 		std::invocable<TVertex> TNeighborSearcher,
@@ -97,38 +111,48 @@ namespace sl::graph::astar
 		std::predicate<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>, TVertex> TVertexPredicate
 		= true_constant,
 		state_map_for<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>> TStateMap
-		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
+		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
+		class TOpenList = default_open_list_t<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
 		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
 				&& std::convertible_to<std::invoke_result_t<THeuristic, TVertex>, detail::weight_type_of_t<TWeightCalculator, TVertex>>
-	void traverse
-	(
-		TVertex begin,
-		TNeighborSearcher&& neighborSearcher,
-		TWeightCalculator&& weightCalculator,
-		THeuristic&& heuristic,
-		TCallback&& callback = {},
-		TVertexPredicate&& vertexPredicate = {},
-		TStateMap stateMap = {}
-	)
+	struct Searcher
 	{
 		using vertex_t = TVertex;
 		using weight_t = detail::weight_type_of_t<TWeightCalculator, TVertex>;
-		using node_t = node_t<vertex_t, weight_t>;
-		using state_t = state_t<weight_t>;
+		using node_t = detail::astar_node<vertex_t, weight_t>;
+		using open_list_t = TOpenList;
+
+		TVertex begin;
+		TNeighborSearcher neighborSearcher;
+		TWeightCalculator weightCalculator;
+		THeuristic heuristic;
+
+		TCallback callback{};
+		TVertexPredicate vertexPredicate{};
+		TStateMap stateMap{};
+	};
+}
+
+namespace sl::graph
+{
+	template <class... TArgs>
+	void traverse(astar::Searcher<TArgs...> searcher)
+	{
+		using searcher_t = astar::Searcher<TArgs...>;
+		using vertex_t = typename searcher_t::vertex_t;
+		using weight_t = typename searcher_t::weight_t;
+		using node_t = typename searcher_t::node_t;
+		using open_list_t = typename searcher_t::open_list_t;
 
 		detail::dynamic_cost_traverse<node_t>
 		(
-			detail::astar_node_factory_t<vertex_t, TWeightCalculator, THeuristic>
-			{
-				.weightCalculator = std::forward<TWeightCalculator>(weightCalculator),
-				.heuristic = std::forward<THeuristic>(heuristic)
-			},
-			node_t{ .vertex = std::move(begin) },
-			std::forward<TNeighborSearcher>(neighborSearcher),
-			std::forward<TCallback>(callback),
-			std::forward<TVertexPredicate>(vertexPredicate),
-			std::move(stateMap),
-			std::priority_queue<node_t, std::vector<node_t>, std::greater<>>{}
+			detail::make_astar_node_factory<vertex_t>(searcher.weightCalculator, searcher.heuristic),
+			node_t{ .vertex = std::move(searcher.begin) },
+			searcher.neighborSearcher,
+			searcher.callback,
+			searcher.vertexPredicate,
+			std::move(searcher.stateMap),
+			open_list_t{}
 		);
 	}
 }
