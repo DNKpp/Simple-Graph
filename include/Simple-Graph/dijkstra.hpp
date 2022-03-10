@@ -8,13 +8,13 @@
 
 #pragma once
 
+#include "generic_traverse.hpp"
 #include "utility.hpp"
 
 #include <cassert>
 #include <map>
 #include <queue>
 #include <ranges>
-#include <tuple>
 
 template <class... TArgs>
 struct sl::graph::detail::take_next_func_t<std::priority_queue<TArgs...>>
@@ -33,7 +33,7 @@ namespace sl::graph::dijkstra
 	using node_t = weighted_node<TVertex, TWeight>;
 
 	template <weight TWeight>
-	using state_t = std::tuple<visit_state, TWeight>;
+	using state_t = detail::dynamic_cost_state_t<TWeight>;
 
 	template <
 		vertex_descriptor TVertex,
@@ -48,10 +48,10 @@ namespace sl::graph::dijkstra
 	void traverse
 	(
 		TVertex begin,
-		TNeighborSearcher neighborSearcher,
-		TWeightCalculator weightCalculator,
-		TCallback callback = {},
-		TVertexPredicate vertexPredicate = {},
+		TNeighborSearcher&& neighborSearcher,
+		TWeightCalculator&& weightCalculator,
+		TCallback&& callback = {},
+		TVertexPredicate&& vertexPredicate = {},
 		TStateMap stateMap = {}
 	)
 	{
@@ -60,47 +60,27 @@ namespace sl::graph::dijkstra
 		using node_t = node_t<vertex_t, weight_t>;
 		using state_t = state_t<weight_t>;
 
-		stateMap[begin] = { visit_state::discovered, weight_t{} };
-		std::priority_queue<node_t, std::vector<node_t>, std::greater<>> openList{};
-		openList.emplace(std::nullopt, std::move(begin), weight_t{});
-
-		while (!std::empty(openList))
-		{
-			node_t predecessor{ detail::take_next(openList) };
-			if (visit_state::visited == std::exchange(std::get<0>(stateMap[predecessor.vertex]), visit_state::visited))
-				continue;
-
-			if (detail::shall_interrupt(callback, predecessor))
-				return;
-
-			for (const vertex_t& cur_vertex : std::invoke(neighborSearcher, predecessor.vertex))
+		detail::dynamic_cost_traverse<node_t>
+		(
+			[&](const node_t& predecessor, const vertex_t& cur_vertex) -> node_t
 			{
-				auto&& [cur_state, cur_weight] = stateMap[cur_vertex];
-				if (cur_state == visit_state::visited || !std::invoke(vertexPredicate, predecessor, cur_vertex))
-					continue;
-
 				weight_t rel_weight{ std::invoke(weightCalculator, predecessor.vertex, cur_vertex) };
 				assert(weight_t{} <= rel_weight && "relative weight between nodes must be greater or equal zero.");
-				node_t current{ predecessor.vertex, cur_vertex, predecessor.weight_sum + rel_weight };
 
-				switch (cur_state)
+				return
 				{
-				case visit_state::none:
-					cur_state = visit_state::discovered;
-					cur_weight = current.weight_sum;
-					openList.emplace(std::move(current));
-					break;
-
-				case visit_state::discovered:
-					if (current.weight_sum < cur_weight)
-					{
-						cur_weight = current.weight_sum;
-						openList.emplace(std::move(current));
-					}
-					break;
-				}
-			}
-		}
+					.predecessor = predecessor.vertex,
+					.vertex = cur_vertex,
+					.weight_sum = predecessor.weight_sum + rel_weight
+				};
+			},
+			node_t{ .vertex = std::move(begin), .weight_sum = {} },
+			std::forward<TNeighborSearcher>(neighborSearcher),
+			std::forward<TCallback>(callback),
+			std::forward<TVertexPredicate>(vertexPredicate),
+			std::move(stateMap),
+			std::priority_queue<node_t, std::vector<node_t>, std::greater<>>{}
+		);
 	}
 }
 
