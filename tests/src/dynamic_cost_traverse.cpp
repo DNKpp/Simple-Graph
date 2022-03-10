@@ -6,6 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
+#include "Simple-Graph/astar.hpp"
 #include "Simple-Graph/dijkstra.hpp"
 
 #include "helper.hpp"
@@ -195,10 +196,45 @@ TEST_CASE("Test dijkstra traverse compiling with as much default params as possi
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
 
-	dijkstra::traverse<int>
+	dijkstra::traverse
 	(
 		5,
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[](int predecessor, int current) { return current; }
+	);
+}
+
+TEST_CASE("Test astar traverse compiling with as much default params as possible.", "[dijkstra]")
+{
+	constexpr int begin{ 3 };
+	constexpr int end{ 9 };
+
+	astar::traverse
+	(
+		5,
+		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		[](int predecessor, int current) { return current; },
+		[](const int) { return 0; }
+	);
+}
+
+TEST_CASE("astar should prefer vertices with less estimated weight.", "[dijkstra]")
+{
+	constexpr int begin{ 3 };
+	constexpr int end{ 9 };
+
+	const std::set expectedVertices{ 5, 6, 7, 8 };
+
+	astar::traverse
+	(
+		5,
+		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		[](int predecessor, int current) { return 1; },
+		[](const int v) { return 8 - v; },
+		[&](const auto& node)
+		{
+			REQUIRE(expectedVertices.count(node.vertex) == 1);
+			return node.vertex == 8;
+		}
 	);
 }
