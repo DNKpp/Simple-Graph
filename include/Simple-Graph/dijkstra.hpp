@@ -9,23 +9,12 @@
 #pragma once
 
 #include "generic_traverse.hpp"
+#include "queue_helper.hpp"
 #include "utility.hpp"
 
 #include <cassert>
 #include <map>
-#include <queue>
 #include <ranges>
-
-template <class... TArgs>
-struct sl::graph::detail::take_next_func_t<std::priority_queue<TArgs...>>
-{
-	constexpr auto operator ()(std::priority_queue<TArgs...>& container) const
-	{
-		auto el{ std::move(container.top()) };
-		container.pop();
-		return el;
-	}
-};
 
 namespace sl::graph::dijkstra
 {

@@ -9,21 +9,10 @@
 #pragma once
 
 #include "generic_traverse.hpp"
+#include "queue_helper.hpp"
 #include "utility.hpp"
 
 #include <map>
-#include <queue>
-
-template <class T, class TContainer>
-struct sl::graph::detail::take_next_func_t<std::queue<T, TContainer>>
-{
-	constexpr T operator ()(std::queue<T, TContainer>& container) const
-	{
-		auto el{ std::move(container.front()) };
-		container.pop();
-		return el;
-	}
-};
 
 namespace sl::graph::bfs
 {
