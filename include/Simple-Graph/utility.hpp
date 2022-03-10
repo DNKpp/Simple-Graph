@@ -75,6 +75,12 @@ namespace sl::graph
 		{
 			return weight_sum <=> other.weight_sum;
 		}
+
+		[[nodiscard]]
+		explicit constexpr operator TWeight() const noexcept
+		{
+			return weight_sum;
+		}
 	};
 
 	template <class TVertex, class TWeight>
