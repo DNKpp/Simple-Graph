@@ -29,7 +29,7 @@ using state_map_t = std::map<vertex, dijkstra::state_t<int>, vertex_less>;
 template <class TNode>
 using open_list_t = std::priority_queue<TNode, std::vector<TNode>, std::greater<>>;
 
-TEST_CASE("dynamic_cost_traverse should visit all nodes if not interrupted.", "[dijkstra]")
+TEST_CASE("dynamic_cost_traverse should visit all nodes if not interrupted.", "[traverse]")
 {
 	using node_t = weighted_node<vertex, int>;
 	constexpr auto weightCalc = [](const vertex&, const vertex&) { return 1; };
@@ -66,7 +66,7 @@ TEST_CASE("dynamic_cost_traverse should visit all nodes if not interrupted.", "[
 	REQUIRE_THAT(visitedVertices, Catch::Matchers::UnorderedEquals(expectedVertices));
 }
 
-TEST_CASE("dynamic_cost_traverse should prefer cheaper routes over already known, but not yet finalized, routes.", "[dijkstra]")
+TEST_CASE("dynamic_cost_traverse should prefer cheaper routes over already known, but not yet finalized, routes.", "[traverse]")
 {
 	using node_t = weighted_node<vertex, int>;
 
@@ -105,7 +105,7 @@ TEST_CASE("dynamic_cost_traverse should prefer cheaper routes over already known
 	);
 }
 
-TEST_CASE("dynamic_cost_traverse should accumulate weights.", "[dijkstra]")
+TEST_CASE("dynamic_cost_traverse should accumulate weights.", "[traverse]")
 {
 	using node_t = weighted_node<vertex, int>;
 
@@ -150,7 +150,7 @@ TEST_CASE("dynamic_cost_traverse should accumulate weights.", "[dijkstra]")
 	);
 }
 
-TEST_CASE("dynamic_cost_traverse should exit early, if callback returns true.", "[dijkstra]")
+TEST_CASE("dynamic_cost_traverse should exit early, if callback returns true.", "[traverse]")
 {
 	using node_t = weighted_node<vertex, int>;
 	constexpr vertex goal{ 1, 2 };
@@ -163,7 +163,7 @@ TEST_CASE("dynamic_cost_traverse should exit early, if callback returns true.", 
 		grid_4way_neighbor_searcher{ .grid = &default_grid },
 		[&](const auto& node)
 		{
-			lastVisited = goal;
+			lastVisited = node.vertex;
 			return node.vertex == goal;
 		},
 		true_constant{},
@@ -174,7 +174,7 @@ TEST_CASE("dynamic_cost_traverse should exit early, if callback returns true.", 
 	REQUIRE(lastVisited == goal);
 }
 
-TEST_CASE("dynamic_cost_traverse should never visit vertices, for which predicate returns false.", "[dijkstra]")
+TEST_CASE("dynamic_cost_traverse should never visit vertices, for which predicate returns false.", "[traverse]")
 {
 	using node_t = weighted_node<vertex, int>;
 	constexpr vertex skip{ 1, 2 };
@@ -204,7 +204,7 @@ TEST_CASE("Test dijkstra traverse compiling with as much default params as possi
 	);
 }
 
-TEST_CASE("Test astar traverse compiling with as much default params as possible.", "[dijkstra]")
+TEST_CASE("Test astar traverse compiling with as much default params as possible.", "[astar]")
 {
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
@@ -218,7 +218,7 @@ TEST_CASE("Test astar traverse compiling with as much default params as possible
 	);
 }
 
-TEST_CASE("astar should prefer vertices with less estimated weight.", "[dijkstra]")
+TEST_CASE("astar should prefer vertices with less estimated weight.", "[astar]")
 {
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
