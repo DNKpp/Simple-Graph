@@ -104,7 +104,7 @@ namespace sl::graph::astar
 
 	template <
 		vertex_descriptor TVertex,
-		std::invocable<TVertex> TNeighborSearcher,
+		neighbor_searcher_for<TVertex> TNeighborSearcher,
 		std::invocable<TVertex, TVertex> TWeightCalculator,
 		std::invocable<TVertex> THeuristic,
 		std::invocable<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TCallback = empty_invokable,
@@ -113,8 +113,7 @@ namespace sl::graph::astar
 		state_map_for<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>> TStateMap
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
 		class TOpenList = default_open_list_t<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
-		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
-				&& std::convertible_to<std::invoke_result_t<THeuristic, TVertex>, detail::weight_type_of_t<TWeightCalculator, TVertex>>
+		requires std::convertible_to<std::invoke_result_t<THeuristic, TVertex>, detail::weight_type_of_t<TWeightCalculator, TVertex>>
 	struct Searcher
 	{
 		using vertex_t = TVertex;

@@ -10,7 +10,6 @@
 #include <cassert>
 #include <functional>
 #include <map>
-#include <ranges>
 
 namespace sl::graph::detail
 {
@@ -58,7 +57,7 @@ namespace sl::graph::dijkstra
 
 	template <
 		vertex_descriptor TVertex,
-		std::invocable<TVertex> TNeighborSearcher,
+		neighbor_searcher_for<TVertex> TNeighborSearcher,
 		std::invocable<TVertex, TVertex> TWeightCalculator,
 		std::invocable<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TCallback = empty_invokable,
 		std::predicate<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>, TVertex> TVertexPredicate
@@ -66,7 +65,6 @@ namespace sl::graph::dijkstra
 		state_map_for<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>> TStateMap
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
 		class TOpenList = default_open_list_t<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
-		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
 	struct Searcher
 	{
 		using vertex_t = TVertex;

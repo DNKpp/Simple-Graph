@@ -32,11 +32,10 @@ namespace sl::graph::dfs
 
 	template <
 		vertex_descriptor TVertex,
-		std::invocable<TVertex> TNeighborSearcher,
+		neighbor_searcher_for<TVertex> TNeighborSearcher,
 		std::invocable<node_t<TVertex>> TPreOrderFunc = empty_invokable,
 		std::predicate<node_t<TVertex>, TVertex> TVertexPredicate = true_constant,
 		state_map_for<TVertex, bool> TStateMap = std::map<TVertex, bool>>
-		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, TVertex>>
 	void traverse
 	(
 		TVertex begin,

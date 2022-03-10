@@ -57,6 +57,11 @@ namespace sl::graph
 								{ map[v] } -> std::assignable_from<TState>;
 							};
 
+	template <class T, class TVertex>
+	concept neighbor_searcher_for = vertex_descriptor<TVertex>
+									&& std::invocable<T, TVertex>
+									&& std::ranges::input_range<std::invoke_result_t<T, TVertex>>;
+
 	template <vertex_descriptor TVertex, weight TWeight>
 	struct weighted_node
 	{
