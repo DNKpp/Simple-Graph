@@ -13,8 +13,35 @@
 #include "utility.hpp"
 
 #include <cassert>
+#include <functional>
 #include <map>
 #include <ranges>
+
+namespace sl::graph::detail
+{
+	template <vertex_descriptor TVertex, std::invocable<TVertex, TVertex> TWeightCalculator>
+	struct weighted_node_factory_t
+	{
+		using vertex_t = TVertex;
+		using weight_t = weight_type_of_t<TWeightCalculator, TVertex>;
+		using node_t = weighted_node<vertex_t, weight_t>;
+
+		TWeightCalculator weightCalculator{};
+
+		constexpr node_t operator ()(const node_t& predecessor, const TVertex& cur_vertex)
+		{
+			weight_t rel_weight{ std::invoke(weightCalculator, predecessor.vertex, cur_vertex) };
+			assert(weight_t{} <= rel_weight && "relative weight between nodes must be greater or equal zero.");
+
+			return
+			{
+				.predecessor = predecessor.vertex,
+				.vertex = cur_vertex,
+				.weight_sum = predecessor.weight_sum + rel_weight
+			};
+		}
+	};
+}
 
 namespace sl::graph::dijkstra
 {
@@ -51,19 +78,8 @@ namespace sl::graph::dijkstra
 
 		detail::dynamic_cost_traverse<node_t>
 		(
-			[&](const node_t& predecessor, const vertex_t& cur_vertex) -> node_t
-			{
-				weight_t rel_weight{ std::invoke(weightCalculator, predecessor.vertex, cur_vertex) };
-				assert(weight_t{} <= rel_weight && "relative weight between nodes must be greater or equal zero.");
-
-				return
-				{
-					.predecessor = predecessor.vertex,
-					.vertex = cur_vertex,
-					.weight_sum = predecessor.weight_sum + rel_weight
-				};
-			},
-			node_t{ .vertex = std::move(begin), .weight_sum = {} },
+			detail::weighted_node_factory_t<vertex_t, TWeightCalculator>{ std::forward<TWeightCalculator>(weightCalculator) },
+			node_t{ .vertex = std::move(begin) },
 			std::forward<TNeighborSearcher>(neighborSearcher),
 			std::forward<TCallback>(callback),
 			std::forward<TVertexPredicate>(vertexPredicate),
