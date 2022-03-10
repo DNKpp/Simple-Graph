@@ -75,7 +75,7 @@ TEST_CASE("dynamic_cost_traverse should prefer cheaper routes over already known
 		{
 			{ 99, 99, 99 },
 			{ 99, 1, 1 },
-			{ 99, 99, 2 },
+			{ 99, 99, 3 },
 			{ 99, 99, 99 }
 		}
 	};
