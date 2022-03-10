@@ -73,6 +73,30 @@ TEST_CASE("uniform_cost_traverse should skip vertices for which predicate return
 	REQUIRE_THAT(visitedVertices, Catch::Matchers::UnorderedEquals(std::vector{ 5, 6, 4, 3 }));
 }
 
+TEST_CASE("uniform_cost_traverse should exit early, if callback returns true.", "[traverse]")
+{
+	constexpr int begin{ 3 };
+	constexpr int end{ 9 };
+	constexpr int goal{ 7 };
+
+	std::optional<int> lastVisited{};
+	detail::uniform_cost_traverse<weighted_node<int, int>>
+	(
+		5,
+		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
+		[&](const auto& node)
+		{
+			lastVisited = node.vertex;
+			return node.vertex == goal;
+		},
+		true_constant{},
+		std::map<int, bool>{},
+		std::stack<weighted_node<int, int>>{}
+	);
+
+	REQUIRE(lastVisited == goal);
+}
+
 TEST_CASE("traverse_dfs should visit all vertices in a specific order.", "[traverse]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
