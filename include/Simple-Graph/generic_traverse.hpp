@@ -30,7 +30,7 @@ namespace sl::graph::detail
 		assert(std::empty(openList));
 
 		stateMap[begin] = true;
-		openList.emplace(std::nullopt, std::move(begin), 0);
+		openList.emplace(std::nullopt, std::move(begin), TWeight{});
 
 		while (!std::empty(openList))
 		{
