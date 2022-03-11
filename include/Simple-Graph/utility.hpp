@@ -151,4 +151,15 @@ namespace sl::graph::detail
 	using weight_type_of_t = std::remove_cvref_t<std::invoke_result_t<TWeightCalculator, TVertex, TVertex>>;
 }
 
+namespace sl::graph
+{
+	template <class T, class TNode>
+	concept open_list_for = requires(const T& container) { std::empty(container); }
+							&& requires(T& container)
+							{
+								container.emplace(std::declval<TNode>());
+								{ detail::take_next_func_t<std::remove_cvref_t<T>>{}(container) } -> std::convertible_to<TNode>;
+							};
+}
+
 #endif

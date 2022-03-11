@@ -16,14 +16,6 @@
 
 namespace sl::graph::detail
 {
-	template <class T, class TNode>
-	concept open_list_for = requires(const T& container) { std::empty(container); }
-							&& requires(T& container)
-							{
-								container.emplace(std::declval<TNode>());
-								{ take_next_func_t<std::remove_cvref_t<T>>{}(container) } -> std::convertible_to<TNode>;
-							};
-
 	template <
 		class TNode,
 		neighbor_searcher_for<node_vertex_t<TNode>> TNeighborSearcher,

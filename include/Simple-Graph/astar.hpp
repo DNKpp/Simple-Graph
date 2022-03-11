@@ -119,7 +119,8 @@ namespace sl::graph::astar
 		vertex_predicate_for<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TVertexPredicate = true_constant,
 		state_map_for<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>> TStateMap
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
-		class TOpenList = default_open_list_t<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
+		open_list_for<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TOpenList
+		= default_open_list_t<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
 	struct Searcher
 	{
 		using vertex_t = TVertex;
