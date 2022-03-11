@@ -58,7 +58,7 @@ TEST_CASE("dynamic_cost_traverse should visit all nodes if not interrupted.", "[
 		node_t{ {}, { 0, 0 }, {} },
 		grid_4way_neighbor_searcher{ .grid = &default_grid },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
-		true_constant{},
+		true_constant_t{},
 		state_map_t{},
 		open_list_t<node_t>{}
 	);
@@ -99,7 +99,7 @@ TEST_CASE("dynamic_cost_traverse should prefer cheaper routes over already known
 		{
 			REQUIRE(visitedVertices.emplace(node.vertex).second);
 		},
-		true_constant{},
+		true_constant_t{},
 		state_map_t{},
 		open_list_t<node_t>{}
 	);
@@ -144,7 +144,7 @@ TEST_CASE("dynamic_cost_traverse should accumulate weights.", "[traverse]")
 		{
 			REQUIRE(expectedCosts.at(node.vertex) == node.weight_sum);
 		},
-		true_constant{},
+		true_constant_t{},
 		state_map_t{},
 		open_list_t<node_t>{}
 	);
@@ -166,7 +166,7 @@ TEST_CASE("dynamic_cost_traverse should exit early, if callback returns true.", 
 			lastVisited = node.vertex;
 			return node.vertex == goal;
 		},
-		true_constant{},
+		true_constant_t{},
 		state_map_t{},
 		open_list_t<node_t>{}
 	);

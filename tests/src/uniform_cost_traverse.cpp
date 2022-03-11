@@ -26,7 +26,7 @@ TEST_CASE("uniform_cost_traverse should visit all vertices of a given linear gra
 		5,
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
-		true_constant{},
+		true_constant_t{},
 		std::map<int, bool>{},
 		std::stack<weighted_node<int, int>>{}
 	);
@@ -45,7 +45,7 @@ TEST_CASE("uniform_cost_traverse should visit all vertices of a given grid.", "[
 		vertex{ 1, 1 },
 		grid_4way_neighbor_searcher{ &grid },
 		[&invokeCounter](const auto&) { ++invokeCounter; },
-		true_constant{},
+		true_constant_t{},
 		state_map_2d{},
 		std::stack<weighted_node<vertex, int>>{}
 	);
@@ -89,7 +89,7 @@ TEST_CASE("uniform_cost_traverse should exit early, if callback returns true.", 
 			lastVisited = node.vertex;
 			return node.vertex == goal;
 		},
-		true_constant{},
+		true_constant_t{},
 		std::map<int, bool>{},
 		std::stack<weighted_node<int, int>>{}
 	);
@@ -127,7 +127,7 @@ TEST_CASE("traverse_dfs should visit all vertices in a specific order.", "[trave
 		vertex{ 0, 1 },
 		grid_4way_neighbor_searcher{ &grid },
 		[&](const auto& v) { depths.emplace_back(v.vertex, v.weight_sum); },
-		true_constant{},
+		true_constant_t{},
 		state_map_2d{}
 	);
 
@@ -164,7 +164,7 @@ TEST_CASE("traverse_bfs should visit all vertices in a specific order.", "[trave
 		vertex{ 0, 1 },
 		grid_4way_neighbor_searcher{ &grid },
 		[&](const auto& v) { depths.emplace_back(v.vertex, v.weight_sum); },
-		true_constant{},
+		true_constant_t{},
 		state_map_2d{}
 	);
 

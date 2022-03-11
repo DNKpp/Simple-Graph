@@ -106,14 +106,14 @@ namespace sl::graph
 		using weight_type = typename node_t::weight_type;
 	};
 
-	struct empty_invokable
+	struct empty_invokable_t
 	{
 		constexpr void operator ()(auto&&...) const noexcept
 		{
 		}
 	};
 
-	struct true_constant
+	struct true_constant_t
 	{
 		constexpr bool operator ()(auto&&...) const noexcept
 		{
