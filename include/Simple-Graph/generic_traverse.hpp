@@ -72,44 +72,41 @@ namespace sl::graph::detail
 		open_list_for<TNode> auto&& openList
 	)
 	{
-		using node_t = TNode;
-		using vertex_t = TVertex;
-		using weight_t = TWeight;
-		using state_t = dynamic_cost_state_t<weight_t>;
+		using state_t = dynamic_cost_state_t<TWeight>;
 
 		assert(std::empty(openList));
 
-		stateMap[begin.vertex] = { visit_state::discovered, weight_t{} };
+		stateMap[begin.vertex] = { visit_state::discovered, TWeight{} };
 		openList.emplace(std::move(begin));
 
 		while (!std::empty(openList))
 		{
-			node_t predecessor{ detail::take_next(openList) };
+			TNode predecessor{ take_next(openList) };
 			if (visit_state::visited == std::exchange(std::get<0>(stateMap[predecessor.vertex]), visit_state::visited))
 				continue;
 
 			if (detail::shall_interrupt(callback, predecessor))
 				return;
 
-			for (const vertex_t& cur_vertex : std::invoke(neighborSearcher, predecessor.vertex))
+			for (const TVertex& cur_vertex : std::invoke(neighborSearcher, predecessor.vertex))
 			{
 				auto&& [cur_state, cur_weight] = stateMap[cur_vertex];
 				if (cur_state == visit_state::visited || !std::invoke(vertexPredicate, predecessor, cur_vertex))
 					continue;
 
-				node_t current{ std::invoke(nodeFactory, predecessor, cur_vertex) };
+				TNode current{ std::invoke(nodeFactory, predecessor, cur_vertex) };
 				switch (cur_state)
 				{
 				case visit_state::none:
 					cur_state = visit_state::discovered;
-					cur_weight = static_cast<weight_t>(current);
+					cur_weight = static_cast<TWeight>(current);
 					openList.emplace(std::move(current));
 					break;
 
 				case visit_state::discovered:
 					if (current.weight_sum < cur_weight)
 					{
-						cur_weight = static_cast<weight_t>(current);
+						cur_weight = static_cast<TWeight>(current);
 						openList.emplace(std::move(current));
 					}
 					break;
