@@ -16,25 +16,17 @@
 
 namespace sl::graph::detail
 {
-	template <
-		class TNode,
-		neighbor_searcher_for<node_vertex_t<TNode>> TNeighborSearcher,
-		node_callback<TNode> TCallback,
-		vertex_predicate_for<TNode> TVertexPredicate,
-		state_map_for<node_vertex_t<TNode>, bool> TStateMap,
-		open_list_for<TNode> TOpenList>
+	template <class TNode, class TVertex = node_vertex_t<TNode>, class TWeight = node_weight_t<TNode>>
 	void uniform_cost_traverse
 	(
 		node_vertex_t<TNode> begin,
-		TNeighborSearcher neighborSearcher,
-		TCallback callback,
-		TVertexPredicate vertexPredicate,
-		TStateMap stateMap,
-		TOpenList openList
+		neighbor_searcher_for<TVertex> auto&& neighborSearcher,
+		node_callback<TNode> auto&& callback,
+		vertex_predicate_for<TNode> auto&& vertexPredicate,
+		state_map_for<node_vertex_t<TNode>, bool> auto&& stateMap,
+		open_list_for<TNode> auto&& openList
 	)
 	{
-		using vertex_t = node_vertex_t<TNode>;
-
 		assert(std::empty(openList));
 
 		stateMap[begin] = true;
@@ -42,7 +34,7 @@ namespace sl::graph::detail
 
 		while (!std::empty(openList))
 		{
-			TNode predecessor{ take_next_func_t<TOpenList>{}(openList) };
+			TNode predecessor{ take_next(openList) };
 
 			if (detail::shall_interrupt(callback, predecessor))
 				return;
@@ -50,10 +42,10 @@ namespace sl::graph::detail
 			for
 			(
 				auto&& neighbors = std::invoke(neighborSearcher, predecessor.vertex);
-				const vertex_t& current
+				const TVertex& current
 				: neighbors
-				| std::views::filter([&stateMap](const vertex_t& v) { return !std::exchange(stateMap[v], true); })
-				| std::views::filter([&](const vertex_t& v) { return std::invoke(vertexPredicate, predecessor, v); })
+				| std::views::filter([&stateMap](const TVertex& v) { return !std::exchange(stateMap[v], true); })
+				| std::views::filter([&](const TVertex& v) { return std::invoke(vertexPredicate, predecessor, v); })
 			)
 			{
 				openList.emplace(predecessor.vertex, current, predecessor.weight_sum + 1);
@@ -68,10 +60,7 @@ namespace sl::graph::detail
 	concept node_factory_for = std::invocable<T, TNode, node_vertex_t<TNode>>
 								&& std::convertible_to<std::invoke_result_t<T, TNode, node_vertex_t<TNode>>, TNode>;
 
-	template <
-		class TNode,
-		class TVertex = node_vertex_t<TNode>,
-		class TWeight = node_weight_t<TNode>>
+	template <class TNode, class TVertex = node_vertex_t<TNode>, class TWeight = node_weight_t<TNode>>
 	void dynamic_cost_traverse
 	(
 		node_factory_for<TNode> auto&& nodeFactory,
