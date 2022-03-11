@@ -1,7 +1,7 @@
-//          Copyright Dominic Koepke 2019 - 2022.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          https://www.boost.org/LICENSE_1_0.txt)
+//           Copyright Dominic Koepke 2022 - 2022.
+//  Distributed under the Boost Software License, Version 1.0.
+//     (See accompanying file LICENSE_1_0.txt or copy at
+//           https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef SIMPLE_GRAPH_ASTAR_HPP
 #define SIMPLE_GRAPH_ASTAR_HPP
@@ -102,18 +102,24 @@ namespace sl::graph::astar
 	template <class TNode>
 	using default_open_list_t = std::priority_queue<TNode, std::vector<TNode>, std::greater<>>;
 
+	template <class T, class TVertex, class TWeightCalculator>
+	concept compatible_heuristic_for = vertex_descriptor<TVertex>
+										&& weight_calculator_for<TWeightCalculator, TVertex>
+										&& std::invocable<T, TVertex>
+										&& std::convertible_to<
+											std::invoke_result_t<T, TVertex>, detail::weight_type_of_t<TWeightCalculator, TVertex>
+										>;
+
 	template <
 		vertex_descriptor TVertex,
 		neighbor_searcher_for<TVertex> TNeighborSearcher,
-		std::invocable<TVertex, TVertex> TWeightCalculator,
-		std::invocable<TVertex> THeuristic,
-		std::invocable<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TCallback = empty_invokable,
-		std::predicate<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>, TVertex> TVertexPredicate
-		= true_constant,
+		weight_calculator_for<TVertex> TWeightCalculator,
+		compatible_heuristic_for<TVertex, TWeightCalculator> THeuristic,
+		node_callback<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TCallback = empty_invokable,
+		vertex_predicate_for<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TVertexPredicate = true_constant,
 		state_map_for<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>> TStateMap
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
 		class TOpenList = default_open_list_t<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
-		requires std::convertible_to<std::invoke_result_t<THeuristic, TVertex>, detail::weight_type_of_t<TWeightCalculator, TVertex>>
 	struct Searcher
 	{
 		using vertex_t = TVertex;

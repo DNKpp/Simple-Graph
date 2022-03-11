@@ -1,7 +1,7 @@
-//          Copyright Dominic Koepke 2019 - 2022.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          https://www.boost.org/LICENSE_1_0.txt)
+//           Copyright Dominic Koepke 2022 - 2022.
+//  Distributed under the Boost Software License, Version 1.0.
+//     (See accompanying file LICENSE_1_0.txt or copy at
+//           https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef SIMPLE_GRAPH_GENERIC_TRAVERSE_HPP
 #define SIMPLE_GRAPH_GENERIC_TRAVERSE_HPP
@@ -26,12 +26,11 @@ namespace sl::graph::detail
 
 	template <
 		class TNode,
-		std::invocable<node_vertex_t<TNode>> TNeighborSearcher,
-		std::invocable<TNode> TCallback,
-		std::predicate<TNode, node_vertex_t<TNode>> TVertexPredicate,
+		neighbor_searcher_for<node_vertex_t<TNode>> TNeighborSearcher,
+		node_callback<TNode> TCallback,
+		vertex_predicate_for<TNode> TVertexPredicate,
 		state_map_for<node_vertex_t<TNode>, bool> TStateMap,
 		open_list_for<TNode> TOpenList>
-		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, node_vertex_t<TNode>>>
 	void uniform_cost_traverse
 	(
 		node_vertex_t<TNode> begin,
@@ -73,30 +72,28 @@ namespace sl::graph::detail
 	template <weight TWeight>
 	using dynamic_cost_state_t = std::tuple<visit_state, TWeight>;
 
+	template <class T, class TNode>
+	concept node_factory_for = std::invocable<T, TNode, node_vertex_t<TNode>>
+								&& std::convertible_to<std::invoke_result_t<T, TNode, node_vertex_t<TNode>>, TNode>;
+
 	template <
 		class TNode,
-		std::invocable<TNode, node_vertex_t<TNode>> TNodeFactory,
-		std::invocable<node_vertex_t<TNode>> TNeighborSearcher,
-		std::invocable<TNode> TCallback,
-		std::predicate<TNode, node_vertex_t<TNode>> TVertexPredicate,
-		state_map_for<node_vertex_t<TNode>, dynamic_cost_state_t<node_weight_t<TNode>>> TStateMap,
-		open_list_for<TNode> TOpenList>
-		requires std::ranges::input_range<std::invoke_result_t<TNeighborSearcher, node_vertex_t<TNode>>>
-				&& std::convertible_to<std::invoke_result_t<TNodeFactory, TNode, node_vertex_t<TNode>>, TNode>
+		class TVertex = node_vertex_t<TNode>,
+		class TWeight = node_weight_t<TNode>>
 	void dynamic_cost_traverse
 	(
-		TNodeFactory nodeFactory,
+		node_factory_for<TNode> auto&& nodeFactory,
 		TNode begin,
-		TNeighborSearcher neighborSearcher,
-		TCallback callback,
-		TVertexPredicate vertexPredicate,
-		TStateMap stateMap,
-		TOpenList openList
+		neighbor_searcher_for<TVertex> auto&& neighborSearcher,
+		node_callback<TNode> auto&& callback,
+		vertex_predicate_for<TNode> auto&& vertexPredicate,
+		state_map_for<TVertex, dynamic_cost_state_t<TWeight>> auto&& stateMap,
+		open_list_for<TNode> auto&& openList
 	)
 	{
 		using node_t = TNode;
-		using vertex_t = node_vertex_t<node_t>;
-		using weight_t = node_weight_t<node_t>;
+		using vertex_t = TVertex;
+		using weight_t = TWeight;
 		using state_t = dynamic_cost_state_t<weight_t>;
 
 		assert(std::empty(openList));
