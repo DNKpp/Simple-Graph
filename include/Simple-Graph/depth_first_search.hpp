@@ -1,7 +1,7 @@
-//          Copyright Dominic Koepke 2019 - 2022.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          https://www.boost.org/LICENSE_1_0.txt)
+//           Copyright Dominic Koepke 2022 - 2022.
+//  Distributed under the Boost Software License, Version 1.0.
+//     (See accompanying file LICENSE_1_0.txt or copy at
+//           https://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef SIMPLE_GRAPH_DEPTH_FIRST_SEARCH_HPP
 #define SIMPLE_GRAPH_DEPTH_FIRST_SEARCH_HPP
@@ -30,29 +30,56 @@ namespace sl::graph::dfs
 	template <vertex_descriptor TVertex>
 	using node_t = weighted_node<TVertex, int>;
 
+	using state_t = bool;
+
+	template <vertex_descriptor TVertex>
+	using default_open_list_t = std::stack<node_t<TVertex>>;
+
 	template <
 		vertex_descriptor TVertex,
 		neighbor_searcher_for<TVertex> TNeighborSearcher,
-		std::invocable<node_t<TVertex>> TPreOrderFunc = empty_invokable_t,
-		std::predicate<node_t<TVertex>, TVertex> TVertexPredicate = true_constant_t,
-		state_map_for<TVertex, bool> TStateMap = std::map<TVertex, bool>>
-	void traverse
-	(
-		TVertex begin,
-		TNeighborSearcher neighborSearcher,
-		TPreOrderFunc callback = {},
-		TVertexPredicate vertexPredicate = {},
-		TStateMap stateMap = {}
-	)
+		node_callback<node_t<TVertex>> TCallback = empty_invokable_t,
+		vertex_predicate_for<node_t<TVertex>> TVertexPredicate = true_constant_t,
+		state_map_for<TVertex, state_t> TStateMap = std::map<TVertex, state_t>,
+		open_list_for<node_t<TVertex>> TOpenList = default_open_list_t<TVertex>>
+	struct Searcher
 	{
-		detail::uniform_cost_traverse<weighted_node<TVertex, int>>
+		using vertex_t = std::remove_cvref_t<TVertex>;
+		using weight_t = int;
+		using node_t = weighted_node<vertex_t, weight_t>;
+
+		using neighbor_searcher_t = TNeighborSearcher;
+		using callback_t = TCallback;
+		using vertex_predicate_t = TVertexPredicate;
+		using state_map_t = std::remove_cvref_t<TStateMap>;
+		using open_list_t = std::remove_cvref_t<TOpenList>;
+
+		TVertex begin;
+		TNeighborSearcher neighborSearcher;
+
+		TCallback callback{};
+		TVertexPredicate vertexPredicate{};
+		TStateMap stateMap{};
+		TOpenList openList{};
+	};
+}
+
+namespace sl::graph
+{
+	template <class... TArgs>
+	void traverse(dfs::Searcher<TArgs...> searcher)
+	{
+		using searcher_t = bfs::Searcher<TArgs...>;
+
+		detail::uniform_cost_traverse<searcher_t::node_t>
 		(
-			std::move(begin),
-			std::move(neighborSearcher),
-			std::move(callback),
-			std::move(vertexPredicate),
-			std::move(stateMap),
-			std::stack<weighted_node<TVertex, int>>{}
+			detail::make_weighted_node_factory<searcher_t::vertex_t>([](auto&&...) { return 1; }),
+			{ .vertex = std::move(searcher.begin) },
+			std::move(searcher.neighborSearcher),
+			std::move(searcher.callback),
+			std::move(searcher.vertexPredicate),
+			std::move(searcher.stateMap),
+			std::move(searcher.openList)
 		);
 	}
 }

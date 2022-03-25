@@ -109,44 +109,86 @@ TEST_CASE("uniform_cost_traverse should exit early, if callback returns true.", 
 	REQUIRE(lastVisited == goal);
 }
 
-//TEST_CASE("traverse_dfs should visit all vertices in a specific order.", "[traverse]")
-//{
-//	constexpr grid2d<int, 3, 4> grid{};
-//
-//	// provided neighbor searcher prefers up > left > down > right
-//	const std::vector<std::tuple<vertex, int>> expected_depths{
-//		{ { 0, 0 }, 1 },
-//		{ { 1, 0 }, 2 },
-//		{ { 2, 0 }, 3 },
-//
-//		{ { 0, 1 }, 0 },
-//		{ { 1, 1 }, 1 },
-//		{ { 2, 1 }, 4 },
-//
-//		{ { 0, 2 }, 1 },
-//		{ { 1, 2 }, 6 },
-//		{ { 2, 2 }, 5 },
-//
-//		{ { 0, 3 }, 8 },
-//		{ { 1, 3 }, 7 },
-//		{ { 2, 3 }, 6 }
-//	};
-//
-//	std::vector<std::tuple<vertex, int>> depths{};
-//
-//	dfs::traverse
-//	(
-//		vertex{ 0, 1 },
-//		grid_4way_neighbor_searcher{ &grid },
-//		[&](const auto& v) { depths.emplace_back(v.vertex, v.weight_sum); },
-//		true_constant_t{},
-//		state_map_2d{}
-//	);
-//
-//	REQUIRE_THAT(depths, Catch::Matchers::UnorderedEquals(expected_depths));
-//}
+TEST_CASE("dfs should correctly expose its typedefs.", "[dfs]")
+{
+	constexpr grid2d<int, 3, 4> grid{};
 
-TEST_CASE("traverse_bfs should correctly expose its typedefs.", "[bfs]")
+	const dfs::Searcher searcher
+	{
+		.begin = vertex{ 0, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
+		.callback = empty_invokable_t{},
+		.vertexPredicate = true_constant_t{},
+		.stateMap = state_map_2d{},
+		.openList = dfs::default_open_list_t<vertex>{}
+	};
+	using searcher_t = decltype(searcher);
+
+	REQUIRE(std::same_as<searcher_t::vertex_t, vertex>);
+	REQUIRE(std::same_as<searcher_t::weight_t, int>);
+	REQUIRE(std::same_as<searcher_t::node_t, weighted_node<vertex, int>>);
+
+	REQUIRE(std::same_as<searcher_t::neighbor_searcher_t, grid_4way_neighbor_searcher<grid2d<int, 3, 4>>>);
+	REQUIRE(std::same_as<searcher_t::callback_t, empty_invokable_t>);
+	REQUIRE(std::same_as<searcher_t::vertex_predicate_t, true_constant_t>);
+	REQUIRE(std::same_as<searcher_t::state_map_t, state_map_2d>);
+	REQUIRE(std::same_as<searcher_t::open_list_t, dfs::default_open_list_t<vertex>>);
+}
+
+TEST_CASE("Test dfs traverse compiling with as much default params as possible.", "[dfs]")
+{
+	constexpr int begin{ 3 };
+	constexpr int end{ 9 };
+
+	traverse
+	(
+		dfs::Searcher
+		{
+			.begin = 5,
+			.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end }
+		}
+	);
+}
+
+TEST_CASE("dfs should visit all vertices in a specific order.", "[dfs][traverse]")
+{
+	constexpr grid2d<int, 3, 4> grid{};
+
+	// provided neighbor searcher prefers up > left > down > right
+	const std::vector<std::tuple<vertex, int>> expected_depths{
+		{ { 0, 0 }, 1 },
+		{ { 1, 0 }, 2 },
+		{ { 2, 0 }, 3 },
+
+		{ { 0, 1 }, 0 },
+		{ { 1, 1 }, 1 },
+		{ { 2, 1 }, 4 },
+
+		{ { 0, 2 }, 1 },
+		{ { 1, 2 }, 6 },
+		{ { 2, 2 }, 5 },
+
+		{ { 0, 3 }, 8 },
+		{ { 1, 3 }, 7 },
+		{ { 2, 3 }, 6 }
+	};
+
+	std::vector<std::tuple<vertex, int>> depths{};
+
+	dfs::Searcher searcher
+	{
+		.begin = vertex{ 0, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
+		.callback = [&](const auto& v) { depths.emplace_back(v.vertex, v.weight_sum); },
+		.vertexPredicate = true_constant_t{},
+		.stateMap = state_map_2d{}
+	};
+	traverse(std::move(searcher));
+
+	REQUIRE_THAT(depths, Catch::Matchers::UnorderedEquals(expected_depths));
+}
+
+TEST_CASE("bfs should correctly expose its typedefs.", "[bfs]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
 
@@ -172,7 +214,7 @@ TEST_CASE("traverse_bfs should correctly expose its typedefs.", "[bfs]")
 	REQUIRE(std::same_as<searcher_t::open_list_t, bfs::default_open_list_t<vertex>>);
 }
 
-TEST_CASE("Test astar traverse compiling with as much default params as possible.", "[bfs]")
+TEST_CASE("Test bfs traverse compiling with as much default params as possible.", "[bfs]")
 {
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
@@ -187,7 +229,7 @@ TEST_CASE("Test astar traverse compiling with as much default params as possible
 	);
 }
 
-TEST_CASE("traverse_bfs should visit all vertices in a specific order.", "[bfs][traverse]")
+TEST_CASE("bfs should visit all vertices in a specific order.", "[bfs][traverse]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
 
