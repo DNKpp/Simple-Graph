@@ -111,4 +111,13 @@ struct linear_graph_neighbor_searcher
 	}
 };
 
+template <auto VWeight>
+struct constant_weight_t
+{
+	decltype(VWeight) operator()(auto&&...) const
+	{
+		return VWeight;
+	}
+};
+
 #endif
