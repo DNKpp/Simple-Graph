@@ -27,11 +27,20 @@ This library provides implementations for the following graph algorithms:
 *   dijkstra
 *   astar (A*)
 
-The library is designed to require a minimal setup for the users, to make any of the algorithm work in their scenarios. This means one can rely on tested algorithms instead of implementing, and maintaining, their own implementations. Sure, the minimal setup won't be
-as fast as one could get with a custom implementation, but users are able to exchange almost any type used of the algorithms. For example by default all of the algorithm are using a ``std::map`` to keep the states of each node, but users may simply exchange that type
-with a custom one. For example in a 2d grid environment one could use a boolean-2d-grid type, which will than have a constant speed; a huge speed-up, with minimal effort.
+The library is designed to require a minimal setup for the users, to make any of the algorithm work in their scenarios. This means one can rely on tested algorithms instead of implementing, and maintaining, their own implementations.
+Sure, the minimal setup won't be as fast as one could get with a custom implementation, but users are able to exchange almost any type used of the algorithms and therefore probably come very close to it.
+For example by default all of the algorithm are using a ``std::map`` to track the states of each node, but users may simply exchange that type with a custom one. For example in a 2d grid environment one could use a boolean-2d-grid type,
+which will than have a constant speed; a huge speed-up, with minimal effort.
 
-Tested Compilers:
+Another example are the ``neighbor searcher``. Those searchers have the task, to hand back all adjacent vertices to the current vertex. A simple and straight forward solution would be to return a ``std::vector`` filled with all neighbors. But the requirements of the
+library are more relaxed: It only requires a ``std::ranges::input_range``. A more performant, but of course also more complex, solution could return a custom view, returning each neighbor one by one. This way users get rid of many dynamic allocations, which probably
+result in far better performance.
+
+This being said, I think its a good time to remind on the commonly known sentence ``premature optimization is the root of all evil``, thus I think its a good idea getting the feature running and tweak it afterwards if necessary. And exactly this is what I try to
+achieve with this library.
+
+
+## Tested Compilers:
 *   msvc v143 (Visual Studio 2022)
 *   gcc10
 *   gcc11
