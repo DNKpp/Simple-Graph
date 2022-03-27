@@ -75,7 +75,7 @@ namespace sl::graph
 
 		detail::uniform_cost_traverse<node_t>
 		(
-			detail::make_weighted_node_factory<vertex_t>([](auto&&...) { return 1; }),
+			detail::make_weighted_node_factory<vertex_t>(constant_t<1>{}),
 			{ .vertex = std::move(searcher.begin) },
 			std::ref(searcher.neighborSearcher),
 			std::ref(searcher.callback),
