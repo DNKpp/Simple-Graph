@@ -42,4 +42,28 @@ struct sl::graph::take_next_t<std::queue<TArgs...>>
 	}
 };
 
+template <class... TArgs>
+struct sl::graph::emplace_t<std::priority_queue<TArgs...>>
+{
+	using container_t = std::priority_queue<TArgs...>;
+
+	template <class... TCTorArgs>
+	constexpr void operator ()(container_t& container, TCTorArgs&&... args) const
+	{
+		container.emplace(std::forward<TCTorArgs>(args)...);
+	}
+};
+
+template <class... TArgs>
+struct sl::graph::emplace_t<std::queue<TArgs...>>
+{
+	using container_t = std::queue<TArgs...>;
+
+	template <class... TCTorArgs>
+	constexpr void operator ()(container_t& container, TCTorArgs&&... args) const
+	{
+		container.emplace(std::forward<TCTorArgs>(args)...);
+	}
+};
+
 #endif

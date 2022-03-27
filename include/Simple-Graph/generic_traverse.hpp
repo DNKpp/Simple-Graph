@@ -35,7 +35,7 @@ namespace sl::graph::detail
 		assert(std::empty(openList));
 
 		stateMap[begin.vertex] = true;
-		openList.emplace(std::move(begin));
+		emplace(openList, std::move(begin));
 
 		while (!std::empty(openList))
 		{
@@ -53,7 +53,7 @@ namespace sl::graph::detail
 				| std::views::filter([&](const TVertex& v) { return std::invoke(vertexPredicate, predecessor, v); })
 			)
 			{
-				openList.emplace(std::invoke(nodeFactory, predecessor, cur_vertex));
+				emplace(openList, std::invoke(nodeFactory, predecessor, cur_vertex));
 			}
 		}
 	}
@@ -78,7 +78,7 @@ namespace sl::graph::detail
 		assert(std::empty(openList));
 
 		stateMap[begin.vertex] = { visit_state::discovered, TWeight{} };
-		openList.emplace(std::move(begin));
+		emplace(openList, std::move(begin));
 
 		while (!std::empty(openList))
 		{
@@ -101,14 +101,14 @@ namespace sl::graph::detail
 				case visit_state::none:
 					cur_state = visit_state::discovered;
 					cur_weight = static_cast<TWeight>(current);
-					openList.emplace(std::move(current));
+					emplace(openList, std::move(current));
 					break;
 
 				case visit_state::discovered:
 					if (current.weight_sum < cur_weight)
 					{
 						cur_weight = static_cast<TWeight>(current);
-						openList.emplace(std::move(current));
+						emplace(openList, std::move(current));
 					}
 					break;
 				}

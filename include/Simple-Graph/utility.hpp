@@ -133,6 +133,15 @@ namespace sl::graph
 	{
 		return take_next_t<std::remove_cvref_t<TContainer>>{}(container);
 	}
+
+	template <class>
+	struct emplace_t;
+
+	template <class TContainer, class... TCTorArgs>
+	constexpr void emplace(TContainer& container, TCTorArgs&&... args)
+	{
+		return emplace_t<std::remove_cvref_t<TContainer>>{}(container, std::forward<TCTorArgs>(args)...);
+	}
 }
 
 namespace sl::graph::detail
@@ -191,7 +200,7 @@ namespace sl::graph
 	concept open_list_for = requires(const T& container) { std::empty(container); }
 							&& requires(T& container)
 							{
-								container.emplace(std::declval<TNode>());
+								emplace(container, std::declval<TNode>());
 								{ take_next(container) } -> std::convertible_to<TNode>;
 							};
 }

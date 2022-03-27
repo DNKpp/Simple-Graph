@@ -27,4 +27,16 @@ struct sl::graph::take_next_t<std::stack<TArgs...>>
 	}
 };
 
+template <class... TArgs>
+struct sl::graph::emplace_t<std::stack<TArgs...>>
+{
+	using container_t = std::stack<TArgs...>;
+
+	template <class... TCTorArgs>
+	constexpr void operator ()(container_t& container, TCTorArgs&&... args) const
+	{
+		container.emplace(std::forward<TCTorArgs>(args)...);
+	}
+};
+
 #endif
