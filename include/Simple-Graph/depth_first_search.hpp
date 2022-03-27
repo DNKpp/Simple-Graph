@@ -54,8 +54,8 @@ namespace sl::graph::dfs
 		using state_map_t = std::remove_cvref_t<TStateMap>;
 		using open_list_t = std::remove_cvref_t<TOpenList>;
 
-		TVertex begin;
-		TNeighborSearcher neighborSearcher;
+		TVertex begin{};
+		TNeighborSearcher neighborSearcher{};
 
 		TCallback callback{};
 		TVertexPredicate vertexPredicate{};

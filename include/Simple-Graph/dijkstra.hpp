@@ -49,9 +49,9 @@ namespace sl::graph::dijkstra
 		using state_map_t = std::remove_cvref_t<TStateMap>;
 		using open_list_t = std::remove_cvref_t<TOpenList>;
 
-		TVertex begin;
-		TNeighborSearcher neighborSearcher;
-		TWeightCalculator weightCalculator;
+		TVertex begin{};
+		TNeighborSearcher neighborSearcher{};
+		TWeightCalculator weightCalculator{};
 
 		TCallback callback{};
 		TVertexPredicate vertexPredicate{};
