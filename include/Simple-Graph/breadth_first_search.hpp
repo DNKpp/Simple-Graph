@@ -59,14 +59,16 @@ namespace sl::graph
 	void traverse(bfs::Searcher<TArgs...> searcher)
 	{
 		using searcher_t = bfs::Searcher<TArgs...>;
+		using vertex_t = typename searcher_t::vertex_t;
+		using node_t = typename searcher_t::node_t;
 
-		detail::uniform_cost_traverse<searcher_t::node_t>
+		detail::uniform_cost_traverse<node_t>
 		(
-			detail::make_weighted_node_factory<searcher_t::vertex_t>([](auto&&...) { return 1; }),
+			detail::make_weighted_node_factory<vertex_t>(constant_t<1>{}),
 			{ .vertex = std::move(searcher.begin) },
-			std::move(searcher.neighborSearcher),
-			std::move(searcher.callback),
-			std::move(searcher.vertexPredicate),
+			std::ref(searcher.neighborSearcher),
+			std::ref(searcher.callback),
+			std::ref(searcher.vertexPredicate),
 			std::move(searcher.stateMap),
 			std::move(searcher.openList)
 		);
