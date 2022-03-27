@@ -113,13 +113,16 @@ namespace sl::graph
 		}
 	};
 
-	struct true_constant_t
+	template <auto VValue>
+	struct constant_t
 	{
-		constexpr bool operator ()(auto&&...) const noexcept
-		{
-			return true;
-		}
+		using value_type = decltype(VValue);
+		static constexpr value_type value{ VValue };
+
+		constexpr value_type operator()(auto&&...) const { return VValue; }
 	};
+
+	using true_constant_t = constant_t<true>;
 }
 
 namespace sl::graph::detail

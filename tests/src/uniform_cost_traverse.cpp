@@ -25,7 +25,7 @@ TEST_CASE("uniform_cost_traverse should visit all vertices of a given linear gra
 
 	detail::uniform_cost_traverse<node_t>
 	(
-		detail::make_weighted_node_factory<int>(constant_weight_t<1>{}),
+		detail::make_weighted_node_factory<int>(constant_t<1>{}),
 		{ .vertex = 5 },
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
@@ -47,7 +47,7 @@ TEST_CASE("uniform_cost_traverse should visit all vertices of a given grid.", "[
 
 	detail::uniform_cost_traverse<node_t>
 	(
-		detail::make_weighted_node_factory<vertex>(constant_weight_t<1>{}),
+		detail::make_weighted_node_factory<vertex>(constant_t<1>{}),
 		{ .vertex = { 1, 1 } },
 		grid_4way_neighbor_searcher{ &grid },
 		[&invokeCounter](const auto&) { ++invokeCounter; },
@@ -70,7 +70,7 @@ TEST_CASE("uniform_cost_traverse should skip vertices for which predicate return
 
 	detail::uniform_cost_traverse<node_t>
 	(
-		detail::make_weighted_node_factory<int>(constant_weight_t<1>{}),
+		detail::make_weighted_node_factory<int>(constant_t<1>{}),
 		{ .vertex = 5 },
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
@@ -93,7 +93,7 @@ TEST_CASE("uniform_cost_traverse should exit early, if callback returns true.", 
 	std::optional<int> lastVisited{};
 	detail::uniform_cost_traverse<node_t>
 	(
-		detail::make_weighted_node_factory<int>(constant_weight_t<1>{}),
+		detail::make_weighted_node_factory<int>(constant_t<1>{}),
 		{ .vertex = 5 },
 		linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
 		[&](const auto& node)
