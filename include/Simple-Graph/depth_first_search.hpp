@@ -18,6 +18,7 @@ namespace sl::graph::dfs
 {
 	/** \addtogroup dfs
 	* @{
+	* \brief Provides the searcher and other useful things modeling the depth first search algorithm.
 	*/
 
 	/**
