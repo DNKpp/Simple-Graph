@@ -278,6 +278,12 @@ namespace sl::graph::astar
 
 namespace sl::graph
 {
+	/**
+	 * \brief Overload for astar::searcher.
+	 * \tparam TArgs Template arguments for the searcher.
+	 * \param searcher The searcher object.
+	 * \ingroup astar
+	 */
 	template <class... TArgs>
 	void traverse(astar::searcher<TArgs...> searcher)
 	{
