@@ -147,7 +147,7 @@ namespace sl::graph::bfs
 		 * \note If not explicitly set, a ``std::queue`` is used.
 		 * \see open_list_for concept for the actual type requirements.
 		 * \attention As the used open list has a huge impact on the actual behaviour of the algorithm, the type of the provided
-		 * open list should model the behaviour of a queue-like container. Otherwise this result in undefined behaviour.
+		 * open list should model the behaviour of a queue-like container. Otherwise this results in undefined behaviour.
 		 */
 		TOpenList openList{};
 	};
