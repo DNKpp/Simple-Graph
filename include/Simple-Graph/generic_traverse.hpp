@@ -20,7 +20,7 @@ namespace sl::graph::detail
 	concept node_factory_for = std::invocable<T, TNode, node_vertex_t<TNode>>
 								&& std::convertible_to<std::invoke_result_t<T, TNode, node_vertex_t<TNode>>, TNode>;
 
-	template <class TNode, class TVertex = node_vertex_t<TNode>, class TWeight = node_weight_t<TNode>>
+	template <class TNode, vertex_descriptor TVertex = node_vertex_t<TNode>, weight TWeight = node_weight_t<TNode>>
 	void uniform_cost_traverse
 	(
 		node_factory_for<TNode> auto&& nodeFactory,
@@ -61,7 +61,7 @@ namespace sl::graph::detail
 	template <weight TWeight>
 	using dynamic_cost_state_t = std::tuple<visit_state, TWeight>;
 
-	template <class TNode, class TVertex = node_vertex_t<TNode>, class TWeight = node_weight_t<TNode>>
+	template <class TNode, vertex_descriptor TVertex = node_vertex_t<TNode>, weight TWeight = node_weight_t<TNode>>
 	void dynamic_cost_traverse
 	(
 		node_factory_for<TNode> auto&& nodeFactory,
