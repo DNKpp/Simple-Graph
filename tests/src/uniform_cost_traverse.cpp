@@ -113,7 +113,7 @@ TEST_CASE("dfs should correctly expose its typedefs.", "[dfs]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
 
-	const dfs::Searcher searcher
+	const dfs::searcher searcher
 	{
 		.begin = vertex{ 0, 1 },
 		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
@@ -142,7 +142,7 @@ TEST_CASE("Test dfs traverse compiling with as much default params as possible."
 
 	traverse
 	(
-		dfs::Searcher
+		dfs::searcher
 		{
 			.begin = 5,
 			.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end }
@@ -175,7 +175,7 @@ TEST_CASE("dfs should visit all vertices in a specific order.", "[dfs][traverse]
 
 	std::vector<std::tuple<vertex, int>> depths{};
 
-	dfs::Searcher searcher
+	dfs::searcher searcher
 	{
 		.begin = vertex{ 0, 1 },
 		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
@@ -192,7 +192,7 @@ TEST_CASE("bfs should correctly expose its typedefs.", "[bfs]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
 
-	const bfs::Searcher searcher
+	const bfs::searcher searcher
 	{
 		.begin = vertex{ 0, 1 },
 		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
@@ -221,7 +221,7 @@ TEST_CASE("Test bfs traverse compiling with as much default params as possible."
 
 	traverse
 	(
-		bfs::Searcher
+		bfs::searcher
 		{
 			.begin = 5,
 			.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end }
@@ -254,7 +254,7 @@ TEST_CASE("bfs should visit all vertices in a specific order.", "[bfs][traverse]
 
 	std::vector<std::tuple<vertex, int>> depths{};
 
-	bfs::Searcher searcher
+	bfs::searcher searcher
 	{
 		.begin = vertex{ 0, 1 },
 		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },

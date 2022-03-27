@@ -195,7 +195,7 @@ TEST_CASE("Test dijkstra traverse compiling with as much default params as possi
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
 
-	const dijkstra::Searcher searcher
+	const dijkstra::searcher searcher
 	{
 		.begin = 5,
 		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
@@ -210,7 +210,7 @@ TEST_CASE("Test astar traverse compiling with as much default params as possible
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
 
-	const astar::Searcher searcher
+	const astar::searcher searcher
 	{
 		.begin = 5,
 		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
@@ -228,7 +228,7 @@ TEST_CASE("astar should prefer vertices with less estimated weight.", "[astar]")
 
 	const std::set expectedVertices{ 5, 6, 7, 8 };
 
-	const astar::Searcher searcher
+	const astar::searcher searcher
 	{
 		.begin = 5,
 		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },

@@ -53,7 +53,7 @@ namespace sl::graph::dfs
 		vertex_predicate_for<node_t<TVertex>> TVertexPredicate = true_constant_t,
 		state_map_for<TVertex, state_t> TStateMap = std::map<TVertex, state_t>,
 		open_list_for<node_t<TVertex>> TOpenList = default_open_list_t<TVertex>>
-	struct Searcher
+	struct searcher
 	{
 		/**
 		 * \brief Alias for the actual value type of the vertex.
@@ -163,9 +163,9 @@ namespace sl::graph
 	 * \ingroup dfs
 	 */
 	template <class... TArgs>
-	void traverse(dfs::Searcher<TArgs...> searcher)
+	void traverse(dfs::searcher<TArgs...> searcher)
 	{
-		using searcher_t = bfs::Searcher<TArgs...>;
+		using searcher_t = bfs::searcher<TArgs...>;
 		using vertex_t = typename searcher_t::vertex_t;
 		using node_t = typename searcher_t::node_t;
 

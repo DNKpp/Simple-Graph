@@ -121,7 +121,7 @@ namespace sl::graph::astar
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
 		open_list_for<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TOpenList
 		= default_open_list_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>
-	struct Searcher
+	struct searcher
 	{
 		using vertex_t = TVertex;
 		using weight_t = detail::weight_type_of_t<TWeightCalculator, TVertex>;
@@ -143,9 +143,9 @@ namespace sl::graph::astar
 namespace sl::graph
 {
 	template <class... TArgs>
-	void traverse(astar::Searcher<TArgs...> searcher)
+	void traverse(astar::searcher<TArgs...> searcher)
 	{
-		using searcher_t = astar::Searcher<TArgs...>;
+		using searcher_t = astar::searcher<TArgs...>;
 		using vertex_t = typename searcher_t::vertex_t;
 		using node_t = typename searcher_t::node_t;
 

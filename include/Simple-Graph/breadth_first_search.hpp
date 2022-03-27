@@ -31,7 +31,7 @@ namespace sl::graph::bfs
 		vertex_predicate_for<node_t<TVertex>> TVertexPredicate = true_constant_t,
 		state_map_for<TVertex, state_t> TStateMap = std::map<TVertex, state_t>,
 		open_list_for<node_t<TVertex>> TOpenList = default_open_list_t<TVertex>>
-	struct Searcher
+	struct searcher
 	{
 		using vertex_t = std::remove_cvref_t<TVertex>;
 		using weight_t = int;
@@ -56,9 +56,9 @@ namespace sl::graph::bfs
 namespace sl::graph
 {
 	template <class... TArgs>
-	void traverse(bfs::Searcher<TArgs...> searcher)
+	void traverse(bfs::searcher<TArgs...> searcher)
 	{
-		using searcher_t = bfs::Searcher<TArgs...>;
+		using searcher_t = bfs::searcher<TArgs...>;
 		using vertex_t = typename searcher_t::vertex_t;
 		using node_t = typename searcher_t::node_t;
 

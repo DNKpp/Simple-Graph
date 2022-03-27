@@ -37,7 +37,7 @@ namespace sl::graph::dijkstra
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
 		open_list_for<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TOpenList
 		= default_open_list_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>
-	struct Searcher
+	struct searcher
 	{
 		using vertex_t = std::remove_cvref_t<TVertex>;
 		using weight_t = std::remove_cvref_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>;
@@ -63,9 +63,9 @@ namespace sl::graph::dijkstra
 namespace sl::graph
 {
 	template <class... TArgs>
-	void traverse(dijkstra::Searcher<TArgs...> searcher)
+	void traverse(dijkstra::searcher<TArgs...> searcher)
 	{
-		using searcher_t = dijkstra::Searcher<TArgs...>;
+		using searcher_t = dijkstra::searcher<TArgs...>;
 		using vertex_t = typename searcher_t::vertex_t;
 		using node_t = typename searcher_t::node_t;
 
