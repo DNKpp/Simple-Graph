@@ -9,21 +9,10 @@
 #pragma once
 
 #include "generic_traverse.hpp"
+#include "stack_helper.hpp"
 #include "utility.hpp"
 
 #include <map>
-#include <stack>
-
-template <class T, class TContainer>
-struct sl::graph::detail::take_next_func_t<std::stack<T, TContainer>>
-{
-	constexpr T operator ()(std::stack<T, TContainer>& container) const
-	{
-		auto el{ std::move(container.top()) };
-		container.pop();
-		return el;
-	}
-};
 
 namespace sl::graph::dfs
 {

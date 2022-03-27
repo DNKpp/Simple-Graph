@@ -123,6 +123,16 @@ namespace sl::graph
 	};
 
 	using true_constant_t = constant_t<true>;
+
+	template <class>
+	struct take_next_t;
+
+	template <class TContainer>
+	[[nodiscard]]
+	constexpr decltype(auto) take_next(TContainer& container)
+	{
+		return take_next_t<std::remove_cvref_t<TContainer>>{}(container);
+	}
 }
 
 namespace sl::graph::detail
@@ -138,15 +148,6 @@ namespace sl::graph::detail
 
 		std::invoke(std::forward<TFunc>(func), std::forward<TArgs>(args)...);
 		return false;
-	}
-
-	template <class>
-	struct take_next_func_t;
-
-	template <class TContainer>
-	constexpr decltype(auto) take_next(TContainer& container)
-	{
-		return take_next_func_t<std::remove_cvref_t<TContainer>>{}(container);
 	}
 
 	template <class TWeightCalculator, vertex_descriptor TVertex>
@@ -191,7 +192,7 @@ namespace sl::graph
 							&& requires(T& container)
 							{
 								container.emplace(std::declval<TNode>());
-								{ detail::take_next_func_t<std::remove_cvref_t<T>>{}(container) } -> std::convertible_to<TNode>;
+								{ take_next(container) } -> std::convertible_to<TNode>;
 							};
 }
 
