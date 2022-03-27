@@ -1,11 +1,12 @@
 # Simple-Vector C++20 library
 
-[![run tests](https://github.com/DNKpp/Simple-Vector/actions/workflows/run_tests.yml/badge.svg)](https://github.com/DNKpp/Simple-Vector/actions/workflows/run_tests.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ba448bbe4bc04b6289e24d302b68ef44)](https://www.codacy.com/gh/DNKpp/Simple-Vector/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DNKpp/Simple-Vector&amp;utm_campaign=Badge_Grade)
-[![codecov](https://codecov.io/gh/DNKpp/Simple-Vector/branch/master/graph/badge.svg?token=4ZKAEU6V5A)](https://codecov.io/gh/DNKpp/Simple-Vector)
+[![run tests](https://github.com/DNKpp/Simple-Graph/actions/workflows/run_tests.yml/badge.svg)](https://github.com/DNKpp/Simple-Graph/actions/workflows/run_tests.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/800b2ba82cd047b5b2c53387750dec87)](https://www.codacy.com/gh/DNKpp/Simple-Graph/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DNKpp/Simple-Graph&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/800b2ba82cd047b5b2c53387750dec87)](https://www.codacy.com/gh/DNKpp/Simple-Graph/dashboard?utm_source=github.com&utm_medium=referral&utm_content=DNKpp/Simple-Graph&utm_campaign=Badge_Coverage)
+[![codecov](https://codecov.io/gh/DNKpp/Simple-Graph/branch/master/graph/badge.svg?token=CIJMPLQCMA)](https://codecov.io/gh/DNKpp/Simple-Graph)
 
 ## Author
-Dominic Koepke  
+Dominic (DNKpp) Koepke  
 Mail: [DNKpp2011@gmail.com](mailto:dnkpp2011@gmail.com)
 
 ## License
@@ -20,55 +21,25 @@ Mail: [DNKpp2011@gmail.com](mailto:dnkpp2011@gmail.com)
 ```
 
 ## Description
-This library provides an implementation of a simple to use but versatile mathematically vector class. Due to the usage of lots of c++20 features, this library currently doesn't compile on any clang compiler.
+This library provides implementations for the following graph algorithms:
+*   depth first search
+*   breadth first search
+*   dijkstra
+*   astar (A*)
+
+The library is designed to require a minimal setup for the users, to make any of the algorithm work in their scenarios. This means one can rely on tested algorithms instead of implementing, and maintaining, their own implementations. Sure, the minimal setup won't be
+as fast as one could get with a custom implementation, but users are able to exchange almost any type used of the algorithms. For example by default all of the algorithm are using a ``std::map`` to keep the states of each node, but users may simply exchange that type
+with a custom one. For example in a 2d grid environment one could use a boolean-2d-grid type, which will than have a constant speed; a huge speed-up, with minimal effort.
 
 Tested Compilers:
 *   msvc v143 (Visual Studio 2022)
 *   gcc10
 *   gcc11
 
-One of the main intentions behind this vector implementation is being able to do as much during compile-time as possible, thus all functions are declared as constexpr.
+As this library heavily relys on c++20 features, which clang(-cl) doesn't fully support yet, clang isn't listed above.
 
 ## Example
-```cpp
-/* With inclusion of this header, everything of the library will be available.*/
-#include <Simple-Vector/Simple-Vector.hpp>
-
-#include <iostream>
-#include <ranges>
-
-int main()
-{
-	// make the Vector class locally available with less verbosity 
-	using sl::vec::Vector;
-	
-	Vector<int, 2> intVec1;			// this will default construct all elements to 0
-	intVec1 += 2;					// adds 2 to each element
-	
-	Vector<int, 2> intVec2{ 1, 3 }; // constructs a new vector with x == 1 and y == 3
-
-	Vector difference = static_cast<Vector<float, 2>>(intVec1 - intVec2);	// binary vector + and - arithmetic is possible as well as casting to vectors with other value types
-	auto distance = length(difference);										// length is a free function, which is luckily available due to ADL even if it sits in the sl::vec namespace
-	
-	auto tmp = difference.x();					// each vector has a .x() member function, which returns a ref to the first element
-	tmp = difference.y();						// vectors with two or more dimensions also have a y.() function; lastly vectors with three or more dimensions have a .z() function
-	tmp = difference[0];						// but users may also access the elements via operator []
-
-	for (auto el : difference)					// or simply iterate over each element
-	{
-		std::cout << el << " ";
-	}
-	std::cout << std::endl;
-
-	for (auto el : intVec2 | std::views::take(1)) // vectors are also fully compatible to the new ranges or the older stl algorithms
-	{
-		std::cout << el;
-	}
-	
-	Vector doubles{ 42. };		// this will be deduced to Vector<double, 1>
-	auto doubles2 = static_cast<Vector<double, 3>>(doubles);		// casting between different dimensions is also possible
-}
-```
+Have a look into the examples directory.
 
 ## Installation with CMake
 This library can easily be integrated into your project via CMake target_link_libraries command.
@@ -77,12 +48,12 @@ This library can easily be integrated into your project via CMake target_link_li
 target_link_libraries(
 	<your_target_name>
 	PRIVATE
-	Simple-Vector::Simple-Vector
+	Simple-Graph::Simple-Graph
 )
 ```
 This will add the the include path "<simple_vector_install_dir>/include", thus you are able to include the headers via
 ```cpp
-#include <Simple-Vector/Simple-Vector.hpp>
+#include <Simple-Graph/astar.hpp>
 ```
 
 ### FetchContent
@@ -96,15 +67,26 @@ project(<your_project_name>)
 include(FetchContent)
 
 FetchContent_Declare(
-	Simple_Vector
-	GIT_REPOSITORY	https://github.com/DNKpp/Simple-Vector
+	Simple_Graph
+	GIT_REPOSITORY	https://github.com/DNKpp/Simple-Graph
 	GIT_TAG		origin/vx.y.z
 )
-FetchContent_MakeAvailable(Simple_Vector)
+FetchContent_MakeAvailable(Simple_Graph)
 
 target_link_libraries(
 	<your_target_name>
 	PUBLIC
-	Simple-Vector::Simple-Vector
+	Simple-Graph::Simple-Graph
 )
+```
+
+### CPM
+The [CPM](https://github.com/cpm-cmake/CPM.cmake) CMake module is a featureful wrapper around the ``FetchContent`` module. To use it simply add ``CPM.cmake`` or ``get_cmp.make`` (which will pull ``CPM.cmake`` on the fly)
+from the latest release into your project folder and include it into your ``CMakeLists.txt``. If you need an example, have a look how this library uses cpm.
+
+```cmake
+include(CPM.cmake) # or include(get_cpm.cmake)
+
+CPMAddPackage("gh:DNKpp/Simple-Graph#vX.Y.Z")
+# do not forget linking via target_link_libraries as shown above
 ```
