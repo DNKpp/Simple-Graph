@@ -28,3 +28,5 @@ OPTION(${PROJECT_NAME}_BUILD_TESTS "Determines whether tests will be build or no
 if (${PROJECT_NAME}_BUILD_TESTS)
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tests")
 endif()
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/docs")
