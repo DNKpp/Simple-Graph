@@ -24,8 +24,8 @@ namespace sl::graph::dijkstra
 	template <weight TWeight>
 	using state_t = detail::dynamic_cost_state_t<TWeight>;
 
-	template <class TNode>
-	using default_open_list_t = std::priority_queue<TNode, std::vector<TNode>, std::greater<>>;
+	template <vertex_descriptor TVertex, weight TWeight>
+	using default_open_list_t = std::priority_queue<node_t<TVertex, TWeight>, std::vector<node_t<TVertex, TWeight>>, std::greater<>>;
 
 	template <
 		vertex_descriptor TVertex,
@@ -36,13 +36,18 @@ namespace sl::graph::dijkstra
 		state_map_for<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>> TStateMap
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
 		open_list_for<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TOpenList
-		= default_open_list_t<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>>
+		= default_open_list_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>
 	struct Searcher
 	{
-		using vertex_t = TVertex;
-		using weight_t = detail::weight_type_of_t<TWeightCalculator, TVertex>;
+		using vertex_t = std::remove_cvref_t<TVertex>;
+		using weight_t = std::remove_cvref_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>;
 		using node_t = weighted_node<vertex_t, weight_t>;
-		using open_list_t = TOpenList;
+
+		using neighbor_searcher_t = TNeighborSearcher;
+		using callback_t = TCallback;
+		using vertex_predicate_t = TVertexPredicate;
+		using state_map_t = std::remove_cvref_t<TStateMap>;
+		using open_list_t = std::remove_cvref_t<TOpenList>;
 
 		TVertex begin;
 		TNeighborSearcher neighborSearcher;
@@ -51,6 +56,7 @@ namespace sl::graph::dijkstra
 		TCallback callback{};
 		TVertexPredicate vertexPredicate{};
 		TStateMap stateMap{};
+		TOpenList openList{};
 	};
 }
 
@@ -61,19 +67,17 @@ namespace sl::graph
 	{
 		using searcher_t = dijkstra::Searcher<TArgs...>;
 		using vertex_t = typename searcher_t::vertex_t;
-		using weight_t = typename searcher_t::weight_t;
 		using node_t = typename searcher_t::node_t;
-		using open_list_t = typename searcher_t::open_list_t;
 
 		detail::dynamic_cost_traverse<node_t>
 		(
-			detail::make_weighted_node_factory<vertex_t>(searcher.weightCalculator),
-			node_t{ .vertex = std::move(searcher.begin) },
-			searcher.neighborSearcher,
-			searcher.callback,
-			searcher.vertexPredicate,
+			detail::make_weighted_node_factory<vertex_t>(std::ref(searcher.weightCalculator)),
+			{ .vertex = std::move(searcher.begin) },
+			std::ref(searcher.neighborSearcher),
+			std::ref(searcher.callback),
+			std::ref(searcher.vertexPredicate),
 			std::move(searcher.stateMap),
-			open_list_t{}
+			std::move(searcher.openList)
 		);
 	}
 }
