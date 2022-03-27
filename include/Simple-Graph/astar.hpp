@@ -156,7 +156,7 @@ namespace sl::graph::astar
 		/**
 		 * \brief Alias for the actual weight type of the weight.
 		 */
-		using weight_t = std::remove_cvref_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>;
+		using weight_t = detail::weight_type_of_t<TWeightCalculator, TVertex>;
 
 		/**
 		 * \brief Alias for the node type.
