@@ -34,6 +34,11 @@
 					"name": "Simple-Graph_BUILD_TESTS",
 					"value": "True",
 					"type": "BOOL"
+				},
+				{
+					"name": "Simple-Graph_BUILD_EXAMPLES",
+					"value": "True",
+					"type": "BOOL"
 				}
 			]
 		},
@@ -149,6 +154,11 @@
 			"variables": [
 				{
 					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				},
+				{
+					"name": "Simple-Graph_BUILD_EXAMPLES",
 					"value": "True",
 					"type": "BOOL"
 				}
