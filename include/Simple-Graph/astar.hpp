@@ -161,7 +161,7 @@ namespace sl::graph::astar
 		/**
 		 * \brief Alias for the node type.
 		 */
-		using node_t = weighted_node<vertex_t, weight_t>;
+		using node_t = detail::astar_node<vertex_t, weight_t>;
 
 		/**
 		 * \brief Alias for the neighbor searcher type.
