@@ -32,12 +32,12 @@ namespace sl::graph::detail
 		open_list_for<TNode> auto&& openList
 	)
 	{
-		assert(std::empty(openList));
+		assert(detail::empty_helper(openList));
 
 		stateMap[begin.vertex] = true;
 		emplace(openList, std::move(begin));
 
-		while (!std::empty(openList))
+		while (!detail::empty_helper(openList))
 		{
 			TNode predecessor{ take_next(openList) };
 
@@ -75,12 +75,12 @@ namespace sl::graph::detail
 	{
 		using state_t = dynamic_cost_state_t<TWeight>;
 
-		assert(std::empty(openList));
+		assert(detail::empty_helper(openList));
 
 		stateMap[begin.vertex] = { visit_state::discovered, TWeight{} };
 		emplace(openList, std::move(begin));
 
-		while (!std::empty(openList))
+		while (!detail::empty_helper(openList))
 		{
 			TNode predecessor{ take_next(openList) };
 			if (visit_state::visited == std::exchange(std::get<0>(stateMap[predecessor.vertex]), visit_state::visited))

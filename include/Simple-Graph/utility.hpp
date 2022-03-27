@@ -192,12 +192,22 @@ namespace sl::graph::detail
 	{
 		return { .weightCalculator = std::forward<TWeightCalculator>(weightCalc) };
 	}
+
+	[[nodiscard]]
+	constexpr decltype(auto) empty_helper(const auto& container)
+	{
+		using std::empty;
+		return empty(container);
+	}
 }
 
 namespace sl::graph
 {
 	template <class T, class TNode>
-	concept open_list_for = requires(const T& container) { std::empty(container); }
+	concept open_list_for = requires(const T& container)
+							{
+								{ detail::empty_helper(container) } -> std::convertible_to<bool>;
+							}
 							&& requires(T& container)
 							{
 								emplace(container, std::declval<TNode>());
