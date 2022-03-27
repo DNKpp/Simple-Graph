@@ -32,7 +32,6 @@ using open_list_t = std::priority_queue<TNode, std::vector<TNode>, std::greater<
 TEST_CASE("dynamic_cost_traverse should visit all nodes if not interrupted.", "[traverse]")
 {
 	using node_t = weighted_node<vertex, int>;
-	constexpr auto weightCalc = [](const vertex&, const vertex&) { return 1; };
 
 	const std::vector<vertex> expectedVertices
 	{
@@ -54,7 +53,7 @@ TEST_CASE("dynamic_cost_traverse should visit all nodes if not interrupted.", "[
 
 	detail::dynamic_cost_traverse<node_t>
 	(
-		detail::weighted_node_factory_t<vertex, decltype(weightCalc)>{ weightCalc },
+		detail::make_weighted_node_factory<vertex>(constant_t<1>{}),
 		node_t{ {}, { 0, 0 }, {} },
 		grid_4way_neighbor_searcher{ .grid = &default_grid },
 		[&](const auto& v) { visitedVertices.emplace_back(v.vertex); },
@@ -92,7 +91,7 @@ TEST_CASE("dynamic_cost_traverse should prefer cheaper routes over already known
 
 	detail::dynamic_cost_traverse<node_t>
 	(
-		detail::weighted_node_factory_t<vertex, decltype(weightCalc)>{ weightCalc },
+		detail::make_weighted_node_factory<vertex>(weightCalc),
 		node_t{ {}, { 1, 1 }, {} },
 		grid_8way_neighbor_searcher{ .grid = &grid },
 		[&](const auto& node)
@@ -137,7 +136,7 @@ TEST_CASE("dynamic_cost_traverse should accumulate weights.", "[traverse]")
 
 	detail::dynamic_cost_traverse<node_t>
 	(
-		detail::weighted_node_factory_t<vertex, grid_weight_extractor<grid2d<int, 3, 4>>>{ { &grid } },
+		detail::make_weighted_node_factory<vertex>(grid_weight_extractor{ &grid }),
 		node_t{ {}, { 1, 1 }, {} },
 		grid_4way_neighbor_searcher{ .grid = &grid },
 		[&](const auto& node)
@@ -158,7 +157,7 @@ TEST_CASE("dynamic_cost_traverse should exit early, if callback returns true.", 
 	std::optional<vertex> lastVisited{};
 	detail::dynamic_cost_traverse<node_t>
 	(
-		detail::weighted_node_factory_t<vertex, grid_weight_extractor<grid2d<int, 3, 4>>>{ { &default_grid } },
+		detail::make_weighted_node_factory<vertex>(grid_weight_extractor{ &default_grid }),
 		node_t{ {}, { 1, 1 }, {} },
 		grid_4way_neighbor_searcher{ .grid = &default_grid },
 		[&](const auto& node)
@@ -181,7 +180,7 @@ TEST_CASE("dynamic_cost_traverse should never visit vertices, for which predicat
 
 	detail::dynamic_cost_traverse<node_t>
 	(
-		detail::weighted_node_factory_t<vertex, grid_weight_extractor<grid2d<int, 3, 4>>>{ { &default_grid } },
+		detail::make_weighted_node_factory<vertex>(grid_weight_extractor{ &default_grid }),
 		node_t{ {}, { 1, 1 }, {} },
 		grid_4way_neighbor_searcher{ .grid = &default_grid },
 		[&](const auto& node) { REQUIRE(node.vertex != skip); },
@@ -233,7 +232,7 @@ TEST_CASE("astar should prefer vertices with less estimated weight.", "[astar]")
 	{
 		.begin = 5,
 		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
-		.weightCalculator = [](int predecessor, int current) { return 1; },
+		.weightCalculator = constant_t<1>{},
 		.heuristic = [](const int v) { return 8 - v; },
 		.callback = [&](const auto& node)
 		{
