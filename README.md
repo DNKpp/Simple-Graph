@@ -1,4 +1,4 @@
-# Simple-Vector C++20 library
+# Simple-Graph C++20 header-only library
 
 [![run tests](https://github.com/DNKpp/Simple-Graph/actions/workflows/run_tests.yml/badge.svg)](https://github.com/DNKpp/Simple-Graph/actions/workflows/run_tests.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/800b2ba82cd047b5b2c53387750dec87)](https://www.codacy.com/gh/DNKpp/Simple-Graph/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DNKpp/Simple-Graph&amp;utm_campaign=Badge_Grade)
