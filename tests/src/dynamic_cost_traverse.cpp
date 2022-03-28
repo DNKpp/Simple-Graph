@@ -190,6 +190,34 @@ TEST_CASE("dynamic_cost_traverse should never visit vertices, for which predicat
 	);
 }
 
+TEST_CASE("dijkstra should correctly expose its typedefs.", "[dijkstra]")
+{
+	constexpr grid2d<int, 3, 4> grid{};
+
+	const dijkstra::searcher searcher
+	{
+		.begin = vertex{ 0, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
+		.weightCalculator = grid_weight_extractor{ &grid },
+		.callback = empty_invokable_t{},
+		.vertexPredicate = true_constant_t{},
+		.stateMap = state_map_t{},
+		.openList = dijkstra::default_open_list_t<vertex, int>{}
+	};
+	using searcher_t = decltype(searcher);
+
+	REQUIRE(std::same_as<searcher_t::vertex_t, vertex>);
+	REQUIRE(std::same_as<searcher_t::weight_t, int>);
+	REQUIRE(std::same_as<searcher_t::node_t, weighted_node<vertex, int>>);
+
+	REQUIRE(std::same_as<searcher_t::neighbor_searcher_t, grid_4way_neighbor_searcher<grid2d<int, 3, 4>>>);
+	REQUIRE(std::same_as<searcher_t::weight_calculator_t, grid_weight_extractor<grid2d<int, 3, 4>>>);
+	REQUIRE(std::same_as<searcher_t::callback_t, empty_invokable_t>);
+	REQUIRE(std::same_as<searcher_t::vertex_predicate_t, true_constant_t>);
+	REQUIRE(std::same_as<searcher_t::state_map_t, state_map_t>);
+	REQUIRE(std::same_as<searcher_t::open_list_t, dijkstra::default_open_list_t<vertex, int>>);
+}
+
 TEST_CASE("Test dijkstra traverse compiling with as much default params as possible.", "[dijkstra]")
 {
 	constexpr int begin{ 3 };
@@ -203,6 +231,36 @@ TEST_CASE("Test dijkstra traverse compiling with as much default params as possi
 	};
 
 	traverse(searcher);
+}
+
+TEST_CASE("astar should correctly expose its typedefs.", "[astar]")
+{
+	constexpr grid2d<int, 3, 4> grid{};
+
+	const astar::searcher searcher
+	{
+		.begin = vertex{ 0, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
+		.weightCalculator = grid_weight_extractor{ &grid },
+		.heuristic = constant_t<0>{},
+		.callback = empty_invokable_t{},
+		.vertexPredicate = true_constant_t{},
+		.stateMap = state_map_t{},
+		.openList = astar::default_open_list_t<vertex, int>{}
+	};
+	using searcher_t = decltype(searcher);
+
+	REQUIRE(std::same_as<searcher_t::vertex_t, vertex>);
+	REQUIRE(std::same_as<searcher_t::weight_t, int>);
+	REQUIRE(std::same_as<searcher_t::node_t, astar::node_t<vertex, int>>);
+
+	REQUIRE(std::same_as<searcher_t::neighbor_searcher_t, grid_4way_neighbor_searcher<grid2d<int, 3, 4>>>);
+	REQUIRE(std::same_as<searcher_t::weight_calculator_t, grid_weight_extractor<grid2d<int, 3, 4>>>);
+	REQUIRE(std::same_as<searcher_t::heuristic_t, constant_t<0>>);
+	REQUIRE(std::same_as<searcher_t::callback_t, empty_invokable_t>);
+	REQUIRE(std::same_as<searcher_t::vertex_predicate_t, true_constant_t>);
+	REQUIRE(std::same_as<searcher_t::state_map_t, state_map_t>);
+	REQUIRE(std::same_as<searcher_t::open_list_t, astar::default_open_list_t<vertex, int>>);
 }
 
 TEST_CASE("Test astar traverse compiling with as much default params as possible.", "[astar]")
