@@ -40,7 +40,7 @@ namespace sl::graph::dijkstra
 	using default_open_list_t = std::priority_queue<node_t<TVertex, TWeight>, std::vector<node_t<TVertex, TWeight>>, std::greater<>>;
 
 	/**
-	 * \brief The searcher of the algorithm.
+	 * \brief The search_params of the algorithm.
 	 * \tparam TVertex The vertex type.
 	 * \tparam TNeighborSearcher The neighbor searcher type.
 	 * \tparam TWeightCalculator The weight calculator type.
@@ -59,7 +59,7 @@ namespace sl::graph::dijkstra
 		= std::map<TVertex, state_t<detail::weight_type_of_t<TWeightCalculator, TVertex>>>,
 		open_list_for<node_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>> TOpenList
 		= default_open_list_t<TVertex, detail::weight_type_of_t<TWeightCalculator, TVertex>>>
-	struct searcher
+	struct search_params
 	{
 		/**
 		 * \brief Alias for the actual value type of the vertex.
@@ -180,25 +180,25 @@ namespace sl::graph
 	/**
 	 * \brief Overload for dijkstra::searcher.
 	 * \tparam TArgs Template arguments for the searcher.
-	 * \param searcher The searcher object.
+	 * \param params The searcher object.
 	 * \ingroup dijkstra
 	 */
 	template <class... TArgs>
-	void traverse(dijkstra::searcher<TArgs...> searcher)
+	void traverse(dijkstra::search_params<TArgs...> params)
 	{
-		using searcher_t = dijkstra::searcher<TArgs...>;
-		using vertex_t = typename searcher_t::vertex_t;
-		using node_t = typename searcher_t::node_t;
+		using params_t = dijkstra::search_params<TArgs...>;
+		using vertex_t = typename params_t::vertex_t;
+		using node_t = typename params_t::node_t;
 
 		detail::dynamic_cost_traverse<node_t>
 		(
-			detail::make_weighted_node_factory<vertex_t>(std::ref(searcher.weightCalculator)),
-			{ .vertex = std::move(searcher.begin) },
-			std::ref(searcher.neighborSearcher),
-			std::ref(searcher.callback),
-			std::ref(searcher.vertexPredicate),
-			std::move(searcher.stateMap),
-			std::move(searcher.openList)
+			detail::make_weighted_node_factory<vertex_t>(std::ref(params.weightCalculator)),
+			{ .vertex = std::move(params.begin) },
+			std::ref(params.neighborSearcher),
+			std::ref(params.callback),
+			std::ref(params.vertexPredicate),
+			std::move(params.stateMap),
+			std::move(params.openList)
 		);
 	}
 }

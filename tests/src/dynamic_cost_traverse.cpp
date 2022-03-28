@@ -194,7 +194,7 @@ TEST_CASE("dijkstra should correctly expose its typedefs.", "[dijkstra]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
 
-	const dijkstra::searcher searcher
+	const dijkstra::search_params searcher
 	{
 		.begin = vertex{ 0, 1 },
 		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
@@ -223,7 +223,7 @@ TEST_CASE("Test dijkstra traverse compiling with as much default params as possi
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
 
-	const dijkstra::searcher searcher
+	const dijkstra::search_params searcher
 	{
 		.begin = 5,
 		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
@@ -237,7 +237,7 @@ TEST_CASE("astar should correctly expose its typedefs.", "[astar]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
 
-	const astar::searcher searcher
+	const astar::search_params searcher
 	{
 		.begin = vertex{ 0, 1 },
 		.neighborSearcher = grid_4way_neighbor_searcher{ &grid },
@@ -268,7 +268,7 @@ TEST_CASE("Test astar traverse compiling with as much default params as possible
 	constexpr int begin{ 3 };
 	constexpr int end{ 9 };
 
-	const astar::searcher searcher
+	const astar::search_params searcher
 	{
 		.begin = 5,
 		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },
@@ -286,7 +286,7 @@ TEST_CASE("astar should prefer vertices with less estimated weight.", "[astar]")
 
 	const std::set expectedVertices{ 5, 6, 7, 8 };
 
-	const astar::searcher searcher
+	const astar::search_params searcher
 	{
 		.begin = 5,
 		.neighborSearcher = linear_graph_neighbor_searcher{ .begin = &begin, .end = &end },

@@ -39,7 +39,7 @@ namespace sl::graph::dfs
 	using default_open_list_t = std::stack<node_t<TVertex>>;
 
 	/**
-	 * \brief The searcher of the algorithm.
+	 * \brief The search_params of the algorithm.
 	 * \tparam TVertex The vertex type.
 	 * \tparam TNeighborSearcher The neighbor searcher type.
 	 * \tparam TCallback The callback type.
@@ -54,7 +54,7 @@ namespace sl::graph::dfs
 		vertex_predicate_for<node_t<TVertex>> TVertexPredicate = true_constant_t,
 		state_map_for<TVertex, state_t> TStateMap = std::map<TVertex, state_t>,
 		open_list_for<node_t<TVertex>> TOpenList = default_open_list_t<TVertex>>
-	struct searcher
+	struct search_params
 	{
 		/**
 		 * \brief Alias for the actual value type of the vertex.
@@ -158,27 +158,27 @@ namespace sl::graph::dfs
 namespace sl::graph
 {
 	/**
-	 * \brief Overload for dfs::searcher.
-	 * \tparam TArgs Template arguments for the searcher.
-	 * \param searcher The searcher object.
+	 * \brief Overload for dfs::search_params.
+	 * \tparam TArgs Template arguments for the search_params.
+	 * \param params The search_params object.
 	 * \ingroup dfs
 	 */
 	template <class... TArgs>
-	void traverse(dfs::searcher<TArgs...> searcher)
+	void traverse(dfs::search_params<TArgs...> params)
 	{
-		using searcher_t = bfs::searcher<TArgs...>;
-		using vertex_t = typename searcher_t::vertex_t;
-		using node_t = typename searcher_t::node_t;
+		using params_t = dfs::search_params<TArgs...>;
+		using vertex_t = typename params_t::vertex_t;
+		using node_t = typename params_t::node_t;
 
 		detail::uniform_cost_traverse<node_t>
 		(
 			detail::make_weighted_node_factory<vertex_t>(constant_t<1>{}),
-			{ .vertex = std::move(searcher.begin) },
-			std::ref(searcher.neighborSearcher),
-			std::ref(searcher.callback),
-			std::ref(searcher.vertexPredicate),
-			std::move(searcher.stateMap),
-			std::move(searcher.openList)
+			{ .vertex = std::move(params.begin) },
+			std::ref(params.neighborSearcher),
+			std::ref(params.callback),
+			std::ref(params.vertexPredicate),
+			std::move(params.stateMap),
+			std::move(params.openList)
 		);
 	}
 }
