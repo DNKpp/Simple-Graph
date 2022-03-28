@@ -95,7 +95,7 @@ namespace sl::graph::astar
 {
 	/** \addtogroup astar
 	* @{
-	* \brief Provides the searcher and other useful things modeling the astar algorithm.
+	* \brief Provides the search_params and other related things modeling the A* algorithm.
 	*/
 
 	/**

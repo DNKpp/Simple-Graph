@@ -18,7 +18,7 @@ namespace sl::graph::bfs
 {
 	/** \addtogroup bfs
 	* @{
-	* \brief Provides the searcher and other useful things modeling the breadth first search algorithm.
+	* \brief Provides the search_params and other related things the breadth first search algorithm.
 	*/
 
 	/**

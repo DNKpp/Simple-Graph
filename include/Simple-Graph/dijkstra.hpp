@@ -18,7 +18,7 @@ namespace sl::graph::dijkstra
 {
 	/** \addtogroup dijkstra
 	* @{
-	* \brief Provides the searcher and other useful things modeling the dijkstra algorithm.
+	* \brief Provides the search_params and other related things modeling the dijkstra algorithm.
 	*/
 
 	/**
