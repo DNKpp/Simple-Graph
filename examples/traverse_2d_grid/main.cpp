@@ -18,7 +18,7 @@
  */
 
 // simple 2d grid; the actual values will be used as cost to step onto
-template <int VHeight, int VWidth>
+template <std::size_t VHeight, std::size_t VWidth>
 using grid2d = std::array<std::array<int, VWidth>, VHeight>;
 
 // a simple vector 2d type. The library expects the vertex types to be at least equality-comparable.
@@ -43,7 +43,7 @@ std::ostream& operator <<(std::ostream& out, const vector2d& vec)
 using astar_node_t = sl::graph::astar::node_t<vector2d, int>;
 
 // this searcher simply returns all 4 way adjacent vertices to the current vertex, when they are within the grid.
-template <int VHeight, int VWidth>
+template <std::size_t VHeight, std::size_t VWidth>
 struct neighbor_searcher_2d
 {
 	constexpr std::vector<vector2d> operator()(const vector2d& current) const
@@ -102,7 +102,7 @@ struct node_printer
 
 // This functions simply executes an astar with a constant heuristic of 0. This is actually equivalent to dijkstra.
 // As the callback does not return anything, the algorithm will run until all reachable vertices are visited.
-template <int VHeight, int VWidth>
+template <std::size_t VHeight, std::size_t VWidth>
 void astar_traversal(const grid2d<VHeight, VWidth>& grid, const vector2d& start)
 {
 	traverse
@@ -122,7 +122,7 @@ void astar_traversal(const grid2d<VHeight, VWidth>& grid, const vector2d& start)
 // As the searcher (and the algorithm) itself is not interested in the actual endpoint, the heuristic and the callback have to take into account
 // the end vertex theirselves.
 // As the callback returns a bool, the algorithm runs until true is returned.
-template <int VHeight, int VWidth>
+template <std::size_t VHeight, std::size_t VWidth>
 void astar_pathfinder(const grid2d<VHeight, VWidth>& grid, const vector2d& start, const vector2d& end)
 {
 	traverse
