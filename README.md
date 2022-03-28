@@ -65,7 +65,7 @@ If users do not provide such a predice, the default predicate will return ``true
 For the technical requirements have a look at: ``sl::graph::vertex_predicate_for`` concept.
 
 ### State Map
-The state map will be queried with vertices and is expected to return the state. The state map must always return a valid reference to an existing state, even if the queried vertex has never been set before (in that case, a default constructed state will do fine).
+The state map will be queried with vertices and is expected to return the state. The state map must always return a valid reference (or proxy) to an existing state, even if the queried vertex has never been set before (in that case, a default constructed state will do fine).
 The algorithm tracks the visitation state of each vertex in it.
 
 For the technical requirements have a look at: ``sl::graph::state_map_for`` concept.
