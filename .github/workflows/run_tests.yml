@@ -3,7 +3,7 @@ name: run tests
 env:
   BUILD_DIR: out    # root build directory
   TEST_DIR: tests   # relative directory below BUILD_DIR
-  CMAKE_OPTIONS: -DSimple-Graph_BUILD_TESTS=ON
+  CMAKE_OPTIONS: -DSimple-Graph_BUILD_TESTS=ON -DSimple-Graph_BUILD_EXAMPLES=ON
 
 on:
   schedule:
