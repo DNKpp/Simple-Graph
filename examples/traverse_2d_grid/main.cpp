@@ -118,8 +118,8 @@ void astar_traversal(const grid2d<VHeight, VWidth>& grid, const vector2d& start)
 	);
 }
 
-// This functions takes a start and an end vertex in fills the astar searcher accordingly.
-// As the searcher itself is not interested in the actual endpoint, the heuristic and the callback have to take into account
+// This functions takes a start and an end vertex and fills the astar searcher members accordingly.
+// As the searcher (and the algorithm) itself is not interested in the actual endpoint, the heuristic and the callback have to take into account
 // the end vertex theirselves.
 // As the callback returns a bool, the algorithm runs until true is returned.
 template <int VHeight, int VWidth>
