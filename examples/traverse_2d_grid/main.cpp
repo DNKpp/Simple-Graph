@@ -11,10 +11,10 @@
 #include <vector>
 
 /*
- * In this example I'll show the minimal setup performing the astar algorithm on a given 2d grid. Most of the following code
- * is simply necessary to actually have something to run the algorithm on, thus setting up some classes and an actual grid.
- * As the astar is the "heaviest" algorithm, it has the requirements on the setup, thus if one picks a dijkstra or even a
- * depth-first-search, some of the requirements will not be necessary and therefore the setup smaller.
+ * In this example I'll show the minimal necessary setup performing the astar algorithm on a given 2d grid. Most of the following code
+ * is simply necessary to actually have something to run the algorithm on, thus setting up an vector type and an actual grid.
+ * As the astar is the "heaviest" algorithm, it has the most requirements on the setup, thus if one picks a dijkstra or even a
+ * depth-first-search, some of the requirements will not be necessary and therefore the required setup smaller.
  */
 
 // simple 2d grid; the actual values will be used as cost to step onto
