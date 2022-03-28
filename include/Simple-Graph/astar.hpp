@@ -116,6 +116,12 @@ namespace sl::graph::astar
 	template <vertex_descriptor TVertex, weight TWeight>
 	using default_open_list_t = std::priority_queue<node_t<TVertex, TWeight>, std::vector<node_t<TVertex, TWeight>>, std::greater<>>;
 
+	/**
+	 * \brief Checks whether a type satisfies the requirements for a heuristic type.
+	 * \tparam T Type to check.
+	 * \tparam TVertex The used vertex type.
+	 * \tparam TWeightCalculator The used weight calculator type.
+	 */
 	template <class T, class TVertex, class TWeightCalculator>
 	concept compatible_heuristic_for = vertex_descriptor<TVertex>
 										&& weight_calculator_for<TWeightCalculator, TVertex>
