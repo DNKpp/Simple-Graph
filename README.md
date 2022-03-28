@@ -41,6 +41,7 @@ achieve with this library.
 
 
 ## Tested Compilers:
+*   msvc v142 (Visual Studio 2017)
 *   msvc v143 (Visual Studio 2022)
 *   gcc10
 *   gcc11
