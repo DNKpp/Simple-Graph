@@ -14,7 +14,7 @@ Mail: [DNKpp2011@gmail.com](mailto:dnkpp2011@gmail.com)
 [BSL-1.0](https://github.com/DNKpp/Simple-Log/blob/master/LICENSE_1_0.txt) (free, open source)
 
 ```text
-          Copyright Dominic Koepke 2021 - 2022.
+          Copyright Dominic Koepke 2019 - 2022.
  Distributed under the Boost Software License, Version 1.0.
     (See accompanying file LICENSE_1_0.txt or copy at
           https://www.boost.org/LICENSE_1_0.txt)
@@ -22,10 +22,10 @@ Mail: [DNKpp2011@gmail.com](mailto:dnkpp2011@gmail.com)
 
 ## Description
 This library provides implementations for the following graph algorithms:
-*   depth first search
-*   breadth first search
-*   dijkstra
-*   astar (A*)
+*   depth first search -> depth_first_search.hpp
+*   breadth first search -> breadth_first_search.hpp
+*   dijkstra -> dijkstra.hpp
+*   astar (A*) -> astar.hpp
 
 The library is designed to require a minimal setup for the users, to make any of the algorithm work in their scenarios. This means one can rely on tested algorithms instead of implementing, and maintaining, their own implementations.
 Sure, the minimal setup won't be as fast as one could get with a custom implementation, but users are able to exchange almost any type used of the algorithms and therefore probably come very close to it.
