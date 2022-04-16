@@ -202,6 +202,20 @@ namespace sl::graph
 		);
 	}
 
+	/**
+	 * \brief Executes the algorithm and returns a vector, where each element is a vertex on the existing path.
+	 * \tparam TArgs Template arguments for the search_params.
+	 * \tparam TVertex The used vertex type. Do not change!
+	 * \param params The search_params object.
+	 * \param predecessorMap The provided predecessor map, where each predecessor will be stored in between.
+	 * \return Returns the path as vector if exists. Otherwise ``std::nullopt`` is returned.
+	 * \details This function actually forwards the ``searcher_params`` to the appropriate traverse function, but
+	 * wraps the callback into a ``path_finder_t``. Unlike to the usual ``search_params`` constraints, the callback
+	 * must return a boolean convertible type.
+	 * \note The path will be ordered from destination to begin, thus reversed.
+	 * \attention If the predecessorMap contains any predefined graph state, the behaviour is this function is undefined.
+	 * \ingroup dijkstra
+	 */
 	template <class... TArgs, vertex_descriptor TVertex = typename dijkstra::search_params<TArgs...>::vertex_t>
 	[[nodiscard]]
 	std::optional<std::vector<TVertex>> find_path
