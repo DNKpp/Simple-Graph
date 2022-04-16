@@ -83,6 +83,12 @@ namespace sl::graph::detail
 		auto find_path_callback
 	)
 	{
+		static_assert
+		(
+			std::convertible_to<std::invoke_result_t<decltype(callback), TNode>, bool>,
+			"The return type of the provided callback must be boolean convertible."
+		);
+
 		std::vector<node_vertex_t<TNode>> path{};
 		auto pathFinder = make_path_finder<TNode>(std::ref(callback), std::back_inserter(path), std::move(predecessorMap));
 
@@ -114,7 +120,7 @@ namespace sl::graph
 		std::predicate<TNode> TDestinationPredicate,
 		std::output_iterator<node_vertex_t<TNode>> TOutItr,
 		predecessor_map_for<node_vertex_t<TNode>> TPredecessorMap
-	= std::map<node_vertex_t<TNode>, std::optional<node_vertex_t<TNode>>>>
+		= std::map<node_vertex_t<TNode>, std::optional<node_vertex_t<TNode>>>>
 	[[nodiscard]]
 	constexpr auto make_path_finder
 	(
