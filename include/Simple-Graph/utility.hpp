@@ -1,4 +1,4 @@
-//           Copyright Dominic Koepke 2022 - 2022.
+//           Copyright Dominic Koepke 2019 - 2022.
 //  Distributed under the Boost Software License, Version 1.0.
 //     (See accompanying file LICENSE_1_0.txt or copy at
 //           https://www.boost.org/LICENSE_1_0.txt)
@@ -219,7 +219,7 @@ namespace sl::graph
 		/**
 		 * \brief Invoke operator.
 		 */
-		constexpr void operator ()(auto&&...) const noexcept
+		constexpr void operator ()(auto&&... /*unused*/) const noexcept
 		{
 		}
 	};
@@ -245,7 +245,7 @@ namespace sl::graph
 		 * \brief Invoke operator.
 		 * \return Returns always a copy of VValue.
 		 */
-		constexpr value_type operator()(auto&&...) const { return VValue; }
+		constexpr value_type operator()(auto&&... /*unused*/) const { return VValue; }
 	};
 
 	/**
@@ -386,6 +386,26 @@ namespace sl::graph
 								emplace(container, std::declval<TNode>());
 								{ take_next(container) } -> std::convertible_to<TNode>;
 							};
+
+	template <vertex_descriptor TVertex, class TCompare = std::equal_to<>>
+	struct vertex_destination_t
+	{
+		using vertex_t = TVertex;
+		using compare_t = TCompare;
+
+		vertex_t destination{};
+		compare_t compare{};
+
+		constexpr bool operator ()(const auto& node)
+			requires requires
+			{
+				node.vertex;
+				{ std::invoke(compare, destination, node.vertex) } -> std::convertible_to<bool>;
+			}
+		{
+			return std::invoke(compare, destination, node.vertex);
+		}
+	};
 
 	/** @}*/
 }
