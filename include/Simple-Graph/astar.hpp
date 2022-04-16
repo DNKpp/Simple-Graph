@@ -1,4 +1,4 @@
-//           Copyright Dominic Koepke 2022 - 2022.
+//           Copyright Dominic Koepke 2019 - 2022.
 //  Distributed under the Boost Software License, Version 1.0.
 //     (See accompanying file LICENSE_1_0.txt or copy at
 //           https://www.boost.org/LICENSE_1_0.txt)
@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "path_finder.hpp"
 #include "generic_traverse.hpp"
 #include "queue_helper.hpp"
 #include "utility.hpp"
@@ -306,6 +307,38 @@ namespace sl::graph
 			std::ref(params.vertexPredicate),
 			std::move(params.stateMap),
 			std::move(params.openList)
+		);
+	}
+
+	template <class... TArgs, vertex_descriptor TVertex = typename astar::search_params<TArgs...>::vertex_t>
+	[[nodiscard]]
+	std::optional<std::vector<TVertex>> find_path
+	(
+		astar::search_params<TArgs...> params,
+		predecessor_map_for<TVertex> auto predecessorMap = std::map<TVertex, std::optional<TVertex>>{}
+	)
+	{
+		using params_t = astar::search_params<TArgs...>;
+		using vertex_t = typename params_t::vertex_t;
+		using node_t = typename params_t::node_t;
+
+		return detail::extract_path<node_t>
+		(
+			std::ref(params.callback),
+			std::move(predecessorMap),
+			[&](auto path_extractor)
+			{
+				detail::dynamic_cost_traverse<node_t>
+				(
+					detail::make_astar_node_factory<vertex_t>(std::ref(params.weightCalculator), std::ref(params.heuristic)),
+					{ .vertex = std::move(params.begin) },
+					std::ref(params.neighborSearcher),
+					std::ref(path_extractor),
+					std::ref(params.vertexPredicate),
+					std::move(params.stateMap),
+					std::move(params.openList)
+				);
+			}
 		);
 	}
 }

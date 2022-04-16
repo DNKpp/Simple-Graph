@@ -1,9 +1,10 @@
-//          Copyright Dominic Koepke 2019 - 2022.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          https://www.boost.org/LICENSE_1_0.txt)
+//           Copyright Dominic Koepke 2019 - 2022.
+//  Distributed under the Boost Software License, Version 1.0.
+//     (See accompanying file LICENSE_1_0.txt or copy at
+//           https://www.boost.org/LICENSE_1_0.txt)
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 #include "Simple-Graph/astar.hpp"
@@ -28,6 +29,18 @@ constexpr grid2d<int, 3, 4> default_grid
 using state_map_t = std::map<vertex, dijkstra::state_t<int>, vertex_less>;
 template <class TNode>
 using open_list_t = std::priority_queue<TNode, std::vector<TNode>, std::greater<>>;
+
+struct manhattan_distance_t
+{
+	vertex destination{};
+
+	[[nodiscard]]
+	int operator ()(const vertex& vertex) const
+	{
+		auto diff{ destination - vertex };
+		return std::abs(diff.x()) + std::abs(diff.y());
+	}
+};
 
 TEST_CASE("dynamic_cost_traverse should visit all nodes if not interrupted.", "[traverse]")
 {
@@ -85,7 +98,9 @@ TEST_CASE("dynamic_cost_traverse should prefer cheaper routes over already known
 	{
 		// we use this to force a better route to 2/2, thus that vertex will be added twice to the open list
 		if (predecessor == vertex{ 2, 1 } && current == vertex{ 2, 2 })
+		{
 			return 1;
+		}
 		return grid_weight_extractor{ .grid = &grid }(predecessor, current);
 	};
 
@@ -233,6 +248,43 @@ TEST_CASE("Test dijkstra traverse compiling with as much default params as possi
 	traverse(searcher);
 }
 
+TEST_CASE("dijkstra find_path should return reversed path as vector if exists.", "[dijkstra][find_path]")
+{
+	using node_t = weighted_node<vertex, int>;
+
+	constexpr grid2d<int, 3, 4> grid
+	{
+		{
+			{ 1, 2, 1 },
+			{ 1, 1, 1 },
+			{ 1, 4, 1 },
+			{ 1, 2, 1 }
+		}
+	};
+
+	const auto [destination, expectedPath] = GENERATE
+	(
+		table<vertex,
+		std::optional<std::vector<vertex>>>({
+			{ { 2, 3 }, { { { 2, 3 }, { 2, 2 }, { 2, 1 }, { 1, 1 } } } },
+			{ { 3, 3 }, std::nullopt } // out of grid bounds
+			})
+	);
+
+	const dijkstra::search_params searcher
+	{
+		.begin = vertex{ 1, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ .grid = &grid },
+		.weightCalculator = grid_weight_extractor{ .grid = &grid },
+		.callback = vertex_destination_t{ destination },
+		.stateMap = state_map_t{}
+	};
+
+	const auto path = find_path(searcher, std::map<vertex, std::optional<vertex>, vertex_less>{});
+
+	REQUIRE(path == expectedPath);
+}
+
 TEST_CASE("astar should correctly expose its typedefs.", "[astar]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
@@ -300,4 +352,42 @@ TEST_CASE("astar should prefer vertices with less estimated weight.", "[astar]")
 	};
 
 	traverse(searcher);
+}
+
+TEST_CASE("astars find_path should return reversed path as vector if exists.", "[astar][find_path]")
+{
+	using node_t = weighted_node<vertex, int>;
+
+	constexpr grid2d<int, 3, 4> grid
+	{
+		{
+			{ 1, 2, 1 },
+			{ 1, 1, 1 },
+			{ 1, 4, 1 },
+			{ 1, 2, 1 }
+		}
+	};
+
+	const auto [destination, expectedPath] = GENERATE
+	(
+		table<vertex,
+		std::optional<std::vector<vertex>>>({
+			{ { 2, 3 }, { { { 2, 3 }, { 2, 2 }, { 2, 1 }, { 1, 1 } } } },
+			{ { 3, 3 }, std::nullopt } // out of grid bounds
+			})
+	);
+
+	const astar::search_params searcher
+	{
+		.begin = vertex{ 1, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ .grid = &grid },
+		.weightCalculator = grid_weight_extractor{ .grid = &grid },
+		.heuristic = manhattan_distance_t{ destination },
+		.callback = vertex_destination_t{ destination },
+		.stateMap = std::map<vertex, astar::state_t<int>, vertex_less>{}
+	};
+
+	const auto path = find_path(searcher, std::map<vertex, std::optional<vertex>, vertex_less>{});
+
+	REQUIRE(path == expectedPath);
 }
