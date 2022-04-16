@@ -1,9 +1,10 @@
-//           Copyright Dominic Koepke 2022 - 2022.
+//           Copyright Dominic Koepke 2019 - 2022.
 //  Distributed under the Boost Software License, Version 1.0.
 //     (See accompanying file LICENSE_1_0.txt or copy at
 //           https://www.boost.org/LICENSE_1_0.txt)
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 #include "Simple-Graph/breadth_first_search.hpp"
@@ -188,6 +189,43 @@ TEST_CASE("dfs should visit all vertices in a specific order.", "[dfs][traverse]
 	REQUIRE_THAT(depths, Catch::Matchers::UnorderedEquals(expected_depths));
 }
 
+TEST_CASE("dfs find_path should return reversed path as vector if exists.", "[dfs][find_path]")
+{
+	using node_t = weighted_node<vertex, int>;
+
+	constexpr grid2d<int, 3, 4> grid
+	{
+		{
+			{ 1, 2, 1 },
+			{ 1, 1, 1 },
+			{ 1, 4, 1 },
+			{ 1, 2, 1 }
+		}
+	};
+
+	// provided neighbor search_params prefers up > left > down > right
+	const auto [destination, expectedPath] = GENERATE
+	(
+		table<vertex,
+		std::optional<std::vector<vertex>>>({
+			{ { 2, 3 }, { { { 2, 3 }, { 1, 3 }, { 0, 3 }, { 0, 2 }, { 0, 1 }, { 1, 1 } } } },
+			{ { 3, 3 }, std::nullopt } // out of grid bounds
+			})
+	);
+
+	const dfs::search_params searcher
+	{
+		.begin = vertex{ 1, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ .grid = &grid },
+		.callback = vertex_destination_t{ destination },
+		.stateMap = std::map<vertex, dfs::state_t, vertex_less>{}
+	};
+
+	const auto path = find_path(searcher, std::map<vertex, std::optional<vertex>, vertex_less>{});
+
+	REQUIRE(path == expectedPath);
+}
+
 TEST_CASE("bfs should correctly expose its typedefs.", "[bfs]")
 {
 	constexpr grid2d<int, 3, 4> grid{};
@@ -265,4 +303,41 @@ TEST_CASE("bfs should visit all vertices in a specific order.", "[bfs][traverse]
 	traverse(std::move(searcher));
 
 	REQUIRE_THAT(depths, Catch::Matchers::UnorderedEquals(expected_depths));
+}
+
+TEST_CASE("bfs find_path should return reversed path as vector if exists.", "[bfs][find_path]")
+{
+	using node_t = weighted_node<vertex, int>;
+
+	constexpr grid2d<int, 3, 4> grid
+	{
+		{
+			{ 1, 2, 1 },
+			{ 1, 1, 1 },
+			{ 1, 4, 1 },
+			{ 1, 2, 1 }
+		}
+	};
+
+	// provided neighbor search_params prefers up > left > down > right
+	const auto [destination, expectedPath] = GENERATE
+	(
+		table<vertex,
+		std::optional<std::vector<vertex>>>({
+			{ { 2, 3 }, { { { 2, 3 }, { 2, 2 }, { 2, 1 }, { 1, 1 } } } },
+			{ { 3, 3 }, std::nullopt } // out of grid bounds
+			})
+	);
+
+	const bfs::search_params searcher
+	{
+		.begin = vertex{ 1, 1 },
+		.neighborSearcher = grid_4way_neighbor_searcher{ .grid = &grid },
+		.callback = vertex_destination_t{ destination },
+		.stateMap = std::map<vertex, bfs::state_t, vertex_less>{}
+	};
+
+	const auto path = find_path(searcher, std::map<vertex, std::optional<vertex>, vertex_less>{});
+
+	REQUIRE(path == expectedPath);
 }

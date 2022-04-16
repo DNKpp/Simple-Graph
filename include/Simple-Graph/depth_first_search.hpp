@@ -181,6 +181,52 @@ namespace sl::graph
 			std::move(params.openList)
 		);
 	}
+
+	/**
+	 * \brief Executes the algorithm and returns a vector, where each element is a vertex on the existing path.
+	 * \tparam TArgs Template arguments for the search_params.
+	 * \tparam TVertex The used vertex type. Do not change!
+	 * \param params The search_params object.
+	 * \param predecessorMap The provided predecessor map, where each predecessor will be stored in between.
+	 * \return Returns the path as vector if exists. Otherwise ``std::nullopt`` is returned.
+	 * \details This function actually forwards the ``searcher_params`` to the appropriate traverse function, but
+	 * wraps the callback into a ``path_finder_t``. Unlike to the usual ``search_params`` constraints, the callback
+	 * must return a boolean convertible type.
+	 * \note The path will be ordered from destination to begin, thus reversed.
+	 * \attention If the predecessorMap contains any predefined graph state, the behaviour is this function is undefined.
+	 * \ingroup dfs
+	 */
+	template <class... TArgs, vertex_descriptor TVertex = typename dfs::search_params<TArgs...>::vertex_t>
+	[[nodiscard]]
+	std::optional<std::vector<TVertex>> find_path
+	(
+		dfs::search_params<TArgs...> params,
+		predecessor_map_for<TVertex> auto predecessorMap = std::map<TVertex, std::optional<TVertex>>{}
+	)
+	{
+		using params_t = dfs::search_params<TArgs...>;
+		using vertex_t = typename params_t::vertex_t;
+		using node_t = typename params_t::node_t;
+
+		return detail::extract_path<node_t>
+		(
+			std::ref(params.callback),
+			std::move(predecessorMap),
+			[&](auto path_extractor)
+			{
+				detail::uniform_cost_traverse<node_t>
+				(
+					detail::make_weighted_node_factory<vertex_t>(constant_t<1>{}),
+					{ .vertex = std::move(params.begin) },
+					std::ref(params.neighborSearcher),
+					std::ref(path_extractor),
+					std::ref(params.vertexPredicate),
+					std::move(params.stateMap),
+					std::move(params.openList)
+				);
+			}
+		);
+	}
 }
 
 #endif
