@@ -1,18 +1,6 @@
 ﻿{
 	"configurations": [
 		{
-			"name": "x64-Debug",
-			"generator": "Ninja",
-			"configurationType": "Debug",
-			"inheritEnvironments": [ "msvc_x64_x64" ],
-			"buildRoot": "${projectDir}\\out\\build\\${name}",
-			"installRoot": "${projectDir}\\out\\install\\${name}",
-			"cmakeCommandArgs": "",
-			"buildCommandArgs": "",
-			"ctestCommandArgs": "",
-			"variables": []
-		},
-		{
 			"name": "Linux-GCC-Debug",
 			"generator": "Ninja",
 			"configurationType": "Debug",
@@ -31,7 +19,28 @@
 			"remoteCopyBuildOutput": false,
 			"remoteCopySourcesMethod": "rsync",
 			"addressSanitizerRuntimeFlags": "detect_leaks=0",
-			"variables": []
+			"variables": [
+				{
+					"name": "CMAKE_C_COMPILER",
+					"value": "/usr/bin/gcc",
+					"type": "FILEPATH"
+				},
+				{
+					"name": "CMAKE_CXX_COMPILER",
+					"value": "/usr/bin/g++",
+					"type": "STRING"
+				},
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				},
+				{
+					"name": "Simple-Graph_BUILD_EXAMPLES",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
 		},
 		{
 			"name": "Linux-GCC-Release",
@@ -43,7 +52,6 @@
 			"buildCommandArgs": "",
 			"ctestCommandArgs": "",
 			"inheritEnvironments": [ "linux_x64" ],
-			"variables": [],
 			"remoteMachineName": "${defaultRemoteMachineName}",
 			"remoteCMakeListsRoot": "$HOME/.vs/${projectDirName}/${workspaceHash}/src",
 			"remoteBuildRoot": "$HOME/.vs/${projectDirName}/${workspaceHash}/out/build/${name}",
@@ -52,19 +60,14 @@
 			"rsyncCommandArgs": "-t --delete --delete-excluded",
 			"remoteCopyBuildOutput": false,
 			"remoteCopySourcesMethod": "rsync",
-			"addressSanitizerRuntimeFlags": "detect_leaks=0"
-		},
-		{
-			"name": "x64-Release",
-			"generator": "Ninja",
-			"configurationType": "Release",
-			"buildRoot": "${projectDir}\\out\\build\\${name}",
-			"installRoot": "${projectDir}\\out\\install\\${name}",
-			"cmakeCommandArgs": "",
-			"buildCommandArgs": "",
-			"ctestCommandArgs": "",
-			"inheritEnvironments": [ "msvc_x64_x64" ],
-			"variables": []
+			"addressSanitizerRuntimeFlags": "detect_leaks=0",
+			"variables": [
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
 		},
 		{
 			"name": "Linux-Clang-Debug",
@@ -85,7 +88,23 @@
 			"remoteCopyBuildOutput": false,
 			"remoteCopySourcesMethod": "rsync",
 			"addressSanitizerRuntimeFlags": "detect_leaks=0",
-			"variables": []
+			"variables": [
+				{
+					"name": "CMAKE_C_COMPILER",
+					"value": "/usr/bin/clang",
+					"type": "FILEPATH"
+				},
+				{
+					"name": "CMAKE_CXX_COMPILER",
+					"value": "/usr/bin/clang++",
+					"type": "FILEPATH"
+				},
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
 		},
 		{
 			"name": "Linux-Clang-Release",
@@ -106,7 +125,62 @@
 			"remoteCopyBuildOutput": false,
 			"remoteCopySourcesMethod": "rsync",
 			"addressSanitizerRuntimeFlags": "detect_leaks=0",
-			"variables": []
+			"variables": [
+				{
+					"name": "CMAKE_C_COMPILER",
+					"value": "/usr/bin/clang",
+					"type": "FILEPATH"
+				},
+				{
+					"name": "CMAKE_CXX_COMPILER",
+					"value": "/usr/bin/clang++",
+					"type": "FILEPATH"
+				},
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
+		},
+		{
+			"name": "x64-Debug",
+			"generator": "Ninja",
+			"configurationType": "Debug",
+			"inheritEnvironments": [ "msvc_x64_x64" ],
+			"buildRoot": "${projectDir}\\out\\build\\${name}",
+			"installRoot": "${projectDir}\\out\\install\\${name}",
+			"ctestCommandArgs": "",
+			"variables": [
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				},
+				{
+					"name": "Simple-Graph_BUILD_EXAMPLES",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
+		},
+		{
+			"name": "x64-Release",
+			"generator": "Ninja",
+			"configurationType": "Release",
+			"buildRoot": "${projectDir}\\out\\build\\${name}",
+			"installRoot": "${projectDir}\\out\\install\\${name}",
+			"cmakeCommandArgs": "",
+			"buildCommandArgs": "",
+			"ctestCommandArgs": "",
+			"inheritEnvironments": [ "msvc_x64_x64" ],
+			"variables": [
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
 		},
 		{
 			"name": "x64-Clang-Debug",
@@ -114,11 +188,20 @@
 			"configurationType": "Debug",
 			"buildRoot": "${projectDir}\\out\\build\\${name}",
 			"installRoot": "${projectDir}\\out\\install\\${name}",
-			"cmakeCommandArgs": "",
-			"buildCommandArgs": "",
 			"ctestCommandArgs": "",
 			"inheritEnvironments": [ "clang_cl_x64_x64" ],
-			"variables": []
+			"variables": [
+				{
+					"name": "CMAKE_C_COMPILER_WORKS",
+					"value": "true",
+					"type": "BOOL"
+				},
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
 		},
 		{
 			"name": "x64-Clang-Release",
@@ -130,7 +213,18 @@
 			"buildCommandArgs": "",
 			"ctestCommandArgs": "",
 			"inheritEnvironments": [ "clang_cl_x64_x64" ],
-			"variables": []
+			"variables": [
+				{
+					"name": "CMAKE_C_COMPILER_WORKS",
+					"value": "true",
+					"type": "BOOL"
+				},
+				{
+					"name": "Simple-Graph_BUILD_TESTS",
+					"value": "True",
+					"type": "BOOL"
+				}
+			]
 		}
 	]
 }
