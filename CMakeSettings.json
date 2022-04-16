@@ -28,7 +28,7 @@
 				{
 					"name": "CMAKE_CXX_COMPILER",
 					"value": "/usr/bin/g++",
-					"type": "FILEPATH"
+					"type": "STRING"
 				},
 				{
 					"name": "Simple-Graph_BUILD_TESTS",

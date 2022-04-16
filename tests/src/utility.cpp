@@ -71,8 +71,8 @@ TEST_CASE("vertex_destination_t should use its compare invocable for comparison.
 		.compare = compare
 	};
 
-	REQUIRE(!std::invoke(destination, node_t{ .vertex = 42 }));
-	REQUIRE(std::invoke(destination, node_t{ .vertex = 1337 }));
+	REQUIRE(!std::invoke(destination, node_t<int>{ .vertex = 42 }));
+	REQUIRE(std::invoke(destination, node_t<int>{ .vertex = 1337 }));
 	REQUIRE(invoke_counter == 2);
 }
 
@@ -86,6 +86,6 @@ TEST_CASE("path_finder_t should invoke destinationPredicate.", "[utility]")
 	};
 	std::vector<int> dummy{};
 
-	std::invoke(make_path_finder<node_t<int>>(predicate, std::back_inserter(dummy)), node_t{ .vertex = 42 });
+	std::invoke(make_path_finder<node_t<int>>(predicate, std::back_inserter(dummy)), node_t<int>{ .vertex = 42 });
 	REQUIRE(invoke_counter == 1);
 }
