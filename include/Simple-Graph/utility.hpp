@@ -387,6 +387,12 @@ namespace sl::graph
 								{ take_next(container) } -> std::convertible_to<TNode>;
 							};
 
+	/**
+	 * \brief Invokable type which compares the vertex of a node with a cached vertex.
+	 * \tparam TVertex The vertex type.
+	 * \tparam TCompare The comparison type.
+	 * \details The sole purpose of this type is to be used as a callback object for all algorithms.
+	 */
 	template <vertex_descriptor TVertex, class TCompare = std::equal_to<>>
 	struct vertex_destination_t
 	{
@@ -396,6 +402,11 @@ namespace sl::graph
 		vertex_t destination{};
 		compare_t compare{};
 
+		/**
+		 * \brief Invokes the comparison function with both, the cached and the nodes' vertices.
+		 * \param node The node object.
+		 * \return Returns true if comparison yields true.
+		 */
 		constexpr bool operator ()(const auto& node)
 			requires requires
 			{
