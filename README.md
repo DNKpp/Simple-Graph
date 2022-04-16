@@ -88,7 +88,7 @@ The ``heuristic`` is an invocable object, which should return the estimated cost
 
 For the technical requirements have a look at: ``sl::graph::astar::compatible_heuristic_for`` concept.
 
-## Tested Compilers:
+## Tested Compilers
 *   msvc v142 (Visual Studio 2017)
 *   msvc v143 (Visual Studio 2022)
 *   gcc10
