@@ -10,20 +10,6 @@
 
 #include "Simple-Graph/common.hpp"
 
-namespace sl::graph::detail
-{
-	template <class T>
-	struct try_extract_weight_type
-	{ };
-
-	template <class T>
-		requires requires { typename T::weight_type; }
-	struct try_extract_weight_type<T>
-	{
-		using weight_type = typename T::weight_type;
-	};
-}
-
 namespace sl::graph
 {
 	template <class T>
