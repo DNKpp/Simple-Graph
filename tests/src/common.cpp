@@ -99,7 +99,7 @@ TEMPLATE_TEST_CASE(
 }
 
 TEMPLATE_TEST_CASE(
-	"vertex concept is not satisfied.",
+	"weight concept is not satisfied.",
 	"[concept]",
 	const int,	// not decayed
 	int&,		// not decayed
