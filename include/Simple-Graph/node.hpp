@@ -70,11 +70,13 @@ namespace sl::graph
 
 	template <concepts::vertex TVertex, concepts::weight TWeight>
 	struct weighted_node
-		: node<TVertex>
 	{
 		using weight_type = TWeight;
+		using vertex_type = TVertex;
 
+		TVertex vertex{};
 		TWeight accumulatedWeight{};
+		std::optional<TVertex> predecessor{};
 
 		[[nodiscard]]
 		bool operator ==(const weighted_node&) const = default;

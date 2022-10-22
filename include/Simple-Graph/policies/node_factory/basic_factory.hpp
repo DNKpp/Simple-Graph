@@ -56,7 +56,7 @@ namespace sl::graph::policies::node_factory
 			const TVertex& vertex
 		)
 		{
-			return {{vertex, std::nullopt}, {}};
+			return {vertex, {}, std::nullopt};
 		}
 
 		[[nodiscard]]
@@ -70,8 +70,9 @@ namespace sl::graph::policies::node_factory
 			assert(TWeight{} <= relWeight && "Weights between nodes must be positive.");
 
 			return {
-				{vertex, predecessor.vertex},
-				predecessor.accumulatedWeight + relWeight
+				vertex,
+				predecessor.accumulatedWeight + relWeight,
+				predecessor.vertex
 			};
 		}
 	};
