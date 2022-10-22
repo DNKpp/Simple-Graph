@@ -6,4 +6,5 @@ target_sources(
 	"node.cpp"
 	"node_factory.cpp"
 	"open_list.cpp"
+	"visit_tracking.cpp"
 )
