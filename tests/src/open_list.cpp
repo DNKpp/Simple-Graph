@@ -33,7 +33,8 @@ TEMPLATE_TEST_CASE(
 	"Given types satisfy open_list_policy_for concept.",
 	"[open_list]",
 	policies::open_list::Queue<test_node>,
-	policies::open_list::PriorityQueue<test_node>
+	policies::open_list::PriorityQueue<test_node>,
+	policies::open_list::Stack<test_node>
 )
 {
 	STATIC_REQUIRE(concepts::open_list_policy_for<TestType, test_node>);
