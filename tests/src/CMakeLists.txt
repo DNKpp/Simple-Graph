@@ -3,4 +3,6 @@ target_sources(
 	PRIVATE
 	"common.cpp"
 	"graph.cpp"
+	"node.cpp"
+	"node_factory.cpp"
 )
