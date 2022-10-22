@@ -5,4 +5,5 @@ target_sources(
 	"graph.cpp"
 	"node.cpp"
 	"node_factory.cpp"
+	"open_list.cpp"
 )
