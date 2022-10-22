@@ -65,7 +65,7 @@ namespace sl::graph
 		std::optional<TVertex> predecessor{};
 
 		[[nodiscard]]
-		constexpr bool operator ==(const node&) const = default;
+		bool operator ==(const node&) const = default;
 	};
 
 	template <concepts::vertex TVertex, concepts::weight TWeight>
@@ -77,7 +77,7 @@ namespace sl::graph
 		TWeight accumulatedWeight{};
 
 		[[nodiscard]]
-		constexpr bool operator ==(const weighted_node&) const = default;
+		bool operator ==(const weighted_node&) const = default;
 	};
 
 	template <concepts::vertex TVertex, concepts::weight TWeight>
