@@ -56,7 +56,7 @@ TEST_CASE("basic_factory creates init node instances.", "[node_factory]")
 
 	policies::node_factory::basic_factory<test_node> factory{};
 
-	const test_node initNode = factory.make_init_node(test_graph{}, vertex);  // NOLINT(readability-static-accessed-through-instance)
+	const auto initNode = factory.make_init_node(test_graph{}, vertex);  // NOLINT(readability-static-accessed-through-instance)
 
 	REQUIRE(initNode.vertex == vertex);
 	REQUIRE(initNode.predecessor == std::nullopt);
@@ -70,7 +70,7 @@ TEST_CASE("basic_factory creates successor node instances.", "[node_factory]")
 
 	policies::node_factory::basic_factory<test_node> factory{};
 
-	const test_node successor = factory.make_successor_node(	// NOLINT(readability-static-accessed-through-instance)
+	const auto successor = factory.make_successor_node(	// NOLINT(readability-static-accessed-through-instance)
 		test_graph{},
 		predecessor,
 		successorVertex
@@ -87,7 +87,7 @@ TEST_CASE("basic_factory creates init weighted_node instances.", "[node_factory]
 	constexpr test_weighted_graph graph{{}, dummy_weight_map{1337}};
 	policies::node_factory::basic_factory<test_weighted_node> factory{};
 
-	const test_weighted_node initNode = factory.make_init_node(graph, vertex);  // NOLINT(readability-static-accessed-through-instance)
+	const auto initNode = factory.make_init_node(graph, vertex);  // NOLINT(readability-static-accessed-through-instance)
 
 	REQUIRE(initNode.vertex == vertex);
 	REQUIRE(initNode.accumulatedWeight == 0);
@@ -106,7 +106,7 @@ TEST_CASE("basic_factory creates successor weighted_node instances.", "[node_fac
 
 	policies::node_factory::basic_factory<test_weighted_node> factory{};
 
-	const test_weighted_node successor = factory.make_successor_node(	// NOLINT(readability-static-accessed-through-instance)
+	const auto successor = factory.make_successor_node(	// NOLINT(readability-static-accessed-through-instance)
 		graph,
 		predecessor,
 		successorVertex
