@@ -6,6 +6,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
+#include <array>
 #include <ranges>
 #include <string>
 
@@ -20,7 +21,7 @@ using test_weighted_node = weighted_node<std::string, int>;
 struct dummy_neighbor_map
 {
 	[[nodiscard]]
-	static std::ranges::empty_view<std::string> neighbors([[maybe_unused]] const std::string& v)
+	static std::array<std::string, 0> neighbors([[maybe_unused]] const std::string& v)
 	{
 		return {};
 	}

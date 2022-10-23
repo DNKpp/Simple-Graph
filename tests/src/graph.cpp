@@ -5,6 +5,7 @@
 
 #include <catch2/catch_template_test_macros.hpp>
 
+#include <array>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -16,9 +17,9 @@ using namespace sl::graph;
 template <class TVertex>
 struct templated_neighbor_map
 {
-	static auto neighbors([[maybe_unused]] const TVertex&)
+	static std::array<TVertex, 0> neighbors([[maybe_unused]] const TVertex&)
 	{
-		return std::ranges::empty_view<TVertex>{};
+		return {};
 	}
 };
 

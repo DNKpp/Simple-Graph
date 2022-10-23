@@ -72,7 +72,10 @@ TEST_CASE("PriorityQueue policy stores nodes and returns them ordered by weight.
 		{"3", 1, "1"}
 	};
 	const std::vector expectedNodes{
-		nodes[0], nodes[3], nodes[1], nodes[2]
+		nodes[0],
+		nodes[3],
+		nodes[1],
+		nodes[2]
 	};
 
 	auto queue = init_open_list<policies::open_list::PriorityQueue<test_node>>(nodes);
@@ -97,7 +100,8 @@ TEST_CASE("Stack policy stores nodes and returns them like a stack.", "[open_lis
 		{"4", 5, "3"},
 		{"3", 1, "1"}
 	};
-	const auto expectedNodes = nodes | std::views::reverse;
+	// workaround for std::views::reverse, due to clang
+	const std::vector expectedNodes(std::make_reverse_iterator(nodes.end()), std::make_reverse_iterator(nodes.begin()));
 
 	auto queue = init_open_list<policies::open_list::Stack<test_node>>(nodes);
 
