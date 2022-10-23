@@ -2,11 +2,17 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 include(CTest)
 
-CPMAddPackage("gh:catchorg/Catch2@3.0.0-preview4")
+CPMAddPackage("gh:catchorg/Catch2@3.1.1")
 CPMAddPackage("gh:DNKpp/Simple-Vector@1.3.0")
 
 add_executable(
 	${PROJECT_NAME}-Tests
+)
+
+target_include_directories(
+	${PROJECT_NAME}-Tests
+	PRIVATE
+	"${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 target_link_libraries(

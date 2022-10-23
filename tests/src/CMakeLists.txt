@@ -1,7 +1,12 @@
 target_sources(
 	${PROJECT_NAME}-Tests
 	PRIVATE
-	dynamic_cost_traverse.cpp
-	uniform_cost_traverse.cpp
-	utility.cpp
+	"common.cpp"
+	"graph.cpp"
+	"node.cpp"
+	"node_factory.cpp"
+	"open_list.cpp"
+	"range.cpp"
+	"searcher.cpp"
+	"visit_tracking.cpp"
 )
