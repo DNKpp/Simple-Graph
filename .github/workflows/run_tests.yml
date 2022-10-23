@@ -26,8 +26,6 @@ jobs:
             exe: g++-11
           - pkg: g++-10
             exe: g++-10
-          - pkg: clang-15
-            exe: clang++-15
           - pkg: clang-14
             exe: clang++-14
           - pkg: clang-13
