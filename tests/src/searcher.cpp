@@ -43,14 +43,14 @@ struct single_element_open_list
 		return element.has_value();
 	}
 };
+
 static_assert(concepts::open_list_policy_for<single_element_open_list<test_node>, test_node>);
 
 template <class T>
 struct empty_open_list
 {
 	static void enqueue(T n)
-	{
-	}
+	{ }
 
 	[[nodiscard]]
 	static T take_next()
@@ -65,6 +65,7 @@ struct empty_open_list
 		return false;
 	}
 };
+
 static_assert(concepts::open_list_policy_for<empty_open_list<test_node>, test_node>);
 
 template <class TVertex>
@@ -87,16 +88,16 @@ TEST_CASE("make_searcher creates correct searcher object for basic node types.",
 {
 	using searcher = decltype(make_searcher<single_element_algorithm_def>(std::declval<IntRangeGraph>(), {}));
 
-	STATIC_REQUIRE(std::same_as<searcher::vertex_type, int>);
-	STATIC_REQUIRE(std::same_as<searcher::node_type, node<int>>);
+	STATIC_REQUIRE(std::same_as<typename searcher::vertex_type, int>);
+	STATIC_REQUIRE(std::same_as<typename searcher::node_type, node<int>>);
 }
 
 TEST_CASE("make_searcher creates correct searcher object for weighted node types.", "[searcher]")
 {
 	using searcher = decltype(make_searcher<single_element_weighted_algorithm_def>(std::declval<IntRangeWeightedGraph>(), {}));
 
-	STATIC_REQUIRE(std::same_as<searcher::vertex_type, int>);
-	STATIC_REQUIRE(std::same_as<searcher::node_type, weighted_node<int, int>>);
+	STATIC_REQUIRE(std::same_as<typename searcher::vertex_type, int>);
+	STATIC_REQUIRE(std::same_as<typename searcher::node_type, weighted_node<int, int>>);
 }
 
 TEST_CASE("searcher traverses graph and keeps algorithm state.", "[searcher]")
