@@ -11,6 +11,7 @@
 #include "Simple-Graph/policies/visit_tracking/common.hpp"
 
 #include <map>
+#include <utility>
 
 namespace sl::graph::policies::visit_tracking
 {
