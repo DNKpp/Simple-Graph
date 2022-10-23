@@ -107,7 +107,7 @@ namespace sl::graph
 {
 	template <template <concepts::vertex> class TAlgorithmDef, concepts::graph TGraph>
 	[[nodiscard]]
-	detail::searcher_type<TAlgorithmDef<graph_vertex_type<TGraph>>, TGraph> make_searcher(
+	constexpr detail::searcher_type<TAlgorithmDef<graph_vertex_type<TGraph>>, TGraph> make_searcher(
 		const TGraph& graph,
 		const graph_vertex_type<TGraph>& begin
 	)
@@ -117,7 +117,7 @@ namespace sl::graph
 
 	template <template <concepts::vertex, concepts::weight> class TAlgorithmDef, concepts::weighted_graph TGraph>
 	[[nodiscard]]
-	detail::searcher_type<TAlgorithmDef<graph_vertex_type<TGraph>, graph_weight_type<TGraph>>, TGraph> make_searcher(
+	constexpr detail::searcher_type<TAlgorithmDef<graph_vertex_type<TGraph>, graph_weight_type<TGraph>>, TGraph> make_searcher(
 		const TGraph& graph,
 		const graph_vertex_type<TGraph>& begin
 	)
