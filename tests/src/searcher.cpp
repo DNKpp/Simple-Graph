@@ -88,16 +88,16 @@ TEST_CASE("make_searcher creates correct searcher object for basic node types.",
 {
 	using searcher = decltype(make_searcher<single_element_algorithm_def>(std::declval<IntRangeGraph>(), {}));
 
-	STATIC_REQUIRE(std::same_as<typename searcher::vertex_type, int>);
-	STATIC_REQUIRE(std::same_as<typename searcher::node_type, node<int>>);
+	REQUIRE(std::same_as<searcher::vertex_type, int>);
+	REQUIRE(std::same_as<searcher::node_type, node<int>>);
 }
 
 TEST_CASE("make_searcher creates correct searcher object for weighted node types.", "[searcher]")
 {
 	using searcher = decltype(make_searcher<single_element_weighted_algorithm_def>(std::declval<IntRangeWeightedGraph>(), {}));
 
-	STATIC_REQUIRE(std::same_as<typename searcher::vertex_type, int>);
-	STATIC_REQUIRE(std::same_as<typename searcher::node_type, weighted_node<int, int>>);
+	REQUIRE(std::same_as<searcher::vertex_type, int>);
+	REQUIRE(std::same_as<searcher::node_type, weighted_node<int, int>>);
 }
 
 TEST_CASE("searcher traverses graph and keeps algorithm state.", "[searcher]")
