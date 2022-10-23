@@ -26,7 +26,7 @@ TEMPLATE_TEST_CASE(
 
 TEST_CASE("Map policy tracks visitation state of vertices.", "[visit_tracking]")
 {
-	const test_vertex vertex = "1337";
+	const test_vertex vertex{"1337"};
 
 	policies::visit_tracking::Map<test_vertex> map{};
 
