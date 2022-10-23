@@ -22,7 +22,7 @@ namespace sl::graph
 		concepts::visit_track_policy_for<node_vertex_type<TNode>> TVisitTrackPolicy
 	>
 		requires (concepts::weighted_graph<TGraph> || !concepts::weighted_node<TNode>)
-	class Searcher
+	class Searcher final
 		: private TNodeFactoryPolicy,
 		private TOpenListPolicy,
 		private TVisitTrackPolicy
