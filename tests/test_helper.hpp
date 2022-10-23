@@ -7,6 +7,9 @@
 #define SIMPLE_GRAPH_TESTS_TEST_HELPER_HPP
 
 #include "Simple-Graph/graph.hpp"
+#include "Simple-Graph/policies/open_list/common.hpp"
+
+#include <vector>
 
 class IntRangeNeighborMap
 {
@@ -48,5 +51,55 @@ public:
 
 using IntRangeGraph = sl::graph::graph<int, IntRangeNeighborMap>;
 using IntRangeWeightedGraph = sl::graph::weighted_graph<int, int, IntRangeNeighborMap, IntWeightMap>;
+
+template <class T>
+struct single_element_open_list
+{
+	std::optional<T> element{};
+
+	void enqueue(T n)
+	{
+		element = std::move(n);
+	}
+
+	[[nodiscard]]
+	T take_next()
+	{
+		auto n = std::move(*element);
+		element.reset();
+
+		return n;
+	}
+
+	[[nodiscard]]
+	bool has_pending() const
+	{
+		return element.has_value();
+	}
+};
+
+static_assert(sl::graph::concepts::open_list_policy_for<single_element_open_list<sl::graph::node<int>>, sl::graph::node<int>>);
+
+template <class T>
+struct empty_open_list
+{
+	static void enqueue(T n)
+	{ }
+
+	[[nodiscard]]
+	static T take_next()
+	{
+		assert(false && "Should never be called.");
+		return {};
+	}
+
+	[[nodiscard]]
+	static bool has_pending()
+	{
+		return false;
+	}
+};
+
+static_assert(sl::graph::concepts::open_list_policy_for<empty_open_list<sl::graph::node<int>>, sl::graph::node<int>>);
 
 #endif

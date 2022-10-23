@@ -18,56 +18,6 @@ using namespace sl::graph;
 using test_vertex = int;
 using test_node = node<test_vertex>;
 
-template <class T>
-struct single_element_open_list
-{
-	std::optional<T> element{};
-
-	void enqueue(T n)
-	{
-		element = std::move(n);
-	}
-
-	[[nodiscard]]
-	T take_next()
-	{
-		auto n = std::move(*element);
-		element.reset();
-
-		return n;
-	}
-
-	[[nodiscard]]
-	bool has_pending() const
-	{
-		return element.has_value();
-	}
-};
-
-static_assert(concepts::open_list_policy_for<single_element_open_list<test_node>, test_node>);
-
-template <class T>
-struct empty_open_list
-{
-	static void enqueue(T n)
-	{ }
-
-	[[nodiscard]]
-	static T take_next()
-	{
-		assert(false && "Should never be called.");
-		return {};
-	}
-
-	[[nodiscard]]
-	static bool has_pending()
-	{
-		return false;
-	}
-};
-
-static_assert(concepts::open_list_policy_for<empty_open_list<test_node>, test_node>);
-
 template <class TVertex>
 using single_element_algorithm_def = traverse_algorithm<
 	node<TVertex>,
