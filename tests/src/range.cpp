@@ -53,7 +53,16 @@ TEST_CASE("make_range creates correct range object for basic node types.", "[ran
 
 TEST_CASE("make_range creates correct range object for weighted node types.", "[range]")
 {
+	// I actually have no idea, why gcc below 11.2 has an issue with the general approach.
+#if ((__GNUC__ > 0 && __GNUC__ < 11) || \
+	(__GNUC__ == 11 && __GNUC_MINOR__ < 2))
+	using searcher = Range<
+			single_element_weighted_algorithm_def<graph_vertex_type<IntRangeWeightedGraph>, graph_weight_type<IntRangeWeightedGraph>>,
+			IntRangeWeightedGraph
+	>;
+#else
 	using searcher = decltype(make_range<single_element_weighted_algorithm_def>(std::declval<IntRangeWeightedGraph>(), {}));
+#endif
 
 	STATIC_REQUIRE(std::same_as<searcher::vertex_type, int>);
 	STATIC_REQUIRE(std::same_as<searcher::node_type, weighted_node<int, int>>);
